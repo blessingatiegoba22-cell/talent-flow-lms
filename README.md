@@ -29,7 +29,7 @@ The frontend for this project is planned around **Next.js 16.2.1**, which is the
 ### Frontend Direction
 
 - Framework: `Next.js 16.2.1`
-- Purpose: build the main user-facing web application
+- Purpose: build the main user-interfacing web application
 - Location: `Frontend/`
 
 ### Frontend Tooling
