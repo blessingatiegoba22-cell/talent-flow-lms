@@ -1,8 +1,6 @@
-export default function LandingPage(){
+import LandingPage from "@/component/landingPage"
+export default function Page(){
     return (
-        <div>
-            <h1>Welcome to talent-flow-lms</h1> 
-            <p>This page is under develpmet</p>
-        </div>
+        <LandingPage/>
     )
 }
