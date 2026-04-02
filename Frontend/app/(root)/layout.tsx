@@ -1,3 +1,4 @@
+// this file might not be neccessarily needed anymore now that we have 3 different dashboards
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
