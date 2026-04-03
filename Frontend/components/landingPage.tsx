@@ -14,10 +14,8 @@ export default function LandingPage() {
           <Link href="#">Contact</Link>
         </ul>
         <div className="flex flex-row justify-between gap-x-8">
-          <button className="bg-[#1F53C4] p-4 rounded-xl w-[187px]">
-            Login
-          </button>
-          <button className="border-4 border-[#FFFFFF] bg-transparent p-4 rounded-xl w-[187px]">
+          <button className="bg-[#1F53C4] p-4 rounded-xl w-46.75">Login</button>
+          <button className="border-4 border-[#FFFFFF] bg-transparent p-4 rounded-xl w-46.75">
             Sign Up
           </button>
         </div>
