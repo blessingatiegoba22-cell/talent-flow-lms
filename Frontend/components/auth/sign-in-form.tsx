@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { useRouter } from "next/navigation" 
-import { useAuthStore } from "../../lib/store/useAuthStore" 
+import { useAuthStore } from "../../store/useAuthStore" 
 
 export default function SignInForm() {
   const router = useRouter()
