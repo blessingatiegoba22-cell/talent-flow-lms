@@ -10,11 +10,11 @@ export default function Landingpage() {
     <div className="flex w-full min-h-screen flex-col">
       
     
-      <nav className="flex flex-row justify-between bg-[#07142F] p-8 text-[#FFFFFF] gap-x-24 items-center">
+      <nav className="flex flex-row justify-between bg-[#07142F] p-4 text-[#FFFFFF] gap-x-24 items-center h-[60]">
         <span>
-          <Image src="/logo.png" alt="logo" width={100} height={100} />
+          <Image src="/logo.png" alt="logo" width={235} height={60} />
         </span>
-        <ul className="flex flex-row justify-between gap-x-8 items-center">
+        <ul className="flex flex-row justify-between gap-x-8 items-center text-[14px] leading-[21px]">
           <Link href="#">Home</Link>
           <Link href="#">About</Link>
           <Link href="#">Features</Link>
@@ -31,9 +31,9 @@ export default function Landingpage() {
 
       {/* Main Hero Section */}
       {/* Use flex-1 so this section fills the remaining space after the nav */}
-      <div className="w-full flex-1 bg-[#133276] flex flex-row items-center justify-between text-white">
-        <div className="p-8 w-1/2 flex flex-col gap-y-8"> 
-          <h1 className="font-bold text-5xl leading-tight">
+      <div className="w-full flex-1 bg-[#133276] flex flex-row items-center justify-evenly text-white m-auto">
+        <div className="p-6 w-1/3 flex flex-col gap-y-8 "> 
+          <h1 className="font-bold text-[32px] leading-[48px]">
             Unlock Your Potential, One Skill at a Time
           </h1>
           <p className="font-light text-lg opacity-80 max-w-md">
@@ -53,7 +53,7 @@ export default function Landingpage() {
   </div>
             <span className="mx-8">Trusted by 50,000+ learners worldwide</span>
           </div>
-          <div className="gap-x-16 flex">
+          <div className="gap-x-8 flex">
 <div className="flex gap-x-8">
             <div></div>
             <div>
@@ -79,12 +79,12 @@ export default function Landingpage() {
           
         </div>
 
-        <div className="p-8 w-1/2 flex justify-center">
+        <div className="p-8 w-1/2 flex justify-center ">
           <Image
             src="/heroImage.png"
             alt="hero image"
-            width={550}
-            height={550}
+            width={606}
+            height={619}
             className="object-contain"
           />
         </div>
