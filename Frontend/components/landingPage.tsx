@@ -1,8 +1,8 @@
 import Link from "next/link";
 import Image from "next/image";
-import Primarybutton from "@components/shareable/PrimaryButton";
-import Secondarybutton from "@components/shareable/SecondaryButton";
-import Avatar from "@components/shareable/Avartar";
+import Primarybutton from "./shareable/PrimaryButton";
+import Secondarybutton from "./shareable/SecondaryButton";
+import Avatar from "./shareable/Avartar";
 
 export default function Landingpage() {
   return (
