@@ -1,60 +1,31 @@
-import React from 'react';
-import Image from 'next/image';
-import { ChevronRight } from 'lucide-react';
-import { CONTINUE_LEARNING, ENROLLED_COURSES } from '@/constants/dashboard';
-import CourseCard from '@/components/shared/cards/CourseCard';
-import EnrolledCourseItem from '@/components/shared/tiles/EnrolledCourseItem';
-import ProgressOverview from '@/components/shared/cards/ProgressOverview';
-import QuickActions from '@/components/shared/cards/QuickActions';
+import { UserRole } from '@/types/user';
+import StudentDashboard from '@/components/shared/screens/StudentDashboard';
+import TutorDashboard from '@/components/shared/screens/TutorDashboard';
+import AdminDashboard from '@/components/shared/screens/AdminDashoard';
 
 const DashboardPage = () => {
-  return (
-    <div className="max-w-7xl mx-auto p-6 lg:p-10 bg-background min-h-screen">
-      <header className="mb-10">
-        <h1 className="text-display-xs font-bold text-foreground">Welcome back, Samuel!</h1>
-        <p className="text-ink-500 mt-2">Ready to continue your learning journey? Lets keep the momentum going.</p>
-      </header>
+  const userRole = 'ADMIN' as UserRole; 
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
-        <div className="lg:col-span-2 space-y-12">
-          
-          <section>
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-bold text-foreground">Continue Learning</h2>
-              <button className="text-primary text-sm font-medium flex items-center gap-1 hover:underline hover:cursor-pointer">
-                View All My Courses <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {CONTINUE_LEARNING.map((course) => (
-                <CourseCard key={course.id} course={course} />
-              ))}
-            </div>
-          </section>
-
-          <section>
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-bold text-foreground">Enrolled Courses</h2>
-              <button className="text-primary text-sm font-medium flex items-center gap-1 hover:underline hover:cursor-pointer">
-                Browse Catalog <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-            <div className="space-y-4">
-              {ENROLLED_COURSES.map((course) => (
-                <EnrolledCourseItem key={course.id} course={course} />
-              ))}
-            </div>
-          </section>
+  switch (userRole) {
+    case 'STUDENT':
+      return <StudentDashboard />;
+    
+    case 'TUTOR':
+      return <TutorDashboard />;
+    
+    case 'ADMIN':
+      return <AdminDashboard />;
+    
+    default:
+      return (
+        <div className="flex items-center justify-center min-h-screen bg-background">
+          <div className="text-center p-10 bg-card rounded-2xl border border-border shadow-sm">
+            <h2 className="text-xl font-bold text-foreground">You're not authorized to view this page</h2>
+            <p className="text-ink-200 mt-2">Please contact the system administrator.</p>
+          </div>
         </div>
-
-        <div className="space-y-8">
-          <ProgressOverview />
-          <QuickActions />
-        </div>
-      </div>
-    </div>
-  );
+      );
+  }
 };
 
 export default DashboardPage;

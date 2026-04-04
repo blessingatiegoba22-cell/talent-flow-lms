@@ -50,3 +50,25 @@ export const ENROLLED_COURSES = [
     duration: "",
   },
 ];
+
+
+export const ADMIN_STATS = [
+  { 
+    label: 'Total users', 
+    value: '2,340', 
+    change: '+120', 
+    period: 'This month' 
+  },
+  { 
+    label: 'Total Courses', 
+    value: '120', 
+    change: '+8', 
+    period: 'This week' 
+  },
+  { 
+    label: 'Active users', 
+    value: '1,120', 
+    change: '+95', 
+    period: 'Right now' 
+  },
+];
