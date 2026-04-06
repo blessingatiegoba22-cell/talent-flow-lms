@@ -1,0 +1,492 @@
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
+from typing import List
+from app.database import get_db
+from app.models.admin import Admin, AdminRole, Course, CourseStatus, Program, ProgramStatus
+from app.schemas.admin import LoginRequest, LoginResponse, AdminOut, UserCreate, UserUpdate, UserOut, CourseCreate, CourseUpdate, CourseOut, ProgramCreate, ProgramUpdate, ProgramOut, ReportOut, APIResponse
+from core.security import verify_password, create_access_token, get_current_admin, hash_password
+
+from datetime import datetime
+import uuid
+
+router = APIRouter(prefix="/admin", tags=["Admin"])
+
+
+# AUTH
+
+@router.post("/login", response_model=LoginResponse)
+def admin_login(credentials: LoginRequest, db: Session = Depends(get_db)):
+    """Admin login - returns JWT token"""
+    admin = db.query(Admin).filter(Admin.email == credentials.email).first()
+
+    if not admin or not verify_password(credentials.password, admin.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid email or password"
+        )
+    if admin.role != AdminRole.admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access restricted to admins only"
+        )
+    if not admin.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Account is inactive"
+        )
+
+    token = create_access_token(data={"sub": admin.email, "role": admin.role})
+    return LoginResponse(access_token=token, admin=AdminOut.model_validate(admin))
+
+
+@router.get("/me", response_model=AdminOut)
+def get_admin_profile(
+    current_admin: Admin = Depends(get_current_admin) 
+):
+    """Get currently logged in admin profile"""
+    return AdminOut.model_validate(current_admin)
+
+
+# USER MANAGEMENT
+
+
+@router.post("/users", response_model=UserOut, status_code=status.HTTP_201_CREATED)
+def create_user(
+    data: UserCreate,
+    db: Session = Depends(get_db),
+    current_admin: Admin = Depends(get_current_admin)
+):
+    """Admin creates a new instructor or learner"""
+    existing = db.query(Admin).filter(Admin.email == data.email).first()
+    if existing:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email already registered"
+        )
+
+    role_prefix = {
+        "instructor": "TF-INST",
+        "learner": "TF-LRN",
+        "admin": "TF-ADMIN"
+    }
+
+    prefix = role_prefix.get(data.role, "TF-USR")
+    identifier = f"{prefix}-{str(uuid.uuid4())[:8].upper()}"
+
+    user = Admin(
+        id=str(uuid.uuid4()),
+        identifier=identifier,
+        full_name=data.full_name,
+        email=data.email,
+        hashed_password=hash_password(data.password),
+        role=data.role,
+        is_active=True
+    )
+
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return UserOut.model_validate(user)
+
+
+@router.get("/users", response_model=List[UserOut])
+def get_all_users(
+    db: Session = Depends(get_db),
+    current_admin: Admin = Depends(get_current_admin)
+):
+    """Admin gets all users"""
+    users = db.query(Admin).filter(
+        Admin.deleted_at == None,
+        Admin.role != AdminRole.admin
+    ).all()
+    return [UserOut.model_validate(u) for u in users]
+
+
+@router.get("/users/{user_id}", response_model=UserOut)
+def get_user(
+    user_id: str,
+    db: Session = Depends(get_db),
+    current_admin: Admin = Depends(get_current_admin)
+):
+    """Admin gets a single user by ID"""
+    user = db.query(Admin).filter(
+        Admin.id == user_id,
+        Admin.deleted_at == None
+    ).first()
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    return UserOut.model_validate(user)
+
+
+@router.put("/users/{user_id}", response_model=UserOut)
+def update_user(
+    user_id: str,
+    data: UserUpdate,
+    db: Session = Depends(get_db),
+    current_admin: Admin = Depends(get_current_admin)
+):
+    """Admin updates a user"""
+    user = db.query(Admin).filter(
+        Admin.id == user_id,
+        Admin.deleted_at == None
+    ).first()
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+
+    if data.full_name is not None:
+        user.full_name = data.full_name
+    if data.email is not None:
+        user.email = data.email
+    if data.role is not None:
+        user.role = data.role
+    if data.is_active is not None:
+        user.is_active = data.is_active
+
+    db.commit()
+    db.refresh(user)
+    return UserOut.model_validate(user)
+
+
+@router.delete("/users/{user_id}", response_model=APIResponse)
+def delete_user(
+    user_id: str,
+    db: Session = Depends(get_db),
+    current_admin: Admin = Depends(get_current_admin)
+):
+    """Admin soft deletes a user"""
+    user = db.query(Admin).filter(
+        Admin.id == user_id,
+        Admin.deleted_at == None
+    ).first()
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+
+    user.deleted_at = datetime.utcnow()
+    user.is_active = False
+    db.commit()
+
+    return APIResponse(
+        success=True,
+        message=f"User {user.full_name} deleted successfully"
+    )
+
+
+
+# MANAGEMENT
+
+
+@router.post("/programs", response_model=ProgramOut, status_code=status.HTTP_201_CREATED)
+def create_program(
+    data: ProgramCreate,
+    db: Session = Depends(get_db),
+    current_admin: Admin = Depends(get_current_admin)
+):
+    """Admin creates a learning program"""
+    identifier = f"TF-PROG-{str(uuid.uuid4())[:8].upper()}"
+
+    program = Program(
+        id=str(uuid.uuid4()),
+        identifier=identifier,
+        title=data.title,
+        description=data.description,
+        status=ProgramStatus.active,
+        created_by=current_admin.id
+    )
+
+    db.add(program)
+    db.commit()
+    db.refresh(program)
+    return ProgramOut.model_validate(program)
+
+
+@router.get("/programs", response_model=List[ProgramOut])
+def get_all_programs(
+    db: Session = Depends(get_db),
+    current_admin: Admin = Depends(get_current_admin)
+):
+    """Admin gets all learning programs"""
+    programs = db.query(Program).filter(
+        Program.deleted_at == None
+    ).all()
+    return [ProgramOut.model_validate(p) for p in programs]
+
+
+@router.get("/programs/{program_id}", response_model=ProgramOut)
+def get_program(
+    program_id: str,
+    db: Session = Depends(get_db),
+    current_admin: Admin = Depends(get_current_admin)
+):
+    """Admin gets a single program"""
+    program = db.query(Program).filter(
+        Program.id == program_id,
+        Program.deleted_at == None
+    ).first()
+
+    if not program:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Program not found"
+        )
+    return ProgramOut.model_validate(program)
+
+
+@router.put("/programs/{program_id}", response_model=ProgramOut)
+def update_program(
+    program_id: str,
+    data: ProgramUpdate,
+    db: Session = Depends(get_db),
+    current_admin: Admin = Depends(get_current_admin)
+):
+    """Admin updates a learning program"""
+    program = db.query(Program).filter(
+        Program.id == program_id,
+        Program.deleted_at == None
+    ).first()
+
+    if not program:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Program not found"
+        )
+
+    if data.title is not None:
+        program.title = data.title
+    if data.description is not None:
+        program.description = data.description
+    if data.status is not None:
+        program.status = data.status
+
+    db.commit()
+    db.refresh(program)
+    return ProgramOut.model_validate(program)
+
+
+@router.delete("/programs/{program_id}", response_model=APIResponse)
+def delete_program(
+    program_id: str,
+    db: Session = Depends(get_db),
+    current_admin: Admin = Depends(get_current_admin)
+):
+    """Admin soft deletes a program"""
+    program = db.query(Program).filter(
+        Program.id == program_id,
+        Program.deleted_at == None
+    ).first()
+
+    if not program:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Program not found"
+        )
+
+    program.deleted_at = datetime.utcnow()
+    db.commit()
+
+    return APIResponse(
+        success=True,
+        message=f"Program {program.title} deleted successfully"
+    )
+
+
+# ─────────────────────────────────────────
+# COURSE MANAGEMENT
+# ─────────────────────────────────────────
+
+@router.post("/courses", response_model=CourseOut, status_code=status.HTTP_201_CREATED)
+def create_course(
+    data: CourseCreate,
+    db: Session = Depends(get_db),
+    current_admin: Admin = Depends(get_current_admin)
+):
+    """Admin creates a course and optionally assigns it to a program"""
+
+    # Validate program exists if provided
+    if data.program_id:
+        program = db.query(Program).filter(
+            Program.id == data.program_id,
+            Program.deleted_at == None
+        ).first()
+        if not program:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Program not found"
+            )
+
+    identifier = f"TF-CRS-{str(uuid.uuid4())[:8].upper()}"
+
+    course = Course(
+        id=str(uuid.uuid4()),
+        identifier=identifier,
+        title=data.title,
+        description=data.description,
+        status=CourseStatus.draft,
+        program_id=data.program_id,
+        created_by=current_admin.id
+    )
+
+    db.add(course)
+    db.commit()
+    db.refresh(course)
+    return CourseOut.model_validate(course)
+
+
+@router.get("/courses", response_model=List[CourseOut])
+def get_all_courses(
+    db: Session = Depends(get_db),
+    current_admin: Admin = Depends(get_current_admin)
+):
+    """Admin gets all courses"""
+    courses = db.query(Course).filter(
+        Course.deleted_at == None
+    ).all()
+    return [CourseOut.model_validate(c) for c in courses]
+
+
+@router.get("/courses/{course_id}", response_model=CourseOut)
+def get_course(
+    course_id: str,
+    db: Session = Depends(get_db),
+    current_admin: Admin = Depends(get_current_admin)
+):
+    """Admin gets a single course"""
+    course = db.query(Course).filter(
+        Course.id == course_id,
+        Course.deleted_at == None
+    ).first()
+
+    if not course:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Course not found"
+        )
+    return CourseOut.model_validate(course)
+
+
+@router.put("/courses/{course_id}", response_model=CourseOut)
+def update_course(
+    course_id: str,
+    data: CourseUpdate,
+    db: Session = Depends(get_db),
+    current_admin: Admin = Depends(get_current_admin)
+):
+    """Admin updates a course"""
+    course = db.query(Course).filter(
+        Course.id == course_id,
+        Course.deleted_at == None
+    ).first()
+
+    if not course:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Course not found"
+        )
+
+    if data.title is not None:
+        course.title = data.title
+    if data.description is not None:
+        course.description = data.description
+    if data.status is not None:
+        course.status = data.status
+    if data.program_id is not None:
+        course.program_id = data.program_id
+
+    db.commit()
+    db.refresh(course)
+    return CourseOut.model_validate(course)
+
+
+@router.delete("/courses/{course_id}", response_model=APIResponse)
+def delete_course(
+    course_id: str,
+    db: Session = Depends(get_db),
+    current_admin: Admin = Depends(get_current_admin)
+):
+    """Admin soft deletes a course"""
+    course = db.query(Course).filter(
+        Course.id == course_id,
+        Course.deleted_at == None
+    ).first()
+
+    if not course:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Course not found"
+        )
+
+    course.deleted_at = datetime.utcnow()
+    db.commit()
+
+    return APIResponse(
+        success=True,
+        message=f"Course {course.title} deleted successfully"
+    )
+
+# REPORTS
+
+@router.get("/reports", response_model=ReportOut)
+def generate_report(
+    db: Session = Depends(get_db),
+    current_admin: Admin = Depends(get_current_admin)
+):
+    """Admin generates a full platform report"""
+    total_learners = db.query(Admin).filter(
+        Admin.role == AdminRole.learner,
+        Admin.deleted_at == None
+    ).count()
+
+    total_instructors = db.query(Admin).filter(
+        Admin.role == AdminRole.instructor,
+        Admin.deleted_at == None
+    ).count()
+
+    total_active_users = db.query(Admin).filter(
+        Admin.is_active == True,
+        Admin.deleted_at == None
+    ).count()
+
+    total_courses = db.query(Course).filter(
+        Course.deleted_at == None
+    ).count()
+
+    total_programs = db.query(Program).filter(
+        Program.deleted_at == None
+    ).count()
+
+    active_courses = db.query(Course).filter(
+        Course.status == CourseStatus.active,
+        Course.deleted_at == None
+    ).count()
+
+    inactive_courses = db.query(Course).filter(
+        Course.status == CourseStatus.inactive,
+        Course.deleted_at == None
+    ).count()
+
+    draft_courses = db.query(Course).filter(
+        Course.status == CourseStatus.draft,
+        Course.deleted_at == None
+    ).count()
+
+    return ReportOut(
+        total_learners=total_learners,
+        total_instructors=total_instructors,
+        total_active_users=total_active_users,
+        total_courses=total_courses,
+        total_programs=total_programs,
+        active_courses=active_courses,
+        inactive_courses=inactive_courses,
+        draft_courses=draft_courses
+    )

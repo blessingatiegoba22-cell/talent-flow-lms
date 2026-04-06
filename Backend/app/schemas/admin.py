@@ -1,0 +1,147 @@
+from pydantic import BaseModel, EmailStr
+from datetime import datetime
+from typing import Optional, List
+from enum import Enum
+
+
+class UserRole(str, Enum):
+    admin = "admin"
+    instructor = "instructor"
+    learner = "learner"
+
+
+class ProgramStatus(str, Enum):
+    active = "active"
+    inactive = "inactive"
+    completed = "completed"
+
+
+class CourseStatus(str, Enum):
+    draft = "draft"
+    active = "active"
+    inactive = "inactive"
+
+
+# --- Auth Schemas ---
+class LoginRequest(BaseModel):
+    email: EmailStr
+    password: str
+
+
+class AdminOut(BaseModel):
+    id: str
+    identifier: str
+    full_name: str
+    email: str
+    role: str
+    is_active: bool
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class LoginResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    admin: AdminOut
+
+
+# --- User Management Schemas ---
+class UserCreate(BaseModel):
+    full_name: str
+    email: EmailStr
+    password: str
+    role: UserRole
+
+
+class UserUpdate(BaseModel):
+    full_name: Optional[str] = None
+    email: Optional[EmailStr] = None
+    role: Optional[UserRole] = None
+    is_active: Optional[bool] = None
+
+
+class UserOut(BaseModel):
+    id: str
+    identifier: str
+    full_name: str
+    email: str
+    role: str
+    is_active: bool
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+# --- Program ---
+class ProgramCreate(BaseModel):
+    title: str
+    description: Optional[str] = None
+
+
+class ProgramUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    status: Optional[ProgramStatus] = None
+
+
+class ProgramOut(BaseModel):
+    id: str
+    identifier: str
+    title: str
+    description: Optional[str]
+    status: str
+    created_by: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+# --- Course ---
+class CourseCreate(BaseModel):
+    title: str
+    description: Optional[str] = None
+    program_id: Optional[str] = None
+
+
+class CourseUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    status: Optional[CourseStatus] = None
+    program_id: Optional[str] = None
+
+
+class CourseOut(BaseModel):
+    id: str
+    identifier: str
+    title: str
+    description: Optional[str]
+    status: str
+    program_id: Optional[str]
+    created_by: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+# --- Report ---
+class ReportOut(BaseModel):
+    total_learners: int
+    total_instructors: int
+    total_active_users: int
+    total_courses: int
+    total_programs: int
+    active_courses: int
+    inactive_courses: int
+    draft_courses: int
+
+
+# --- API Response ---
+class APIResponse(BaseModel):
+    success: bool
+    message: str
+    data: Optional[dict | list] = None
