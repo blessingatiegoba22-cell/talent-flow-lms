@@ -1,6 +1,19 @@
+import Sidebar from "@/components/shared/dashboard/sidebar";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import {
+  LayoutDashboard,
+  GraduationCap,
+  FileText,
 
+} from 'lucide-react'
+
+
+const learningNav = [
+  { name: 'Dashboard', icon: LayoutDashboard, href: '/student/dashboard' },
+  { name: 'My Learning', icon: GraduationCap, href: '/student/learning' },
+  { name: 'Assignments', icon: FileText, href: '/student/assignments' },
+]
 export const metadata: Metadata = {
   title: "Learner Dashboard",
   description: "Learner workspace for tracking courses and learning progress.",
@@ -13,7 +26,9 @@ type LearnerLayoutProps = Readonly<{
 export default function LearnerLayout({ children }: LearnerLayoutProps) {
   return (
     <div className="">
-      <aside className="">{/* learner sidebar / navigation goes here */}</aside>
+      <aside className="">
+       <Sidebar navItems={learningNav} />
+      </aside>
       <div className="">
         <header className="">{/* learner topbar goes here */}</header>
         <main className="">{children}</main>
