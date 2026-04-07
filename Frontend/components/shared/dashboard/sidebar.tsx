@@ -40,7 +40,10 @@ export default function Sidebar({ navItems }: SidebarProps) {
       </div>
 
       {open && (
-        <div className="fixed inset-0 bg-black/40 z-40 md:hidden" onClick={() => setOpen(false)} />
+        <div
+          className="fixed inset-0 bg-black/40 z-40 md:hidden"
+          onClick={() => setOpen(false)}
+        />
       )}
 
       <aside
@@ -69,7 +72,9 @@ export default function Sidebar({ navItems }: SidebarProps) {
                 className="object-contain"
               />
             </div>
-            <span className="text-xl md:text-2xl font-bold tracking-tight">TalentFlow</span>
+            <span className="text-xl md:text-2xl font-bold tracking-tight">
+              TalentFlow
+            </span>
           </div>
 
           <nav className="space-y-1">
@@ -91,7 +96,7 @@ export default function Sidebar({ navItems }: SidebarProps) {
           </div>
 
           <Button className="w-full">
-            <div className="flex items-center justify-center gap-3 px-6 py-3 bg-[#1F53C4] text-white rounded-lg w-full">
+            <div className="flex items-center justify-center gap-3 px-6 py-3  text-white rounded-lg w-full">
               <User size={20} />
               <span className="text-sm font-medium">Profile</span>
             </div>
