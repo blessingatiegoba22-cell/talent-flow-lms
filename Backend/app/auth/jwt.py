@@ -6,7 +6,7 @@ from datetime import timedelta, datetime
 
 SECRET_KEY = os.getenv('JWT_SECRET_KEY', 'dd876043d55eebc302f01b3deeb99d8e5c3dceaf92675427c11067963fdefc55')
 ALGORITHM = os.getenv('JWT_ALGORITHM', 'HS256')
-ACCESS_TOKEN_EXPIRATION_MINUTES = int(os.getenv('JWT_EXPIRATION_TIME', 5))
+ACCESS_TOKEN_EXPIRATION_MINUTES = int(os.getenv('ACCESS_TOKEN_EXPIRE_MINUTES', 30))
 
 
 

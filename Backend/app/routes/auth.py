@@ -34,7 +34,7 @@ def login(login_data: LoginRequest, db: Session = Depends(get_db)):
     
     # Verify password
     try:
-        if not bcrypt.checkpw(login_data.password.encode('utf-8'), user.password.encode('utf-8')):
+        if not bcrypt.checkpw(login_data.password.encode('utf-8'), user.hashed_password.encode('utf-8')):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid credentials"
@@ -50,8 +50,8 @@ def login(login_data: LoginRequest, db: Session = Depends(get_db)):
     token_data = {
         "sub": str(user.id),
         "email": user.email,
-        "role": user.role.value,
-        "name": user.name
+        "role": user.role,
+        "name": user.full_name
     }
     
     access_token = create_access_token(
