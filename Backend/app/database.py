@@ -1,8 +1,10 @@
 import os
+from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
-from models.base import Base
+from app.models.base import Base
 
+load_dotenv()
 
 DB_USER = os.getenv("DB_USER")
 DB_PORT = os.getenv("DB_PORT")

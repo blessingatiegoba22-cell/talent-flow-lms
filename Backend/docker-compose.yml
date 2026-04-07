@@ -1,4 +1,4 @@
-version: '3.9'
+# version: '3.9'
 
 services:
   talent_flow.api:
@@ -12,8 +12,15 @@ services:
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_DATABASE=${DB_DATABASE}
+      # added other environment variables here
+      - SECRET_KEY=${SECRET_KEY}
+      - ALGORITHM=${ALGORITHM}
+      - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES}
+      - FIRST_ADMIN_EMAIL=${FIRST_ADMIN_EMAIL}
+      - FIRST_ADMIN_PASSWORD=${FIRST_ADMIN_PASSWORD}
     volumes:
-      - ./app:/app
+      # - ./app:/app - this only mounts the app subfolder and misses other crucial files to run the project
+      - .:/app #this mounts the backend folder to the container
     depends_on:
       talent_flow_db:
         condition: service_healthy
