@@ -8,7 +8,7 @@ import os
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 from sqlalchemy.exc import OperationalError
-from routes import user, auth
+from routes import user, auth, course
 
 
 logging.basicConfig(level=logging.INFO)
@@ -44,6 +44,7 @@ def on_startup():
 
 app.include_router(user.router)
 app.include_router(auth.router)
+app.include_router(course.router)
 
 @app.get("/")
 def home():
