@@ -1,28 +1,22 @@
-from fastapi import FastAPI, status, HTTPException
-from fastapi.staticfiles import StaticFiles
-from database import engine
-from models.base import Base
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from app.database import engine
+from app.models.base import Base
 import logging
 import time
-import os
-from fastapi.middleware.cors import CORSMiddleware
-from starlette.middleware.sessions import SessionMiddleware
-from sqlalchemy.exc import OperationalError
-from routes import user, auth, course
-
+from app.routes import user, auth, course
+from app.routes.admin import router as admin_router
+from app.routes.mentor import router as mentor_router
+from app.routes.mentor_auth import router as mentor_auth_router
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-
-# Base.metadata.create_all(bind=engine)
-
 app = FastAPI(
-    title="PayIt App",
-    version="0.0.1",
-    description="market place..."
+    title="TalentFlow LMS",
+    version="1.0.0",
+    description="TalentFlow Learning Management System API"
 )
-
 
 def db_and_table_init():
     retries = 30
@@ -37,48 +31,31 @@ def db_and_table_init():
             logger.error(f"Error: {e}")
             time.sleep(3)
 
-
 @app.on_event("startup")
 def on_startup():
     db_and_table_init()
 
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Include routers
 app.include_router(user.router)
 app.include_router(auth.router)
 app.include_router(course.router)
-
-@app.get("/")
-def home():
-    return {
-        "status": "success",
-        "message": "Hello world"
-    }
-from fastapi import FastAPI
-from app.routes.admin import router as admin_router
-from app.database import engine
-from app.models.base import Base
-from app.models.admin import Admin, Course, Program
-
-# Creates all tables on startup if they don't exist
-Base.metadata.create_all(bind=engine)
-
-app = FastAPI(
-    title="TalentFlow LMS",
-    version="1.0.0",
-    description="TalentFlow Learning Management System API"
-)
-
-@app.get("/health")
-def health_check():
-    return {"status": "healthy"}
-
-# Admin routes
 app.include_router(admin_router)
-
-# add your routers here:
-# app.include_router(user_router)
-# app.include_router(mentor_router)
-
+app.include_router(mentor_router)
+app.include_router(mentor_auth_router)
 
 @app.get("/")
 def root():
     return {"message": "TalentFlow API is running 🚀"}
+
+@app.get("/health")
+def health_check():
+    return {"status": "healthy"}

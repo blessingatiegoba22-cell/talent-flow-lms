@@ -1,5 +1,5 @@
 from sqlalchemy import Integer, Column, String, DateTime, Enum
-from schemas.user import GenderEnum
+from app.schemas.user import GenderEnum
 from .enums import RoleEnum, Reputation
 from .base import Base
 from sqlalchemy.sql import func

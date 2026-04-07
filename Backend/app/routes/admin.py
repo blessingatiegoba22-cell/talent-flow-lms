@@ -4,8 +4,7 @@ from typing import List
 from app.database import get_db
 from app.models.admin import Admin, AdminRole, Course, CourseStatus, Program, ProgramStatus
 from app.schemas.admin import LoginRequest, LoginResponse, AdminOut, StaffCreate, UserUpdate, UserOut, CourseCreate, CourseUpdate, CourseOut, ProgramCreate, ProgramUpdate, ProgramOut, ReportOut, APIResponse
-from core.security import verify_password, create_access_token, get_current_admin, hash_password
-
+from app.auth.security import verify_password, create_access_token, get_current_admin, hash_password
 from datetime import datetime
 import uuid
 
@@ -130,6 +129,75 @@ def create_staff(
     db.commit()
     db.refresh(staff)
     return UserOut.model_validate(staff)
+
+
+@router.post("/mentors", response_model=dict, status_code=status.HTTP_201_CREATED)
+def create_mentor(
+    data: dict,
+    db: Session = Depends(get_db),
+    current_admin: Admin = Depends(get_current_admin)
+):
+    """Promote a user to mentor role - Admin only"""
+    try:
+        from app.models.user import User as UserModel
+        from app.models.mentor import Mentor
+        
+        # Get user by email (not ID)
+        if "email" not in data:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Email is required"
+            )
+        
+        user = db.query(UserModel).filter(UserModel.email == data["email"]).first()
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found"
+            )
+        
+        # Check if user is already a mentor
+        existing_mentor = db.query(Mentor).filter(Mentor.user_id == user.id).first()
+        if existing_mentor:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="User is already a mentor"
+            )
+        
+        # Create mentor profile
+        mentor = Mentor(
+            user_id=user.id,
+            bio=data.get("bio", ""),
+            expertise=data.get("expertise", ""),
+            experience_years=data.get("experience_years", 0),
+            rating=data.get("rating", 5)
+        )
+        
+        db.add(mentor)
+        
+        # Update user role to mentor
+        user.role = "mentor"
+        
+        db.commit()
+        db.refresh(mentor)
+        
+        return {
+            "message": "User promoted to mentor successfully",
+            "mentor_id": mentor.id,
+            "user_id": user.id,
+            "user_name": user.name,
+            "user_email": user.email,
+            "new_role": "mentor"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to create mentor"
+        )
 
 
 @router.get("/users", response_model=List[UserOut])

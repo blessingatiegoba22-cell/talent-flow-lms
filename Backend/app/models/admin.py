@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Boolean, DateTime, Enum as SAEnum, Text, ForeignKey
+from sqlalchemy import Column, String, Boolean, DateTime, Enum as SAEnum, Text, ForeignKey, Integer
 from sqlalchemy.dialects.mysql import CHAR
 from sqlalchemy.orm import relationship
 from app.models.base import Base
@@ -26,7 +26,7 @@ class CourseStatus(str, enum.Enum):
 
 
 class Admin(Base):
-    __tablename__ = "users"
+    __tablename__ = "admins"
 
     id = Column(CHAR(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     identifier = Column(String(50), unique=True, nullable=False)
@@ -50,7 +50,7 @@ class Program(Base):
     title = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
     status = Column(SAEnum(ProgramStatus), default=ProgramStatus.active, nullable=False)
-    created_by = Column(CHAR(36), ForeignKey("users.id"), nullable=False)
+    created_by = Column(CHAR(36), ForeignKey("admins.id"), nullable=False)
 
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -59,7 +59,7 @@ class Program(Base):
 
 class Course(Base):
     """Basic course model - will be extended by teammates"""
-    __tablename__ = "courses"
+    __tablename__ = "admin_courses"
 
     id = Column(CHAR(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     identifier = Column(String(50), unique=True, nullable=False)  # e.g TF-CRS-XXXXXX
@@ -67,7 +67,7 @@ class Course(Base):
     description = Column(Text, nullable=True)
     status = Column(SAEnum(CourseStatus), default=CourseStatus.draft, nullable=False)
     program_id = Column(CHAR(36), ForeignKey("programs.id"), nullable=True)
-    created_by = Column(CHAR(36), ForeignKey("users.id"), nullable=False)
+    created_by = Column(CHAR(36), ForeignKey("admins.id"), nullable=False)
 
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

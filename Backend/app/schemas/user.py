@@ -3,7 +3,7 @@ from pydantic import BaseModel, constr, EmailStr, validator, constr, Field, fiel
 from datetime import datetime
 from typing import Optional
 from enum import Enum
-from models.enums import RoleEnum
+from app.models.enums import RoleEnum
 
 
 class GenderEnum(str, Enum):

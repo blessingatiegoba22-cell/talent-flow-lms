@@ -6,23 +6,28 @@ from app.models.user import User as UserModel
 from app.auth.jwt import create_access_token
 from datetime import timedelta
 import bcrypt
+import logging
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(
-    prefix="/auth",
-    tags=["authentication"]
+    prefix="/mentor/auth",
+    tags=["mentor authentication"]
 )
 
-class LoginRequest(BaseModel):
+class MentorLoginRequest(BaseModel):
     email: str
     password: str
 
-class TokenResponse(BaseModel):
+class MentorTokenResponse(BaseModel):
     access_token: str
     token_type: str
     expires_in: int
+    mentor: dict
 
-@router.post("/login", response_model=TokenResponse)
-def login(login_data: LoginRequest, db: Session = Depends(get_db)):
+@router.post("/login", response_model=MentorTokenResponse)
+def mentor_login(login_data: MentorLoginRequest, db: Session = Depends(get_db)):
+    """Mentor login endpoint"""
     # Find user by email
     user = db.query(UserModel).filter(UserModel.email == login_data.email).first()
     
@@ -30,6 +35,13 @@ def login(login_data: LoginRequest, db: Session = Depends(get_db)):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid credentials"
+        )
+    
+    # Check if user is a mentor
+    if user.role != "mentor":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access restricted to mentors only"
         )
     
     # Verify password
@@ -62,5 +74,11 @@ def login(login_data: LoginRequest, db: Session = Depends(get_db)):
     return {
         "access_token": access_token,
         "token_type": "bearer",
-        "expires_in": 1800  # 30 minutes in seconds
+        "expires_in": 1800,  # 30 minutes in seconds
+        "mentor": {
+            "id": user.id,
+            "name": user.name,
+            "email": user.email,
+            "role": user.role
+        }
     }

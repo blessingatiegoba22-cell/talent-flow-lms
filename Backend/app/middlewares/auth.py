@@ -1,9 +1,9 @@
 from fastapi.security import HTTPAuthorizationCredentials,HTTPBearer
 from fastapi import Request,Depends,HTTPException,status
-from database import get_db
+from app.database import get_db
 from sqlalchemy.orm import Session
-from auth.jwt import verify_access_token
-from models.user import User
+from app.auth.jwt import verify_access_token
+from app.models.user import User
 import logging
 from datetime import datetime
 

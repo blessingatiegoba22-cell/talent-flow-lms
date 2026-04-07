@@ -2,13 +2,14 @@ from fastapi import APIRouter, HTTPException, status, Depends, Query
 from pydantic import BaseModel
 from datetime import datetime
 from typing import List, Optional
-from database import get_db
+from app.database import get_db
 from sqlalchemy.orm import Session, defer
 from sqlalchemy import func, and_, or_
-from schemas.course import CourseResponse, CourseEnrollmentResponse, UserCourseResponse, CourseCreate
-from models.course import Course, course_enrollments
-from models.user import User as UserModel
-from middlewares.auth import AuthMiddleware
+from app.schemas.course import CourseResponse, CourseEnrollmentResponse, UserCourseResponse, CourseCreate
+from app.models.course import Course, course_enrollments
+from app.models.user import User as UserModel
+from app.models.mentor import Mentor, MentorAssignment
+from app.middlewares.auth import AuthMiddleware
 import logging
 
 logger = logging.getLogger(__name__)
@@ -75,6 +76,58 @@ def get_courses(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to get courses"
+        )
+
+
+@router.post("/", response_model=dict, status_code=status.HTTP_201_CREATED)
+def create_course(
+    course_data: CourseCreate,
+    current_user = Depends(AuthMiddleware),
+    db: Session = Depends(get_db)
+):
+    """Create a new course - Admin only"""
+    # Check if user is admin
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only admins can create courses"
+        )
+    
+    try:
+        # Create new course
+        course = Course(
+            title=course_data.title,
+            description=course_data.description,
+            category=course_data.category,
+            level=course_data.level,
+            duration_hours=course_data.duration_hours,
+            instructor_id=current_user.id,
+            is_published=True  # Auto-publish for simplicity
+        )
+        
+        db.add(course)
+        db.commit()
+        db.refresh(course)
+        
+        return {
+            "id": course.id,
+            "title": course.title,
+            "description": course.description,
+            "category": course.category,
+            "level": course.level,
+            "duration_hours": course.duration_hours,
+            "instructor_id": course.instructor_id,
+            "is_published": course.is_published,
+            "created_at": course.created_at,
+            "updated_at": course.updated_at
+        }
+        
+    except Exception as e:
+        logger.error(f"Failed to create course: {e}")
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to create course"
         )
 
 
@@ -176,12 +229,29 @@ def enroll_in_course(
                 is_active=True
             )
         )
+        
+        # Assign a mentor to the student
+        mentor = db.query(Mentor).filter(Mentor.is_active == True).order_by(func.random()).first()
+        
+        if mentor:
+            mentor_assignment = MentorAssignment(
+                mentor_id=mentor.id,
+                user_id=current_user.id,
+                course_id=course_id,
+                notes=f"Auto-assigned mentor for course: {course.title}"
+            )
+            db.add(mentor_assignment)
+            logger.info(f"Assigned mentor {mentor.id} to user {current_user.id} for course {course_id}")
+        else:
+            logger.warning(f"No active mentors available for course {course_id}")
+        
         db.commit()
         
         return {
             "message": "Successfully enrolled in course",
             "course_id": course_id,
-            "user_id": current_user.id
+            "user_id": current_user.id,
+            "mentor_assigned": mentor.id if mentor else None
         }
         
     except HTTPException:
@@ -253,12 +323,12 @@ def get_my_enrollments(
 ):
     """Get current user's course enrollments"""
     try:
-        enrollments = db.query(Course, course_enrollments.c.progress, course_enrollments.c.enrolled_at, course_enrollments.c.completed_at, User.name.label('instructor_name')).join(
+        enrollments = db.query(Course, course_enrollments.c.progress, course_enrollments.c.enrolled_at, course_enrollments.c.completed_at, UserModel.name.label('instructor_name')).join(
             course_enrollments,
             Course.id == course_enrollments.c.course_id
         ).join(
-            User,
-            Course.instructor_id == User.id,
+            UserModel,
+            Course.instructor_id == UserModel.id,
             isouter=True
         ).filter(
             and_(
@@ -318,9 +388,9 @@ def get_course_students(
             )
         
         # Get all enrolled students
-        students = db.query(User, course_enrollments.c.progress, course_enrollments.c.enrolled_at, course_enrollments.c.completed_at).join(
+        students = db.query(UserModel, course_enrollments.c.progress, course_enrollments.c.enrolled_at, course_enrollments.c.completed_at).join(
             course_enrollments,
-            User.id == course_enrollments.c.user_id
+            UserModel.id == course_enrollments.c.user_id
         ).filter(
             and_(
                 course_enrollments.c.course_id == course_id,
