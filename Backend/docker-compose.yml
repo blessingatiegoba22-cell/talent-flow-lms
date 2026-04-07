@@ -12,6 +12,13 @@ services:
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_DATABASE=${DB_DATABASE}
+      - JWT_SECRET_KEY=${SECRET_KEY}
+      - JWT_EXPIRATION_TIME=${ACCESS_TOKEN_EXPIRE_MINUTES}
+      - JWT_ALGORITHM=${ALGORITHM}
+    volumes:
+      - ./.env:/app/.env
+    # volumes:
+    #   - ./app:/app
       # added other environment variables here
       - SECRET_KEY=${SECRET_KEY}
       - ALGORITHM=${ALGORITHM}

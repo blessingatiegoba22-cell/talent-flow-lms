@@ -56,5 +56,9 @@ venv/
 *.sqlite3
 
 
-# Local Codex file
+# Local AI / agent files
 .codex
+.codex/
+CLAUDE.md
+AGENTS.md
+x

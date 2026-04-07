@@ -1,0 +1,205 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: light;
+
+  /* Brand blue scale */
+  --brand-blue-50: #d3e0fb;
+  --brand-blue-100: #b6cbf8;
+  --brand-blue-200: #92b1f5;
+  --brand-blue-300: #6e97f2;
+  --brand-blue-400: #497dee;
+  --brand-blue-500: #2563eb;
+  --brand-blue-600: #1f53c4;
+  --brand-blue-700: #19429d;
+  --brand-blue-800: #133276;
+  --brand-blue-900: #0c214e;
+  --brand-blue-950: #07142f;
+
+  /* Brand purple scale */
+  --brand-purple-50: #d9d7f4;
+  --brand-purple-100: #c0bded;
+  --brand-purple-200: #a19ce5;
+  --brand-purple-300: #827adc;
+  --brand-purple-400: #6259d3;
+  --brand-purple-500: #4338ca;
+  --brand-purple-600: #382fa8;
+  --brand-purple-700: #2d2587;
+  --brand-purple-800: #221c65;
+  --brand-purple-900: #161343;
+  --brand-purple-950: #0d0b28;
+
+  /* Neutral surface scale */
+  --neutral-50: #fcfcfc;
+  --neutral-100: #fafafa;
+  --neutral-200: #f8f8f8;
+  --neutral-300: #f6f6f6;
+  --neutral-400: #f3f3f3;
+  --neutral-500: #f1f1f1;
+  --neutral-600: #c9c9c9;
+  --neutral-700: #a1a1a1;
+  --neutral-800: #797979;
+  --neutral-900: #505050;
+  --neutral-950: #303030;
+
+  /* Ink scale for text and dark surfaces */
+  --ink-50: #cccccc;
+  --ink-100: #aaaaaa;
+  --ink-200: #808080;
+  --ink-300: #565656;
+  --ink-400: #2b2b2b;
+  --ink-500: #010101;
+  --ink-600: #010101;
+  --ink-700: #010101;
+  --ink-800: #010101;
+  --ink-900: #000000;
+  --ink-950: #000000;
+
+  /* Semantic app tokens */
+  --background: var(--neutral-50);
+  --foreground: var(--ink-500);
+  --card: var(--neutral-50);
+  --card-foreground: var(--ink-500);
+  --popover: var(--neutral-50);
+  --popover-foreground: var(--ink-500);
+
+  --primary: var(--brand-blue-500);
+  --primary-foreground: var(--neutral-50);
+  --secondary: var(--brand-purple-500);
+  --secondary-foreground: var(--neutral-50);
+  --muted: var(--neutral-300);
+  --muted-foreground: var(--neutral-900);
+  --accent: var(--brand-purple-50);
+  --accent-foreground: var(--brand-purple-900);
+  --border: var(--neutral-600);
+  --input: var(--neutral-600);
+  --ring: var(--brand-blue-500);
+
+  /* Fallback destructive colors until a Figma error palette is provided */
+  --destructive: #dc2626;
+  --destructive-foreground: var(--neutral-50);
+}
+
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  --color-brand-blue: var(--brand-blue-500);
+  --color-brand-blue-50: var(--brand-blue-50);
+  --color-brand-blue-100: var(--brand-blue-100);
+  --color-brand-blue-200: var(--brand-blue-200);
+  --color-brand-blue-300: var(--brand-blue-300);
+  --color-brand-blue-400: var(--brand-blue-400);
+  --color-brand-blue-500: var(--brand-blue-500);
+  --color-brand-blue-600: var(--brand-blue-600);
+  --color-brand-blue-700: var(--brand-blue-700);
+  --color-brand-blue-800: var(--brand-blue-800);
+  --color-brand-blue-900: var(--brand-blue-900);
+  --color-brand-blue-950: var(--brand-blue-950);
+
+  --color-brand-purple: var(--brand-purple-500);
+  --color-brand-purple-50: var(--brand-purple-50);
+  --color-brand-purple-100: var(--brand-purple-100);
+  --color-brand-purple-200: var(--brand-purple-200);
+  --color-brand-purple-300: var(--brand-purple-300);
+  --color-brand-purple-400: var(--brand-purple-400);
+  --color-brand-purple-500: var(--brand-purple-500);
+  --color-brand-purple-600: var(--brand-purple-600);
+  --color-brand-purple-700: var(--brand-purple-700);
+  --color-brand-purple-800: var(--brand-purple-800);
+  --color-brand-purple-900: var(--brand-purple-900);
+  --color-brand-purple-950: var(--brand-purple-950);
+
+  --color-neutral: var(--neutral-500);
+  --color-neutral-50: var(--neutral-50);
+  --color-neutral-100: var(--neutral-100);
+  --color-neutral-200: var(--neutral-200);
+  --color-neutral-300: var(--neutral-300);
+  --color-neutral-400: var(--neutral-400);
+  --color-neutral-500: var(--neutral-500);
+  --color-neutral-600: var(--neutral-600);
+  --color-neutral-700: var(--neutral-700);
+  --color-neutral-800: var(--neutral-800);
+  --color-neutral-900: var(--neutral-900);
+  --color-neutral-950: var(--neutral-950);
+
+  --color-ink: var(--ink-500);
+  --color-ink-50: var(--ink-50);
+  --color-ink-100: var(--ink-100);
+  --color-ink-200: var(--ink-200);
+  --color-ink-300: var(--ink-300);
+  --color-ink-400: var(--ink-400);
+  --color-ink-500: var(--ink-500);
+  --color-ink-600: var(--ink-600);
+  --color-ink-700: var(--ink-700);
+  --color-ink-800: var(--ink-800);
+  --color-ink-900: var(--ink-900);
+  --color-ink-950: var(--ink-950);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  --text-display-2xl: 4.5rem;
+  --text-display-2xl--line-height: 5.5rem;
+  --text-display-2xl--letter-spacing: -0.02em;
+
+  --text-display-xl: 3.75rem;
+  --text-display-xl--line-height: 4.5rem;
+  --text-display-xl--letter-spacing: -0.02em;
+
+  --text-display-lg: 3rem;
+  --text-display-lg--line-height: 3.75rem;
+  --text-display-lg--letter-spacing: -0.02em;
+
+  --text-display-md: 2.25rem;
+  --text-display-md--line-height: 2.75rem;
+  --text-display-md--letter-spacing: -0.02em;
+
+  --text-display-sm: 1.875rem;
+  --text-display-sm--line-height: 2.25rem;
+
+  --text-display-xs: 1.5rem;
+  --text-display-xs--line-height: 2rem;
+
+  --text-xl: 1.25rem;
+  --text-xl--line-height: 1.875rem;
+
+  --text-lg: 1.125rem;
+  --text-lg--line-height: 1.75rem;
+
+  --text-md: 1rem;
+  --text-md--line-height: 1.5rem;
+
+  --text-base: 1rem;
+  --text-base--line-height: 1.5rem;
+
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.25rem;
+
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 1.125rem;
+}
+
+body {
+  min-height: 100vh;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), Helvetica, Arial, sans-serif;
+}
