@@ -1,31 +1,44 @@
-import { UserRole } from '@/types/user';
-import StudentDashboard from '@/components/shared/screens/StudentDashboard';
-import TutorDashboard from '@/components/shared/screens/TutorDashboard';
-import AdminDashboard from '@/components/shared/screens/AdminDashoard';
+import StatCard from "@/components/shared/cards/StatCard";
+import { ADMIN_STATS } from "@/constants/dashboard";
 
 const DashboardPage = () => {
-  const userRole = 'ADMIN' as UserRole; 
+  return (
+    <div className="max-w-7xl mx-auto p-6 lg:p-10 bg-background min-h-screen">
+      <header className="mb-10">
+        <h1 className="text-display-xs font-bold text-foreground">
+          Welcome back, Admin
+        </h1>
+        <p className="text-ink-300 mt-2 max-w-2xl">
+          Everything is running smoothly and under your control. Let's get
+          things moving and keep the system at its best today.
+        </p>
+      </header>
 
-  switch (userRole) {
-    case 'STUDENT':
-      return <StudentDashboard />;
-    
-    case 'TUTOR':
-      return <TutorDashboard />;
-    
-    case 'ADMIN':
-      return <AdminDashboard />;
-    
-    default:
-      return (
-        <div className="flex items-center justify-center min-h-screen bg-background">
-          <div className="text-center p-10 bg-card rounded-2xl border border-border shadow-sm">
-            <h2 className="text-xl font-bold text-foreground">You're not authorized to view this page</h2>
-            <p className="text-ink-200 mt-2">Please contact the system administrator.</p>
+      <section className="mb-12">
+        <h2 className="text-xl font-bold text-foreground mb-6">
+          Platform Overview
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {ADMIN_STATS.map((stat, index) => (
+            <StatCard key={index} {...stat} />
+          ))}
+        </div>
+      </section>
+
+      <section>
+        <h2 className="text-xl font-bold text-foreground mb-6">
+          System Metrics
+        </h2>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="bg-neutral-300 min-h-75 rounded-2xl border border-border animate-pulse" />
+
+          <div className="bg-neutral-100 min-h-75 rounded-2xl border border-border p-8">
+            <h3 className="text-ink-300 font-medium">Quick Action</h3>
           </div>
         </div>
-      );
-  }
+      </section>
+    </div>
+  );
 };
 
 export default DashboardPage;

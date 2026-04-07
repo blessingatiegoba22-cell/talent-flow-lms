@@ -12,6 +12,7 @@ const EnrolledCourseItem = ({ course }: { course: Course }) => {
             src={course.image}
             alt={course.title}
             fill
+            sizes="160px"
             className="object-cover"
           />
         )}
