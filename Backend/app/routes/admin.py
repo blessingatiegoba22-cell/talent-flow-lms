@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List
 from app.database import get_db
 from app.models.admin import Admin, AdminRole, Course, CourseStatus, Program, ProgramStatus
-from app.schemas.admin import LoginRequest, LoginResponse, AdminOut, UserCreate, UserUpdate, UserOut, CourseCreate, CourseUpdate, CourseOut, ProgramCreate, ProgramUpdate, ProgramOut, ReportOut, APIResponse
+from app.schemas.admin import LoginRequest, LoginResponse, AdminOut, StaffCreate, UserUpdate, UserOut, CourseCreate, CourseUpdate, CourseOut, ProgramCreate, ProgramUpdate, ProgramOut, ReportOut, APIResponse
 from core.security import verify_password, create_access_token, get_current_admin, hash_password
 
 from datetime import datetime
@@ -47,16 +47,60 @@ def get_admin_profile(
     return AdminOut.model_validate(current_admin)
 
 
-# USER MANAGEMENT
+# # USER MANAGEMENT
+# NOTE: Admin no longer creates learners
+# Learners self-register via POST /auth/register
 
+# @router.post("/users", response_model=UserOut, status_code=status.HTTP_201_CREATED)
+# def create_user(
+#     data: UserCreate,
+#     db: Session = Depends(get_db),
+#     current_admin: Admin = Depends(get_current_admin)
+# ):
+#     """Admin creates a new instructor or learner"""
+#     existing = db.query(Admin).filter(Admin.email == data.email).first()
+#     if existing:
+#         raise HTTPException(
+#             status_code=status.HTTP_400_BAD_REQUEST,
+#             detail="Email already registered"
+#         )
 
-@router.post("/users", response_model=UserOut, status_code=status.HTTP_201_CREATED)
-def create_user(
-    data: UserCreate,
+#     role_prefix = {
+#         "instructor": "TF-INST",
+#         "learner": "TF-LRN",
+#         "admin": "TF-ADMIN"
+#     }
+
+#     prefix = role_prefix.get(data.role, "TF-USR")
+#     identifier = f"{prefix}-{str(uuid.uuid4())[:8].upper()}"
+
+#     user = Admin(
+#         id=str(uuid.uuid4()),
+#         identifier=identifier,
+#         full_name=data.full_name,
+#         email=data.email,
+#         hashed_password=hash_password(data.password),
+#         role=data.role,
+#         is_active=True
+#     )
+
+#     db.add(user)
+#     db.commit()
+#     db.refresh(user)
+#     return UserOut.model_validate(user)
+
+@router.post("/staff", response_model=UserOut, status_code=status.HTTP_201_CREATED)
+def create_staff(
+    data: StaffCreate,
     db: Session = Depends(get_db),
     current_admin: Admin = Depends(get_current_admin)
 ):
-    """Admin creates a new instructor or learner"""
+    """
+    Admin creates a new staff account.
+    - role: instructor → TF-INST-XXXXXX
+    - role: admin      → TF-ADMIN-XXXXXX
+    """
+    # Check email doesn't already exist
     existing = db.query(Admin).filter(Admin.email == data.email).first()
     if existing:
         raise HTTPException(
@@ -64,16 +108,15 @@ def create_user(
             detail="Email already registered"
         )
 
+    # Generate identifier based on role
     role_prefix = {
         "instructor": "TF-INST",
-        "learner": "TF-LRN",
         "admin": "TF-ADMIN"
     }
-
-    prefix = role_prefix.get(data.role, "TF-USR")
+    prefix = role_prefix.get(data.role, "TF-STAFF")
     identifier = f"{prefix}-{str(uuid.uuid4())[:8].upper()}"
 
-    user = Admin(
+    staff = Admin(
         id=str(uuid.uuid4()),
         identifier=identifier,
         full_name=data.full_name,
@@ -83,10 +126,10 @@ def create_user(
         is_active=True
     )
 
-    db.add(user)
+    db.add(staff)
     db.commit()
-    db.refresh(user)
-    return UserOut.model_validate(user)
+    db.refresh(staff)
+    return UserOut.model_validate(staff)
 
 
 @router.get("/users", response_model=List[UserOut])

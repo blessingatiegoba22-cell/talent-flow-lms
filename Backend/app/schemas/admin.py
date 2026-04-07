@@ -4,10 +4,16 @@ from typing import Optional, List
 from enum import Enum
 
 
-class UserRole(str, Enum):
+# class UserRole(str, Enum):
+#     admin = "admin"
+#     instructor = "instructor"
+#     learner = "learner"
+
+# --- Staff Management Schemas ---
+class StaffRole(str, Enum):
     admin = "admin"
     instructor = "instructor"
-    learner = "learner"
+
 
 
 class ProgramStatus(str, Enum):
@@ -48,17 +54,24 @@ class LoginResponse(BaseModel):
 
 
 # --- User Management Schemas ---
-class UserCreate(BaseModel):
+# No longer used - admin does not create learners
+# class UserCreate(BaseModel):
+#     full_name: str
+#     email: EmailStr
+#     password: str
+#     role: UserRole
+
+class StaffCreate(BaseModel):
+    """Admin creates instructor or admin accounts only"""
     full_name: str
     email: EmailStr
     password: str
-    role: UserRole
-
+    role: StaffRole #admin or instructor
 
 class UserUpdate(BaseModel):
     full_name: Optional[str] = None
     email: Optional[EmailStr] = None
-    role: Optional[UserRole] = None
+    role: Optional[StaffRole] = None
     is_active: Optional[bool] = None
 
 
