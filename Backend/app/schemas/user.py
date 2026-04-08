@@ -20,6 +20,12 @@ class User(BaseModel):
     gender: GenderEnum
     location: str = Field(min_length=3)
 
+    @model_validator(mode='before')
+    def reject_id_field(cls, data):
+        if isinstance(data, dict) and 'id' in data:
+            raise ValueError('ID field should not be provided - it will be auto-generated')
+        return data
+
     @validator("name", "location")
     def not_empty(cls, v):
         if not v or not v.strip():
