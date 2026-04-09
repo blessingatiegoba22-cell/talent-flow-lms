@@ -30,9 +30,9 @@ const DashboardPage = () => {
           System Metrics
         </h2>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="bg-neutral-300 min-h-[300px] rounded-2xl border border-border animate-pulse" />
+          <div className="bg-neutral-300 min-h-75 rounded-2xl border border-border animate-pulse" />
 
-          <div className="bg-neutral-100 min-h-[300px] rounded-2xl border border-border p-8">
+          <div className="bg-neutral-100 min-h-75 rounded-2xl border border-border p-8">
             <h3 className="text-ink-300 font-medium">Quick Action</h3>
           </div>
         </div>
