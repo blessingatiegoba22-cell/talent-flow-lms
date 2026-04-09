@@ -15,7 +15,7 @@ services:
     volumes:
       - ./app:/app
     depends_on:
-      payit_db:
+      talent_flow_db:
         condition: service_healthy
     restart: unless-stopped
     healthcheck:

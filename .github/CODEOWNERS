@@ -1,0 +1,8 @@
+# Require at least one lead review everywhere
+# * @Holardeeps
+
+# Backend must be approved by backend lead
+Backend/ @Godwinhos
+
+# Frontend must be approved by frontend lead
+Frontend/ @Holardeeps
