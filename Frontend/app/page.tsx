@@ -1,9 +1,11 @@
-import LandingPage from "@/components/landingPage";
+// import LandingPage from "@/components/LandingPage";
+
+import Landingpage from "@/components/landingPage";
 
 const page = () => {
   return (
     <div className="">
-      <LandingPage />
+      <Landingpage />
     </div>
   );
 };
