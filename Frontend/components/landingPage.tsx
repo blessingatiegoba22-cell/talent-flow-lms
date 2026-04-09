@@ -1,8 +1,9 @@
 import Link from "next/link";
 import Image from "next/image";
-import Primarybutton from "./shareable/PrimaryButton";
-import Secondarybutton from "./shareable/SecondaryButton";
+import PrimaryButton from "./shareable/PrimaryButton";
+import SecondaryButton from "./shareable/SecondaryButton";
 import Avatar from "./shareable/Avartar";
+import { Users, CircleCheck, BookOpen } from 'lucide-react';
 
 export default function Landingpage() {
   return (
@@ -15,15 +16,15 @@ export default function Landingpage() {
           <Image src="/logo.png" alt="logo" width={235} height={60} />
         </span>
         <ul className="flex flex-row justify-between gap-x-8 items-center text-[14px] leading-[21px]">
-          <Link href="#">Home</Link>
+          <Link href="/">Home</Link>
           <Link href="#">About</Link>
           <Link href="#">Features</Link>
           <Link href="#">Contact</Link>
         </ul>
         <div className="flex flex-row justify-between gap-x-8">
 
-          <Primarybutton title="Login" />
-          <Secondarybutton title="Sign Up" />
+          <PrimaryButton title="Login" link="/sign-in" />
+          <SecondaryButton title="Sign Up" link="/sing-up" />
 
          
         </div>
@@ -42,8 +43,8 @@ export default function Landingpage() {
             platform.
           </p>
           <div className="flex gap-x-8 mt-4">
-            <Primarybutton title="Get Started" />
-            <Secondarybutton title="Learn More" />
+            <PrimaryButton title="Get Started" link='/sign-up' />
+            <SecondaryButton title="Learn More" link="/#"/>
           </div>
           <div className="flex items-center">
             <div className="flex -space-x-4">
@@ -54,22 +55,24 @@ export default function Landingpage() {
             <span className="mx-8">Trusted by 50,000+ learners worldwide</span>
           </div>
           <div className="gap-x-8 flex">
-<div className="flex gap-x-8">
-            <div></div>
+<div className="flex gap-x-2 justify-center items-center">
+            
+              <BookOpen/>
+            
             <div>
                 <h1 className="font-bold text-5xl leading-tight">500+</h1>
                 <p>Expert Courses</p>
             </div>
           </div>
-<div className="flex gap-x-8">
-            <div></div>
+<div className="flex gap-x-2 justify-center items-center">
+            <Users/>
             <div>
                 <h1 className="font-bold text-5xl leading-tight">100+</h1>
                 <p>Active Learners</p>
             </div>
           </div>
-<div className="flex gap-x-8">
-            <div></div>
+<div className="flex gap-x-2 justify-center items-center">
+           <CircleCheck/>
             <div>
                 <h1 className="font-bold text-5xl leading-tight">95%</h1>
                 <p>Success Rate</p>
