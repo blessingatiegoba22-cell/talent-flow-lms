@@ -7,7 +7,13 @@ load_dotenv()
 from app.database import SessionLocal, engine
 from app.models.base import Base
 from app.models.admin import Admin, AdminRole
-from core.security import hash_password
+# from core.security import hash_password
+from passlib.context import CryptContext #change security key to passlib
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def hash_password(password: str) -> str:
+    return pwd_context.hash(password)      #Security key from hash password
 
 
 def generate_identifier():

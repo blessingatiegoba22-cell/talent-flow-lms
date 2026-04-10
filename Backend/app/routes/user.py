@@ -9,7 +9,6 @@ from app.models.user import User as UserModel
 from app.middlewares.auth import AuthMiddleware
 import bcrypt
 import logging
-import pymysql
 
 logger = logging.getLogger(__name__)
 
