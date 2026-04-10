@@ -1,0 +1,108 @@
+import Image from "next/image";
+
+import { Card, CardContent } from "@/components/ui/card";
+import { aboutHighlights, whoWeServe } from "@/data/landing-page";
+import { cn } from "@/lib/utils";
+
+function BlueDivider() {
+  return <div className="my-10 h-4 w-full bg-[var(--brand-blue-500)] sm:my-12 sm:h-5" />;
+}
+
+type AboutHighlightCardProps = (typeof aboutHighlights)[number];
+
+function AboutHighlightCard({
+  description,
+  imageAlt,
+  imagePosition,
+  imageSrc,
+  title,
+}: AboutHighlightCardProps) {
+  const isImageLeft = imagePosition === "left";
+
+  return (
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <Card className="overflow-hidden rounded-[28px] border border-[var(--brand-blue-100)] bg-white py-0 shadow-[0_16px_35px_rgba(7,20,47,0.08)]">
+        <div className="grid lg:grid-cols-2">
+          <div
+            className={cn(
+              "flex px-6 py-8 sm:px-10 sm:py-10 lg:px-12 lg:py-12",
+              isImageLeft ? "lg:order-2" : "lg:order-1",
+            )}
+          >
+            <div className="my-auto mx-auto max-w-[32rem]">
+              <h3 className="text-center text-[length:var(--text-display-xs)] leading-[var(--text-display-xs--line-height)] font-bold tracking-[-0.02em] text-[var(--ink-500)] sm:text-[length:var(--text-display-sm)] sm:leading-[var(--text-display-sm--line-height)]">
+                {title}
+              </h3>
+              <p className="mt-4 text-[length:var(--text-base)] leading-[var(--text-lg--line-height)] text-[var(--neutral-900)]">
+                {description}
+              </p>
+            </div>
+          </div>
+
+          <div
+            className={cn(
+              "relative min-h-[240px] border-t border-[var(--brand-blue-100)] lg:min-h-[320px] lg:border-t-0",
+              isImageLeft ? "lg:order-1" : "lg:order-2",
+            )}
+          >
+            <Image
+              src={imageSrc}
+              alt={imageAlt}
+              width={503}
+              height={319}
+              className="h-full w-full object-cover"
+            />
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+export function AboutSection() {
+  const [aboutUs, mission, whyChooseUs, vision] = aboutHighlights;
+
+  return (
+    <section id="about" className="scroll-mt-32 bg-[var(--neutral-50)] py-4">
+      <BlueDivider />
+      <AboutHighlightCard {...aboutUs} />
+
+      <BlueDivider />
+      <AboutHighlightCard {...mission} />
+
+      <BlueDivider />
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="rounded-[28px] bg-white p-6 shadow-[0_14px_28px_rgba(7,20,47,0.04)] sm:p-8 lg:p-10">
+          <h3 className="text-center text-[length:var(--text-display-xs)] leading-[var(--text-display-xs--line-height)] font-bold tracking-[-0.02em] text-[var(--ink-500)] sm:text-[length:var(--text-display-sm)] sm:leading-[var(--text-display-sm--line-height)]">
+            Who We Serve
+          </h3>
+
+          <div className="mt-8 grid gap-6 lg:grid-cols-3">
+            {whoWeServe.map((item, index) => (
+              <Card
+                key={item.title}
+                className="animate-fade-up rounded-[24px] border border-[var(--brand-blue-100)] bg-white py-0 text-center shadow-[0_16px_30px_rgba(7,20,47,0.08)]"
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
+                <CardContent className="flex min-h-[220px] flex-col justify-center px-6 py-8 sm:px-8">
+                  <h4 className="text-[length:var(--text-xl)] leading-[var(--text-xl--line-height)] font-semibold text-[var(--ink-500)]">
+                    {item.title}
+                  </h4>
+                  <p className="mt-4 text-[length:var(--text-base)] leading-[var(--text-lg--line-height)] text-[var(--neutral-900)]">
+                    {item.description}
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <BlueDivider />
+      <AboutHighlightCard {...whyChooseUs} />
+
+      <BlueDivider />
+      <AboutHighlightCard {...vision} />
+    </section>
+  );
+}

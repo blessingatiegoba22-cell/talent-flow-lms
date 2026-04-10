@@ -1,13 +1,5 @@
-// import LandingPage from "@/components/LandingPage";
+import { LandingPage } from "@/components/landing/landing-page";
 
-import Landingpage from "@/components/landingPage";
-
-const page = () => {
-  return (
-    <div className="">
-      <Landingpage />
-    </div>
-  );
-};
-
-export default page;
+export default function HomePage() {
+  return <LandingPage />;
+}

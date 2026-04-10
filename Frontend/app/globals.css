@@ -30,7 +30,7 @@
   --brand-purple-950: #0d0b28;
 
   /* Neutral surface scale */
-  --neutral-50: #fcfcfc;
+  --neutral-50: #ffffff;
   --neutral-100: #fafafa;
   --neutral-200: #f8f8f8;
   --neutral-300: #f6f6f6;
@@ -202,4 +202,56 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), Helvetica, Arial, sans-serif;
+  overflow-x: hidden;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float-soft {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.8s ease-out both;
+}
+
+.animate-fade-up-delay {
+  animation: fade-up 0.8s ease-out 0.14s both;
+}
+
+.animate-float-soft {
+  animation: float-soft 7s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .animate-fade-up,
+  .animate-fade-up-delay,
+  .animate-float-soft {
+    animation: none;
+  }
 }
