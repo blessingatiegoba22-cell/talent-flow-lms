@@ -1,0 +1,89 @@
+"use client";
+
+import { FormEvent, useState } from "react";
+import Link from "next/link";
+
+import { RecoveryButton } from "@/components/auth/recovery-button";
+import { RecoveryInput } from "@/components/auth/recovery-input";
+
+export function ResetPasswordForm() {
+  const [feedback, setFeedback] = useState("");
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    const form = event.currentTarget;
+    const password = form.elements.namedItem("password") as HTMLInputElement;
+    const confirmPassword = form.elements.namedItem(
+      "confirmPassword",
+    ) as HTMLInputElement;
+
+    confirmPassword.setCustomValidity("");
+
+    if (!form.reportValidity()) {
+      setFeedback("");
+      return;
+    }
+
+    if (password.value !== confirmPassword.value) {
+      confirmPassword.setCustomValidity("Passwords do not match.");
+      confirmPassword.reportValidity();
+      setFeedback("Passwords do not match.");
+      return;
+    }
+
+    setFeedback("Password reset details look good.");
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="mt-8 w-full space-y-4">
+      <RecoveryInput
+        label="Code"
+        name="code"
+        inputMode="numeric"
+        pattern="[0-9]{4,8}"
+        placeholder="Code"
+        required
+      />
+      <RecoveryInput
+        label="New Password"
+        name="password"
+        type="password"
+        placeholder="New Password"
+        autoComplete="new-password"
+        minLength={8}
+        required
+      />
+      <RecoveryInput
+        label="Confirm new Password"
+        name="confirmPassword"
+        type="password"
+        placeholder="Confirm new Password"
+        autoComplete="new-password"
+        minLength={8}
+        required
+        onInput={(event) => event.currentTarget.setCustomValidity("")}
+      />
+
+      <RecoveryButton type="submit" className="mt-7">
+        Reset Password
+      </RecoveryButton>
+
+      {feedback ? (
+        <p className="text-center text-xs font-semibold text-white/78" aria-live="polite">
+          {feedback}
+        </p>
+      ) : null}
+
+      <p className="pt-5 text-center text-[13px] font-medium text-white/78">
+        Didn&apos;t get a code
+        <Link
+          href="/forgot-password"
+          className="ml-16 cursor-pointer font-extrabold text-white transition-colors duration-300 ease-in-out hover:text-[var(--brand-blue-200)]"
+        >
+          Resend code
+        </Link>
+      </p>
+    </form>
+  );
+}

@@ -25,7 +25,7 @@ export function HeroSection() {
           <div className="mt-8 flex flex-wrap items-center gap-4">
             <Button
               asChild
-              className="h-12 min-w-[168px] translate-y-0 transform-gpu rounded-xl bg-[var(--brand-blue-500)] px-6 text-[length:var(--text-base)] font-semibold text-white shadow-[0_18px_40px_rgba(37,99,235,0.28)] transition-[transform,background-color,color,border-color,box-shadow] duration-300 ease-in-out hover:-translate-y-0.5 hover:bg-[var(--brand-blue-400)] hover:shadow-[0_24px_42px_rgba(37,99,235,0.34)]"
+              className="h-12 min-w-[168px] translate-y-0 transform-gpu cursor-pointer rounded-xl bg-[var(--brand-blue-500)] px-6 text-[length:var(--text-base)] font-semibold text-white shadow-[0_18px_40px_rgba(37,99,235,0.28)] transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:bg-[var(--brand-blue-400)] hover:shadow-[0_24px_42px_rgba(37,99,235,0.34)]"
             >
               <Link href="/sign-up">Get Started</Link>
             </Button>
@@ -33,7 +33,7 @@ export function HeroSection() {
             <Button
               variant="ghost"
               asChild
-              className="h-12 min-w-[168px] translate-y-0 transform-gpu rounded-xl border border-[var(--neutral-50)] bg-transparent px-6 text-[length:var(--text-base)] font-semibold text-[var(--neutral-50)] transition-[transform,background-color,color,border-color,box-shadow] duration-300 ease-in-out hover:-translate-y-0.5 hover:border-[var(--neutral-50)] hover:bg-[var(--neutral-50)] hover:text-[var(--brand-blue-950)] hover:shadow-[0_20px_38px_rgba(7,20,47,0.2)]"
+              className="h-12 min-w-[168px] translate-y-0 transform-gpu cursor-pointer rounded-xl border border-[var(--neutral-50)] bg-transparent px-6 text-[length:var(--text-base)] font-semibold text-[var(--neutral-50)] transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:border-[var(--neutral-50)] hover:bg-[var(--neutral-50)] hover:text-[var(--brand-blue-950)] hover:shadow-[0_20px_38px_rgba(7,20,47,0.2)]"
             >
               <a href="#about">Learn More</a>
             </Button>
