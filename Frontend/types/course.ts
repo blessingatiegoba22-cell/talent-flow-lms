@@ -4,7 +4,13 @@ export interface Course {
     author: string;
     lesson: string;
     duration: string;
-    progress: number;
+    progress?: number;
     image?: string;
+    rating?: number;
     primaryAction?: boolean;
+    isPopular?: boolean,
+    isRecommended?: boolean,
+    category?: string,
+    level?: string,
+    price?: string
 }
