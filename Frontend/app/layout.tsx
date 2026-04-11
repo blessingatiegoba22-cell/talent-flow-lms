@@ -17,6 +17,9 @@ export const metadata: Metadata = {
     default: "Talent Flow LMS",
     template: "%s | Talent Flow LMS",
   },
+  icons: {
+    icon: "/favicon.ico",
+  },
   description:
     "Talent Flow LMS helps learners discover relevant courses, build in-demand skills, and track growth in one place.",
   applicationName: "Talent Flow LMS",
@@ -51,6 +54,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      data-scroll-behavior="smooth"
       className={`${geistSans.variable} ${geistMono.variable} antialiased`}
     >
       <body>{children}</body>

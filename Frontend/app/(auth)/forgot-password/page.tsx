@@ -12,14 +12,14 @@ export const metadata: Metadata = {
 export default function ForgotPasswordPage() {
   return (
     <AuthShell backHref="/sign-in" backLabel="Back to sign in">
-      <section className="mx-auto flex min-h-screen w-full max-w-[448px] flex-col items-center justify-center px-5 py-10 text-center sm:px-0">
+      <section className="mx-auto flex min-h-screen w-full max-w-[448px] flex-col items-center justify-center px-5 py-10 text-center sm:px-6 lg:px-0">
         <AuthLogo priority />
 
-        <div className="mt-20 w-full animate-fade-up sm:mt-24">
-          <h1 className="text-[30px] font-extrabold leading-tight text-white sm:text-[32px]">
+        <div className="mt-12 w-full animate-fade-up sm:mt-20 lg:mt-24">
+          <h1 className="text-[24px] font-extrabold leading-tight text-white sm:text-[30px] lg:text-[32px]">
             Forgot Password
           </h1>
-          <p className="mx-auto mt-7 max-w-[434px] text-left text-[18px] font-bold leading-[1.55] text-white/92 sm:text-[20px]">
+          <p className="mx-auto mt-5 max-w-[434px] text-left text-[14px] font-bold leading-[1.55] text-white/92 sm:mt-7 sm:text-[18px] lg:text-[20px]">
             Please enter your email address to reset your password. You will
             receive a reset code
           </p>

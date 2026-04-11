@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Lock, Mail } from "lucide-react";
 
 import { AuthDivider } from "@/components/auth/auth-divider";
@@ -10,6 +11,7 @@ import { GoogleIcon } from "@/components/auth/google-icon";
 
 export function SignInForm() {
   const [status, setStatus] = useState("");
+  const router = useRouter();
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -19,7 +21,8 @@ export function SignInForm() {
       return;
     }
 
-    setStatus("Sign in details look good.");
+    setStatus("");
+    router.push("/learner/dashboard");
   }
 
   return (

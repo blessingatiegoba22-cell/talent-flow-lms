@@ -29,14 +29,14 @@ export default function StudentSignUpPage() {
         </div>
 
         <div className="mt-6 grid items-center gap-7 sm:mt-7 lg:grid-cols-[386px_minmax(320px,400px)] lg:justify-between lg:gap-20">
-          <div className="mx-auto hidden w-full max-w-[386px] overflow-hidden rounded-[7px] bg-white shadow-[0_20px_50px_rgba(0,0,0,0.16)] lg:block">
+          <div className="relative mx-auto hidden h-[400px] w-full max-w-[386px] overflow-hidden rounded-[7px] bg-white shadow-[0_20px_50px_rgba(0,0,0,0.16)] lg:block">
             <Image
               src="/student-img.png"
               alt="Student learning with a laptop"
-              width={386}
-              height={325}
+              fill
+              sizes="386px"
               priority
-              className="h-[330px] w-full object-cover sm:h-[360px] lg:h-[400px]"
+              className="object-cover"
             />
           </div>
 

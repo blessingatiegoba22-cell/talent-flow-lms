@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
+import { DashboardShell } from "@/components/dashboard/dashboard-shell";
+
 export const metadata: Metadata = {
   title: "Instructor Dashboard",
   description:
@@ -12,15 +14,5 @@ type InstructorLayoutProps = Readonly<{
 }>;
 
 export default function InstructorLayout({ children }: InstructorLayoutProps) {
-  return (
-    <div className="">
-      <aside className="">
-        {/* Instructor sidebar / navigation goes here */}
-      </aside>
-      <div className="">
-        <header className="">{/* instrustor topbar goes here */}</header>
-        <main className="">{children}</main>
-      </div>
-    </div>
-  );
+  return <DashboardShell role="instructor">{children}</DashboardShell>;
 }

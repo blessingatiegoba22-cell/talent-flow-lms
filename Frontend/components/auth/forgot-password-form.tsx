@@ -24,7 +24,7 @@ export function ForgotPasswordForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mt-8 w-full space-y-8">
+    <form onSubmit={handleSubmit} className="mt-6 w-full space-y-5 sm:mt-8 sm:space-y-8">
       <RecoveryInput
         icon={Mail}
         label="Email"
@@ -41,17 +41,17 @@ export function ForgotPasswordForm() {
 
       <button
         type="button"
-        className="flex h-14 w-full transform-gpu cursor-pointer items-center justify-center gap-3 rounded-[6px] bg-[#f4f4f4] text-[16px] font-bold text-[#101010] shadow-[0_14px_28px_rgba(0,0,0,0.12)] transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_18px_34px_rgba(0,0,0,0.16)]"
+        className="flex h-12 w-full transform-gpu cursor-pointer items-center justify-center gap-3 rounded-[6px] bg-[#f4f4f4] text-[14px] font-bold text-[#101010] shadow-[0_14px_28px_rgba(0,0,0,0.12)] transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_18px_34px_rgba(0,0,0,0.16)] sm:h-14 sm:text-[16px]"
       >
         <GoogleIcon />
         Sign in with Google
       </button>
 
-      <p className="pt-1 text-center text-[13px] font-medium text-white/78">
+      <p className="pt-1 text-center text-[12px] font-medium text-white/78 sm:text-[13px]">
         Don&apos;t have an account?
         <Link
           href="/sign-up"
-          className="ml-6 cursor-pointer font-extrabold text-white transition-colors duration-300 ease-in-out hover:text-[var(--brand-blue-200)]"
+          className="ml-2 cursor-pointer font-extrabold text-white transition-colors duration-300 ease-in-out hover:text-[var(--brand-blue-200)] sm:ml-6"
         >
           Sign Up
         </Link>

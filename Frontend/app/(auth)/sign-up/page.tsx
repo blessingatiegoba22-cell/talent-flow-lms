@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 export default function SignUpPage() {
   return (
     <AuthShell backHref="/" backLabel="Back to landing page">
-      <section className="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-5 py-6 sm:px-8 sm:py-8 lg:px-12 lg:py-9">
+      <section className="mx-auto flex min-h-screen w-full max-w-6xl flex-col justify-center px-5 py-6 sm:px-8 sm:py-8 lg:px-12 lg:py-9">
         <div className="mx-auto flex w-full max-w-3xl flex-col items-center text-center">
           <AuthLogo priority className="mt-1 sm:mt-2" />
 

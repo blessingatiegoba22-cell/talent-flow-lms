@@ -36,7 +36,7 @@ export function ResetPasswordForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mt-8 w-full space-y-4">
+    <form onSubmit={handleSubmit} className="mt-6 w-full space-y-3 sm:mt-8 sm:space-y-4">
       <RecoveryInput
         label="Code"
         name="code"
@@ -65,7 +65,7 @@ export function ResetPasswordForm() {
         onInput={(event) => event.currentTarget.setCustomValidity("")}
       />
 
-      <RecoveryButton type="submit" className="mt-7">
+      <RecoveryButton type="submit" className="mt-5 sm:mt-7">
         Reset Password
       </RecoveryButton>
 
@@ -75,11 +75,11 @@ export function ResetPasswordForm() {
         </p>
       ) : null}
 
-      <p className="pt-5 text-center text-[13px] font-medium text-white/78">
+      <p className="pt-4 text-center text-[12px] font-medium text-white/78 sm:pt-5 sm:text-[13px]">
         Didn&apos;t get a code
         <Link
           href="/forgot-password"
-          className="ml-16 cursor-pointer font-extrabold text-white transition-colors duration-300 ease-in-out hover:text-[var(--brand-blue-200)]"
+          className="ml-4 cursor-pointer font-extrabold text-white transition-colors duration-300 ease-in-out hover:text-[var(--brand-blue-200)] sm:ml-16"
         >
           Resend code
         </Link>
