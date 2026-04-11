@@ -2,22 +2,12 @@ import type { LucideIcon } from "lucide-react";
 import {
   BookOpen,
   CircleCheckBig,
-  GraduationCap,
-  ShieldCheck,
-  Sparkles,
   UsersRound,
 } from "lucide-react";
 
 type HeroMetric = {
   value: string;
   label: string;
-  icon: LucideIcon;
-};
-
-type Feature = {
-  eyebrow: string;
-  title: string;
-  description: string;
   icon: LucideIcon;
 };
 
@@ -46,30 +36,6 @@ export const heroMetrics: HeroMetric[] = [
   { value: "500+", label: "Expert Courses", icon: BookOpen },
   { value: "100+", label: "Active Learners", icon: UsersRound },
   { value: "95%", label: "Success Rate", icon: CircleCheckBig },
-];
-
-export const landingFeatures: Feature[] = [
-  {
-    eyebrow: "Personalized",
-    title: "Curated learning journeys",
-    description:
-      "Guide learners from onboarding to course completion with a structure that feels clear, welcoming, and easy to follow.",
-    icon: Sparkles,
-  },
-  {
-    eyebrow: "Collaborative",
-    title: "Teaching that stays organized",
-    description:
-      "Give tutors a simple place to publish lessons, track learner engagement, and keep momentum high without friction.",
-    icon: GraduationCap,
-  },
-  {
-    eyebrow: "Reliable",
-    title: "Administration with control",
-    description:
-      "Keep users, progress, and platform activity visible from one dashboard so teams can manage the full learning ecosystem confidently.",
-    icon: ShieldCheck,
-  },
 ];
 
 export const aboutHighlights: AboutHighlight[] = [

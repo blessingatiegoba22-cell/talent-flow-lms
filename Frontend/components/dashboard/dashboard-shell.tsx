@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import type { MouseEvent } from "react";
 import {
   ArrowRight,
   Bell,
@@ -135,6 +136,16 @@ function DashboardSidebar({
 }: DashboardSidebarProps) {
   const config = dashboardConfigs[role];
   const browseHref = role === "learner" ? "/learner/course-catalog" : "#";
+  const handleNavClick = (
+    event: MouseEvent<HTMLAnchorElement>,
+    href: string,
+  ) => {
+    if (href === activePath) {
+      event.preventDefault();
+    }
+
+    closeSidebar();
+  };
 
   return (
     <div className="flex h-full flex-col overflow-y-auto px-4 py-7 text-white lg:px-4 xl:px-[18px]">
@@ -184,7 +195,8 @@ function DashboardSidebar({
                 <Link
                   key={label}
                   href={href}
-                  onClick={closeSidebar}
+                  prefetch={false}
+                  onClick={(event) => handleNavClick(event, href)}
                   className={cn(
                     "group flex h-10 cursor-pointer items-center gap-3 rounded-[5px] px-3 text-[14px] font-medium text-white/82 transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:bg-white/9 hover:text-white",
                     isActive &&
@@ -215,6 +227,7 @@ function DashboardSidebar({
           </p>
           <Link
             href={browseHref}
+            prefetch={false}
             className="mt-5 inline-flex h-10 w-full cursor-pointer items-center justify-center rounded-[5px] bg-white px-4 text-[13px] font-extrabold text-[#3f3f3f] transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:bg-[#f3f6ff]"
           >
             Browse Courses

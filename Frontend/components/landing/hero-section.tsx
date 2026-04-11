@@ -10,9 +10,9 @@ export function HeroSection() {
       id="home"
       className="scroll-mt-32 bg-[var(--brand-blue-700)] text-[var(--neutral-50)]"
     >
-      <div className="mx-auto grid max-w-7xl items-center gap-12 px-4 pb-16 pt-10 sm:px-6 sm:pb-20 sm:pt-14 lg:grid-cols-[minmax(0,1fr)_minmax(460px,0.96fr)] lg:gap-16 lg:px-8 lg:pb-28 lg:pt-20">
+      <div className="mx-auto grid max-w-[1440px] items-center gap-12 px-4 pb-16 pt-10 sm:px-6 sm:pb-20 sm:pt-14 lg:grid-cols-[minmax(0,1fr)_minmax(460px,0.96fr)] lg:gap-16 lg:px-8 lg:pb-28 lg:pt-20 xl:px-10">
         <div className="max-w-[36rem] animate-fade-up">
-          <h1 className="max-w-[12ch] text-[length:var(--text-display-sm)] leading-[var(--text-display-sm--line-height)] font-bold tracking-[-0.03em] sm:text-[length:var(--text-display-md)] sm:leading-[var(--text-display-md--line-height)] lg:text-[length:var(--text-display-lg)] lg:leading-[var(--text-display-lg--line-height)]">
+          <h1 className="max-w-[12ch] text-[length:var(--text-display-sm)] leading-[var(--text-display-sm--line-height)] font-bold tracking-[0] sm:text-[length:var(--text-display-md)] sm:leading-[var(--text-display-md--line-height)] lg:text-[length:var(--text-display-lg)] lg:leading-[var(--text-display-lg--line-height)]">
             Unlock Your Potential, One Skill at a Time
           </h1>
 
@@ -25,7 +25,7 @@ export function HeroSection() {
           <div className="mt-8 flex flex-wrap items-center gap-4">
             <Button
               asChild
-              className="h-12 min-w-[168px] translate-y-0 transform-gpu cursor-pointer rounded-xl bg-[var(--brand-blue-500)] px-6 text-[length:var(--text-base)] font-semibold text-white shadow-[0_18px_40px_rgba(37,99,235,0.28)] transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:bg-[var(--brand-blue-400)] hover:shadow-[0_24px_42px_rgba(37,99,235,0.34)]"
+              className="h-12 min-w-[168px] translate-y-0 transform-gpu cursor-pointer rounded-lg bg-[var(--brand-blue-500)] px-6 text-[length:var(--text-base)] font-semibold text-white shadow-[0_18px_40px_rgba(37,99,235,0.28)] transition-[transform,background-color,box-shadow] duration-500 ease-out hover:-translate-y-px hover:bg-[var(--brand-blue-400)] hover:shadow-[0_24px_42px_rgba(37,99,235,0.34)]"
             >
               <Link href="/sign-up">Get Started</Link>
             </Button>
@@ -33,7 +33,7 @@ export function HeroSection() {
             <Button
               variant="ghost"
               asChild
-              className="h-12 min-w-[168px] translate-y-0 transform-gpu cursor-pointer rounded-xl border border-[var(--neutral-50)] bg-transparent px-6 text-[length:var(--text-base)] font-semibold text-[var(--neutral-50)] transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:border-[var(--neutral-50)] hover:bg-[var(--neutral-50)] hover:text-[var(--brand-blue-950)] hover:shadow-[0_20px_38px_rgba(7,20,47,0.2)]"
+              className="h-12 min-w-[168px] translate-y-0 transform-gpu cursor-pointer rounded-lg border border-[var(--neutral-50)] bg-transparent px-6 text-[length:var(--text-base)] font-semibold text-[var(--neutral-50)] transition-[transform,background-color,color,border-color,box-shadow] duration-500 ease-out hover:-translate-y-px hover:border-[var(--neutral-50)] hover:bg-[var(--neutral-50)] hover:text-[var(--brand-blue-950)] hover:shadow-[0_20px_38px_rgba(7,20,47,0.2)]"
             >
               <a href="#about">Learn More</a>
             </Button>
@@ -69,7 +69,7 @@ export function HeroSection() {
               >
                 <div className="flex items-center gap-2.5 text-[var(--neutral-50)]">
                   <Icon className="h-[18px] w-[18px] shrink-0" aria-hidden="true" />
-                  <span className="text-[length:var(--text-display-xs)] leading-none font-bold tracking-[-0.02em]">
+                  <span className="text-[length:var(--text-display-xs)] leading-none font-bold tracking-[0]">
                     {value}
                   </span>
                 </div>
@@ -81,9 +81,9 @@ export function HeroSection() {
           </div>
         </div>
 
-        <div className="animate-fade-up-delay">
-          <div className="mx-auto max-w-[34rem] rounded-[30px] bg-white/10 p-3 shadow-[0_28px_60px_rgba(7,20,47,0.35)] backdrop-blur-sm lg:max-w-none">
-            <div className="overflow-hidden rounded-[24px]">
+        <div className="animate-fade-up" style={{ animationDelay: "140ms" }}>
+          <div className="mx-auto max-w-[34rem] rounded-lg bg-white/10 p-3 shadow-[0_28px_60px_rgba(7,20,47,0.35)] backdrop-blur-sm lg:max-w-none">
+            <div className="overflow-hidden rounded-lg">
               <Image
                 src="/banner-img.png"
                 alt="Learners collaborating around laptops"

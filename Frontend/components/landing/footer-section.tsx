@@ -13,11 +13,11 @@ export function FooterSection() {
       id="contact"
       className="scroll-mt-32 relative overflow-hidden bg-[var(--brand-blue-950)] text-white"
     >
-      <div className="relative mx-auto max-w-7xl px-4 pb-8 pt-12 sm:px-6 sm:pt-14 lg:px-8 lg:pt-16">
+      <div className="relative mx-auto max-w-[1440px] px-4 pb-8 pt-12 sm:px-6 sm:pt-14 lg:px-8 lg:pt-16 xl:px-10">
         <a
           href="#home"
           aria-label="Scroll to the top of the page"
-          className="absolute right-4 top-6 inline-flex h-12 w-12 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white shadow-[0_14px_30px_rgba(7,20,47,0.32)] transition duration-300 hover:-translate-y-1 hover:bg-[var(--brand-blue-500)] sm:right-6 sm:top-8 lg:right-8"
+          className="absolute right-4 top-6 inline-flex h-12 w-12 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white shadow-[0_14px_30px_rgba(7,20,47,0.32)] transition-[transform,background-color] duration-500 ease-out hover:-translate-y-px hover:bg-[var(--brand-blue-500)] sm:right-6 sm:top-8 lg:right-8"
         >
           <ArrowUp className="h-5 w-5" aria-hidden="true" />
         </a>
@@ -40,7 +40,7 @@ export function FooterSection() {
                   {column.items.map((item) => (
                     <li
                       key={item}
-                      className="cursor-pointer transition-[color,transform] duration-300 ease-in-out hover:translate-x-1 hover:text-[var(--neutral-50)]"
+                      className="cursor-pointer transition-[color,transform] duration-500 ease-out hover:translate-x-0.5 hover:text-[var(--neutral-50)]"
                     >
                       {item}
                     </li>
@@ -59,17 +59,17 @@ export function FooterSection() {
           </h3>
 
           <div className="mt-6 flex flex-col gap-4 sm:flex-row">
-            <div className="rounded-xl bg-[var(--neutral-50)] p-[1px] sm:flex-1">
+            <div className="rounded-lg bg-[var(--neutral-50)] p-[1px] sm:flex-1">
               <Input
                 type="email"
                 placeholder="Enter Your Email"
-                className="h-14 w-full appearance-none rounded-[11px] border-0 bg-[var(--neutral-50)] px-4 text-[length:var(--text-lg)] text-[var(--ink-500)] shadow-none [color-scheme:light] placeholder:text-[var(--neutral-800)] focus-visible:border-0 focus-visible:ring-0 focus-visible:ring-transparent"
+                className="h-14 w-full appearance-none rounded-lg border-0 bg-[var(--neutral-50)] px-4 text-[length:var(--text-lg)] text-[var(--ink-500)] shadow-none [color-scheme:light] placeholder:text-[var(--neutral-800)] focus-visible:border-0 focus-visible:ring-0 focus-visible:ring-transparent"
               />
             </div>
 
             <Button
               type="button"
-              className="h-14 translate-y-0 transform-gpu rounded-xl bg-[var(--neutral-50)] px-8 text-[length:var(--text-lg)] font-semibold text-[var(--ink-500)] transition-[transform,background-color,color,border-color,box-shadow] duration-300 ease-in-out hover:-translate-y-0.5 hover:bg-[var(--brand-blue-50)] hover:shadow-[0_20px_38px_rgba(7,20,47,0.16)] sm:min-w-[226px]"
+              className="h-14 translate-y-0 transform-gpu rounded-lg bg-[var(--neutral-50)] px-8 text-[length:var(--text-lg)] font-semibold text-[var(--ink-500)] transition-[transform,background-color,color,border-color,box-shadow] duration-500 ease-out hover:-translate-y-px hover:bg-[var(--brand-blue-50)] hover:shadow-[0_20px_38px_rgba(7,20,47,0.16)] sm:min-w-[226px]"
             >
               Subscribe
             </Button>
@@ -86,7 +86,7 @@ export function FooterSection() {
                 href={link.href}
                 target="_blank"
                 rel="noreferrer"
-                className="transition-[color,transform] duration-300 ease-in-out hover:-translate-y-0.5 hover:text-[var(--brand-blue-100)]"
+                className="transition-[color,transform] duration-500 ease-out hover:-translate-y-px hover:text-[var(--brand-blue-100)]"
               >
                 {link.label}
               </a>

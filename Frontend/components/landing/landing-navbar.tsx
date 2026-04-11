@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { type MouseEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 
@@ -15,6 +15,26 @@ export function LandingNavbar() {
   const [activeHref, setActiveHref] = useState("#home");
 
   const closeMenu = () => setIsMenuOpen(false);
+
+  const scrollToSection = (
+    event: MouseEvent<HTMLAnchorElement>,
+    href: string,
+  ) => {
+    const target = document.getElementById(href.slice(1));
+
+    if (!target) {
+      return;
+    }
+
+    event.preventDefault();
+    setActiveHref(href);
+    closeMenu();
+    target.scrollIntoView({ behavior: "smooth", block: "start" });
+
+    if (window.location.hash !== href) {
+      window.history.pushState(null, "", href);
+    }
+  };
 
   useEffect(() => {
     const sectionLinks = landingNavLinks.map((link) => ({
@@ -57,7 +77,7 @@ export function LandingNavbar() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-white/10 bg-[var(--brand-blue-950)] backdrop-blur-lg">
-      <div className="relative mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8">
+      <div className="relative mx-auto max-w-[1440px] px-4 py-3 sm:px-6 lg:px-8 xl:px-10">
         <div className="flex items-center justify-between gap-4 lg:grid lg:grid-cols-[auto_1fr_auto] lg:gap-6">
           <BrandLogo priority className="shrink-0" />
 
@@ -66,10 +86,10 @@ export function LandingNavbar() {
               <a
                 key={link.href}
                 href={link.href}
-                onClick={() => setActiveHref(link.href)}
+                onClick={(event) => scrollToSection(event, link.href)}
                 className={cn(
-                  "relative cursor-pointer px-1 py-1 transition-colors duration-300 ease-in-out hover:text-[var(--neutral-50)]",
-                  "after:absolute after:-bottom-1 after:left-1/2 after:h-0.5 after:w-0 after:-translate-x-1/2 after:rounded-full after:bg-[var(--brand-blue-400)] after:transition-[width] after:duration-300 after:ease-in-out hover:after:w-full",
+                  "relative cursor-pointer px-1 py-1 transition-colors duration-500 ease-out hover:text-[var(--neutral-50)]",
+                  "after:absolute after:-bottom-1 after:left-1/2 after:h-0.5 after:w-0 after:-translate-x-1/2 after:rounded-full after:bg-[var(--brand-blue-400)] after:transition-[width] after:duration-500 after:ease-out hover:after:w-full",
                   activeHref === link.href
                     ? "text-[var(--neutral-50)] after:w-full"
                     : "text-white/70",
@@ -83,7 +103,7 @@ export function LandingNavbar() {
           <div className="hidden items-center gap-3 justify-self-end lg:flex">
             <Button
               asChild
-              className="h-10 min-w-[112px] translate-y-0 transform-gpu cursor-pointer rounded-xl bg-[var(--brand-blue-500)] px-5 text-[length:var(--text-sm)] font-semibold text-[var(--neutral-50)] shadow-[0_16px_32px_rgba(37,99,235,0.25)] transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:bg-[var(--brand-blue-400)] hover:shadow-[0_20px_36px_rgba(37,99,235,0.32)] sm:min-w-[136px]"
+              className="h-10 min-w-[112px] translate-y-0 transform-gpu cursor-pointer rounded-lg bg-[var(--brand-blue-500)] px-5 text-[length:var(--text-sm)] font-semibold text-[var(--neutral-50)] shadow-[0_16px_32px_rgba(37,99,235,0.25)] transition-[transform,background-color,box-shadow] duration-500 ease-out hover:-translate-y-px hover:bg-[var(--brand-blue-400)] hover:shadow-[0_20px_36px_rgba(37,99,235,0.32)] sm:min-w-[136px]"
             >
               <Link href="/sign-in">Login</Link>
             </Button>
@@ -91,7 +111,7 @@ export function LandingNavbar() {
             <Button
               variant="ghost"
               asChild
-              className="h-10 min-w-[112px] translate-y-0 transform-gpu cursor-pointer rounded-xl border border-[var(--neutral-50)] bg-transparent px-5 text-[length:var(--text-sm)] font-semibold text-[var(--neutral-50)] transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:border-[var(--neutral-50)] hover:bg-[var(--neutral-50)] hover:text-[var(--brand-blue-950)] hover:shadow-[0_18px_34px_rgba(7,20,47,0.2)] sm:min-w-[136px]"
+              className="h-10 min-w-[112px] translate-y-0 transform-gpu cursor-pointer rounded-lg border border-[var(--neutral-50)] bg-transparent px-5 text-[length:var(--text-sm)] font-semibold text-[var(--neutral-50)] transition-[transform,background-color,color,border-color,box-shadow] duration-500 ease-out hover:-translate-y-px hover:border-[var(--neutral-50)] hover:bg-[var(--neutral-50)] hover:text-[var(--brand-blue-950)] hover:shadow-[0_18px_34px_rgba(7,20,47,0.2)] sm:min-w-[136px]"
             >
               <Link href="/sign-up">Sign Up</Link>
             </Button>
@@ -104,7 +124,7 @@ export function LandingNavbar() {
             aria-controls="mobile-nav-menu"
             aria-label={isMenuOpen ? "Close navigation menu" : "Open navigation menu"}
             onClick={() => setIsMenuOpen((open) => !open)}
-            className="h-11 w-11 rounded-xl border border-white/15 bg-white/5 p-0 text-[var(--neutral-50)] hover:bg-white/10 hover:text-[var(--neutral-50)] lg:hidden"
+            className="h-11 w-11 rounded-lg border border-white/15 bg-white/5 p-0 text-[var(--neutral-50)] transition-colors duration-300 hover:bg-white/10 hover:text-[var(--neutral-50)] lg:hidden"
           >
             {isMenuOpen ? (
               <X className="h-5 w-5" aria-hidden="true" />
@@ -117,24 +137,21 @@ export function LandingNavbar() {
         <div
           id="mobile-nav-menu"
           className={cn(
-            "pointer-events-none absolute left-4 right-4 top-[calc(100%+0.75rem)] z-50 transition-[opacity,transform] duration-300 ease-out sm:left-6 sm:right-6 lg:hidden",
+            "pointer-events-none absolute left-4 right-4 top-[calc(100%+0.25rem)] z-50 origin-top transition-[opacity,transform] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] sm:left-6 sm:right-6 lg:hidden",
             isMenuOpen
-              ? "pointer-events-auto translate-y-0 opacity-100"
-              : "-translate-y-2 opacity-0",
+              ? "pointer-events-auto translate-y-0 scale-100 opacity-100"
+              : "-translate-y-4 scale-[0.98] opacity-0",
           )}
         >
-          <div className="rounded-2xl border border-white/12 bg-[var(--brand-blue-800)] p-4 shadow-[0_22px_48px_rgba(7,20,47,0.38)]">
+          <div className="rounded-lg border border-white/12 bg-[var(--brand-blue-800)] p-4 shadow-[0_22px_48px_rgba(7,20,47,0.38)]">
             <nav className="flex flex-col gap-2">
               {landingNavLinks.map((link) => (
                 <a
                   key={link.href}
                   href={link.href}
-                  onClick={() => {
-                    setActiveHref(link.href);
-                    closeMenu();
-                  }}
+                  onClick={(event) => scrollToSection(event, link.href)}
                   className={cn(
-                    "cursor-pointer rounded-xl px-4 py-3 text-[length:var(--text-base)] leading-[var(--text-base--line-height)] font-medium transition-colors duration-300 ease-in-out",
+                    "cursor-pointer rounded-lg px-4 py-3 text-[length:var(--text-base)] leading-[var(--text-base--line-height)] font-medium transition-colors duration-500 ease-out",
                     activeHref === link.href
                       ? "bg-white/12 text-[var(--neutral-50)]"
                       : "text-white/80 hover:bg-white/8 hover:text-[var(--neutral-50)]",
@@ -149,7 +166,7 @@ export function LandingNavbar() {
               <Button
                 asChild
                 onClick={closeMenu}
-                className="h-11 translate-y-0 transform-gpu cursor-pointer rounded-xl bg-[var(--brand-blue-500)] px-5 text-[length:var(--text-sm)] font-semibold text-[var(--neutral-50)] shadow-[0_16px_32px_rgba(37,99,235,0.25)] transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:bg-[var(--brand-blue-400)] hover:shadow-[0_20px_36px_rgba(37,99,235,0.32)]"
+                className="h-11 translate-y-0 transform-gpu cursor-pointer rounded-lg bg-[var(--brand-blue-500)] px-5 text-[length:var(--text-sm)] font-semibold text-[var(--neutral-50)] shadow-[0_16px_32px_rgba(37,99,235,0.25)] transition-[transform,background-color,box-shadow] duration-500 ease-out hover:-translate-y-px hover:bg-[var(--brand-blue-400)] hover:shadow-[0_20px_36px_rgba(37,99,235,0.32)]"
               >
                 <Link href="/sign-in">Login</Link>
               </Button>
@@ -158,7 +175,7 @@ export function LandingNavbar() {
                 variant="ghost"
                 asChild
                 onClick={closeMenu}
-                className="h-11 translate-y-0 transform-gpu cursor-pointer rounded-xl border border-[var(--neutral-50)] bg-transparent px-5 text-[length:var(--text-sm)] font-semibold text-[var(--neutral-50)] transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:border-[var(--neutral-50)] hover:bg-[var(--neutral-50)] hover:text-[var(--brand-blue-950)] hover:shadow-[0_18px_34px_rgba(7,20,47,0.2)]"
+                className="h-11 translate-y-0 transform-gpu cursor-pointer rounded-lg border border-[var(--neutral-50)] bg-transparent px-5 text-[length:var(--text-sm)] font-semibold text-[var(--neutral-50)] transition-[transform,background-color,color,border-color,box-shadow] duration-500 ease-out hover:-translate-y-px hover:border-[var(--neutral-50)] hover:bg-[var(--neutral-50)] hover:text-[var(--brand-blue-950)] hover:shadow-[0_18px_34px_rgba(7,20,47,0.2)]"
               >
                 <Link href="/sign-up">Sign Up</Link>
               </Button>

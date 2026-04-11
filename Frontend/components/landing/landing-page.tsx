@@ -11,8 +11,8 @@ export function LandingPage() {
 
       <main>
         <HeroSection />
-        <FeaturesSection />
         <AboutSection />
+        <FeaturesSection />
       </main>
 
       <FooterSection />

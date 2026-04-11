@@ -207,6 +207,7 @@ body {
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 6rem;
 }
 
 @keyframes fade-up {
@@ -232,12 +233,26 @@ html {
   }
 }
 
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
 .animate-fade-up {
   animation: fade-up 0.8s ease-out both;
 }
 
 .animate-fade-up-delay {
   animation: fade-up 0.8s ease-out 0.14s both;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.7s ease-out both;
 }
 
 .animate-float-soft {
@@ -251,6 +266,7 @@ html {
 
   .animate-fade-up,
   .animate-fade-up-delay,
+  .animate-fade-in,
   .animate-float-soft {
     animation: none;
   }
