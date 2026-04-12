@@ -1,39 +1,23 @@
-from sqlalchemy import Column, String, Boolean, DateTime, Enum as SAEnum, Text, ForeignKey, Integer
-from sqlalchemy.dialects.mysql import CHAR
+from sqlalchemy import Column, String, Boolean, DateTime, Text, ForeignKey, Integer, Enum as SQLEnum
 from sqlalchemy.orm import relationship
 from app.models.base import Base
 from datetime import datetime
-import uuid
-import enum
-
-
-class AdminRole(str, enum.Enum):
-    admin = "admin"
-    instructor = "instructor"
-    learner = "learner"
-
-
-class ProgramStatus(str, enum.Enum):
-    active = "active"
-    inactive = "inactive"
-    completed = "completed"
-
-
-class CourseStatus(str, enum.Enum):
-    draft = "draft"
-    active = "active"
-    inactive = "inactive"
+from app.core.enums import AdminRole
 
 
 class Admin(Base):
     __tablename__ = "admins"
 
-    id = Column(CHAR(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    id = Column(Integer, primary_key=True, autoincrement=True, nullable=False, index=True)
     identifier = Column(String(50), unique=True, nullable=False)
     full_name = Column(String(255), nullable=False)
     email = Column(String(255), unique=True, nullable=False, index=True)
     hashed_password = Column(String(255), nullable=False)
-    role = Column(SAEnum(AdminRole), nullable=False, default=AdminRole.learner)
+    role = Column(
+    SQLEnum(AdminRole, name="admin_role"),
+    nullable=False,
+    default=AdminRole.learner
+)
     is_active = Column(Boolean, nullable=False, default=True)
 
     created_at = Column(DateTime, default=datetime.utcnow)
@@ -45,12 +29,16 @@ class Program(Base):
     """A learning program is a collection of courses e.g 'Backend Engineering Cohort 1'"""
     __tablename__ = "programs"
 
-    id = Column(CHAR(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    id = Column(Integer, primary_key=True, autoincrement=True, nullable=False, index=True)
     identifier = Column(String(50), unique=True, nullable=False)  # e.g TF-PROG-XXXXXX
     title = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
-    status = Column(SAEnum(ProgramStatus), default=ProgramStatus.active, nullable=False)
-    created_by = Column(CHAR(36), ForeignKey("admins.id"), nullable=False)
+    status = Column(
+    SQLEnum("active", "inactive", "completed", name="program_status_enum"),
+    nullable=False,
+    default="active"
+)
+    created_by = Column(Integer, ForeignKey("admins.id"), nullable=False)
 
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -61,13 +49,17 @@ class Course(Base):
     """Basic course model - will be extended by teammates"""
     __tablename__ = "admin_courses"
 
-    id = Column(CHAR(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    id = Column(Integer, primary_key=True, autoincrement=True, nullable=False, index=True)
     identifier = Column(String(50), unique=True, nullable=False)  # e.g TF-CRS-XXXXXX
     title = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
-    status = Column(SAEnum(CourseStatus), default=CourseStatus.draft, nullable=False)
-    program_id = Column(CHAR(36), ForeignKey("programs.id"), nullable=True)
-    created_by = Column(CHAR(36), ForeignKey("admins.id"), nullable=False)
+    status = Column(
+    SQLEnum("draft", "active", "inactive", name="course_status_enum"),
+    nullable=False,
+    default="draft"
+)
+    program_id = Column(Integer, ForeignKey("programs.id"), nullable=True)
+    created_by = Column(Integer, ForeignKey("admins.id"), nullable=False)
 
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

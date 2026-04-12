@@ -19,6 +19,7 @@ class Mentor(Base):
 
     # Relationships
     mentees = relationship("MentorAssignment", back_populates="mentor")
+    user = relationship("User", foreign_keys=[user_id])
 
 class MentorAssignment(Base):
     __tablename__ = 'mentor_assignments'

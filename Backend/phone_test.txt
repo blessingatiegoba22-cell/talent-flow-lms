@@ -1,0 +1,1 @@
+{"detail":[{"type":"string_too_short","loc":["body","phone"],"msg":"String should have at least 11 characters","input":"5551234567","ctx":{"min_length":11}}]}

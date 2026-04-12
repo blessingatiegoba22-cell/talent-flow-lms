@@ -27,7 +27,7 @@ def db_and_table_init():
             logger.info("Database initialization successful.")
             break
         except Exception as e:
-            logger.warning(f"MySQL NOT READY, RETRYING ({i+1}/{retries})...")
+            logger.warning(f"PostgreSQL NOT READY, RETRYING ({i+1}/{retries})...")
             logger.error(f"Error: {e}")
             time.sleep(3)
 

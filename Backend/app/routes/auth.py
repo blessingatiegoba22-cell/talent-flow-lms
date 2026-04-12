@@ -3,8 +3,6 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.user import User as UserModel
-from app.auth.jwt import create_access_token
-from datetime import timedelta
 import bcrypt
 
 router = APIRouter(
@@ -23,44 +21,35 @@ class TokenResponse(BaseModel):
 
 @router.post("/login", response_model=TokenResponse)
 def login(login_data: LoginRequest, db: Session = Depends(get_db)):
-    # Find user by email
-    user = db.query(UserModel).filter(UserModel.email == login_data.email).first()
-    
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid credentials"
-        )
-    
-    # Verify password
+    """Login user and return JWT token"""
     try:
-        if not bcrypt.checkpw(login_data.password.encode('utf-8'), user.password.encode('utf-8')):
+        # Find user by email
+        user = db.query(UserModel).filter(UserModel.email == login_data.email).first()
+        
+        if not user:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid credentials"
             )
-    except:
+        
+        # Verify password
+        if bcrypt.checkpw(login_data.password.encode('utf-8'), user.password):
+            # Generate simple token (for now)
+            return TokenResponse(
+                access_token=f"token_{user.id}",
+                token_type="bearer",
+                expires_in=3600
+            )
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid credentials"
+            )
+            
+    except HTTPException:
+        raise
+    except Exception as e:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid credentials"
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Failed to login: {e}"
         )
-    
-    # Create access token
-    access_token_expires = timedelta(minutes=30)
-    token_data = {
-        "sub": str(user.id),
-        "email": user.email,
-        "role": user.role,
-        "name": user.name
-    }
-    
-    access_token = create_access_token(
-        claims=token_data,
-        expires_delta=access_token_expires
-    )
-    
-    return {
-        "access_token": access_token,
-        "token_type": "bearer",
-        "expires_in": 1800  # 30 minutes in seconds
-    }

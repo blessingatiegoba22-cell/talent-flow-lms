@@ -1,14 +1,13 @@
 import re
 from pydantic import BaseModel, constr, EmailStr, validator, constr, Field, field_validator, model_validator
 from datetime import datetime
-from typing import Optional
-from enum import Enum
+from typing import Optional, Literal
 from app.models.enums import RoleEnum
-
+from enum import Enum
 
 class GenderEnum(str, Enum):
-    male = "M"
-    female = "F"
+    male = "male"
+    female = "female"
 
 
 class User(BaseModel):
@@ -20,11 +19,11 @@ class User(BaseModel):
     gender: GenderEnum
     location: str = Field(min_length=3)
 
-    @model_validator(mode='before')
-    def reject_id_field(cls, data):
-        if isinstance(data, dict) and 'id' in data:
-            raise ValueError('ID field should not be provided - it will be auto-generated')
-        return data
+    # @model_validator(mode='before')
+    # def reject_id_field(cls, data):
+    #     if isinstance(data, dict) and 'id' in data:
+    #         raise ValueError('ID field should not be provided - it will be auto-generated')
+    #     return data
 
     @validator("name", "location")
     def not_empty(cls, v):
@@ -58,16 +57,27 @@ class User(BaseModel):
 
 
 
+# class UserResponse(BaseModel):
+#     id: int
+#     name: str
+#     phone: Optional[str] = None
+#     email: str
+#     gender: Optional[Literal["male", "female"]] = None
+#     role: RoleEnum
+#     location: Optional[str] = None
+#     created_at: Optional[datetime] = None
+#     updated_at: Optional[datetime] = None
+
 class UserResponse(BaseModel):
     id: int
     name: str
     phone: str
     email: str
-    gender: GenderEnum
+    gender: Literal["male", "female"]
     role: RoleEnum
     location: str
-    created_at: Optional[datetime] = None
-    updated_at: Optional[datetime] = None
+    created_at: datetime
+    updated_at: datetime
 
 
 class UserUpdate(BaseModel):
@@ -75,7 +85,7 @@ class UserUpdate(BaseModel):
     phone: Optional[constr(min_length=11)] = None
     email: Optional[str] = None
     password: Optional[str] = None
-    gender: Optional[GenderEnum] = None
+    gender: Optional[Literal["male", "female"]] = None
     role: Optional[RoleEnum] = None
     location: Optional[str] = None
 

@@ -2,8 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
 from app.database import get_db
-from app.models.admin import Admin, AdminRole, Course, CourseStatus, Program, ProgramStatus
-from app.schemas.admin import LoginRequest, LoginResponse, AdminOut, StaffCreate, UserUpdate, UserOut, CourseCreate, CourseUpdate, CourseOut, ProgramCreate, ProgramUpdate, ProgramOut, ReportOut, APIResponse
+from app.models.admin import Admin, AdminRole, Course, Program
+from app.models.user import User
+from app.schemas.admin import CourseStatus, ProgramStatus, LoginRequest, LoginResponse, AdminOut, StaffCreate, UserUpdate, UserOut, CourseCreate, CourseUpdate, CourseOut, ProgramCreate, ProgramUpdate, ProgramOut, ReportOut, APIResponse
 from app.auth.security import verify_password, create_access_token, get_current_admin, hash_password
 from datetime import datetime
 import uuid
@@ -107,16 +108,28 @@ def create_staff(
             detail="Email already registered"
         )
 
-    # Generate identifier based on role
+    # Generate identifier based on role and get next ID
     role_prefix = {
         "instructor": "TF-INST",
         "admin": "TF-ADMIN"
     }
     prefix = role_prefix.get(data.role, "TF-STAFF")
-    identifier = f"{prefix}-{str(uuid.uuid4())[:8].upper()}"
+    
+    # Get next staff ID for identifier
+    last_staff = db.query(Admin).filter(Admin.identifier.like(f"{prefix}-%")).order_by(Admin.id.desc()).first()
+    if last_staff and last_staff.identifier:
+        try:
+            last_num = int(last_staff.identifier.split("-")[-1])
+            next_num = last_num + 1
+        except ValueError:
+            # Handle existing UUID-style identifiers, start fresh
+            next_num = 1
+    else:
+        next_num = 1
+    
+    identifier = f"{prefix}-{str(next_num).zfill(6)}"
 
     staff = Admin(
-        id=str(uuid.uuid4()),
         identifier=identifier,
         full_name=data.full_name,
         email=data.email,
@@ -215,7 +228,7 @@ def get_all_users(
 
 @router.get("/users/{user_id}", response_model=UserOut)
 def get_user(
-    user_id: str,
+    user_id: int,
     db: Session = Depends(get_db),
     current_admin: Admin = Depends(get_current_admin)
 ):
@@ -235,7 +248,7 @@ def get_user(
 
 @router.put("/users/{user_id}", response_model=UserOut)
 def update_user(
-    user_id: str,
+    user_id: int,
     data: UserUpdate,
     db: Session = Depends(get_db),
     current_admin: Admin = Depends(get_current_admin)
@@ -268,7 +281,7 @@ def update_user(
 
 @router.delete("/users/{user_id}", response_model=APIResponse)
 def delete_user(
-    user_id: str,
+    user_id: int,
     db: Session = Depends(get_db),
     current_admin: Admin = Depends(get_current_admin)
 ):
@@ -294,6 +307,63 @@ def delete_user(
     )
 
 
+# REGULAR USER MANAGEMENT
+# For managing regular users (students, mentors, etc.)
+
+@router.get("/regular-users", response_model=List[dict])
+def get_all_regular_users(
+    db: Session = Depends(get_db),
+    current_admin: Admin = Depends(get_current_admin)
+):
+    """Admin gets all regular users (students, mentors, etc.)"""
+    users = db.query(User).all()
+    
+    user_list = []
+    for user in users:
+        user_data = {
+            "id": user.id,
+            "name": user.name,
+            "email": user.email,
+            "phone": user.phone,
+            "gender": user.gender,
+            "role": user.role,
+            "verified": user.verified,
+            "location": user.location,
+            "created_at": user.created_at,
+            "updated_at": user.updated_at
+        }
+        user_list.append(user_data)
+    
+    return user_list
+
+
+@router.delete("/regular-users/{user_id}", response_model=APIResponse)
+def delete_regular_user(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_admin: Admin = Depends(get_current_admin)
+):
+    """Admin deletes a regular user (hard delete)"""
+    user = db.query(User).filter(User.id == user_id).first()
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+
+    # Store user name for response message
+    user_name = user.name
+    
+    # Hard delete the user
+    db.delete(user)
+    db.commit()
+
+    return APIResponse(
+        success=True,
+        message=f"User {user_name} deleted successfully"
+    )
+
 
 # MANAGEMENT
 
@@ -305,10 +375,21 @@ def create_program(
     current_admin: Admin = Depends(get_current_admin)
 ):
     """Admin creates a learning program"""
-    identifier = f"TF-PROG-{str(uuid.uuid4())[:8].upper()}"
+    # Get next program identifier
+    last_program = db.query(Program).filter(Program.identifier.like("TF-PROG-%")).order_by(Program.id.desc()).first()
+    if last_program and last_program.identifier:
+        try:
+            last_num = int(last_program.identifier.split("-")[-1])
+            next_num = last_num + 1
+        except ValueError:
+            # Handle existing UUID-style identifiers, start fresh
+            next_num = 1
+    else:
+        next_num = 1
+    
+    identifier = f"TF-PROG-{str(next_num).zfill(6)}"
 
     program = Program(
-        id=str(uuid.uuid4()),
         identifier=identifier,
         title=data.title,
         description=data.description,
@@ -436,10 +517,21 @@ def create_course(
                 detail="Program not found"
             )
 
-    identifier = f"TF-CRS-{str(uuid.uuid4())[:8].upper()}"
+    # Get next course identifier
+    last_course = db.query(Course).filter(Course.identifier.like("TF-CRS-%")).order_by(Course.id.desc()).first()
+    if last_course and last_course.identifier:
+        try:
+            last_num = int(last_course.identifier.split("-")[-1])
+            next_num = last_num + 1
+        except ValueError:
+            # Handle existing UUID-style identifiers, start fresh
+            next_num = 1
+    else:
+        next_num = 1
+    
+    identifier = f"TF-CRS-{str(next_num).zfill(6)}"
 
     course = Course(
-        id=str(uuid.uuid4()),
         identifier=identifier,
         title=data.title,
         description=data.description,

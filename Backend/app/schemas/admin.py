@@ -35,7 +35,7 @@ class LoginRequest(BaseModel):
 
 
 class AdminOut(BaseModel):
-    id: str
+    id: int
     identifier: str
     full_name: str
     email: str
@@ -76,7 +76,7 @@ class UserUpdate(BaseModel):
 
 
 class UserOut(BaseModel):
-    id: str
+    id: int
     identifier: str
     full_name: str
     email: str
@@ -101,12 +101,12 @@ class ProgramUpdate(BaseModel):
 
 
 class ProgramOut(BaseModel):
-    id: str
+    id: int
     identifier: str
     title: str
     description: Optional[str]
     status: str
-    created_by: str
+    created_by: int
     created_at: datetime
 
     class Config:
@@ -117,24 +117,24 @@ class ProgramOut(BaseModel):
 class CourseCreate(BaseModel):
     title: str
     description: Optional[str] = None
-    program_id: Optional[str] = None
+    program_id: Optional[int] = None
 
 
 class CourseUpdate(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
     status: Optional[CourseStatus] = None
-    program_id: Optional[str] = None
+    program_id: Optional[int] = None
 
 
 class CourseOut(BaseModel):
-    id: str
+    id: int
     identifier: str
     title: str
     description: Optional[str]
     status: str
-    program_id: Optional[str]
-    created_by: str
+    program_id: Optional[int]
+    created_by: int
     created_at: datetime
 
     class Config:

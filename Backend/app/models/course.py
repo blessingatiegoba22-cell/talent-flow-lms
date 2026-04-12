@@ -2,7 +2,6 @@ from sqlalchemy import Column, Integer, String, DateTime, Text, ForeignKey, Bool
 from sqlalchemy.orm import relationship
 from .base import Base
 from sqlalchemy.sql import func
-from sqlalchemy.dialects.mysql import CHAR
 import uuid
 
 # Association table for course enrollments
