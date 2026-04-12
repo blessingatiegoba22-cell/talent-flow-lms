@@ -9,15 +9,35 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { useRouter } from "next/navigation" 
 import { useAuthStore } from "../../store/useAuthStore" 
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import * as z from "zod"
+
+// Rules for Sign In
+const signInSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(1, "Password is required"),
+})
+
+type SignInValues = z.infer<typeof signInSchema>
 
 export default function SignInForm() {
   const router = useRouter()
   const { setLoading, isLoading } = useAuthStore()
 
-  const handleSignIn = async (e: React.FormEvent) => {
-    e.preventDefault() 
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<SignInValues>({
+    resolver: zodResolver(signInSchema),
+  })
+
+  const onSubmit = async (data: SignInValues) => {
+    console.log("Sign In Data:", data)
     setLoading(true)
     
+    // Simulating login logic
     setTimeout(() => {
       setLoading(false)
       router.push("/dashboard") 
@@ -25,9 +45,8 @@ export default function SignInForm() {
   }
 
   return (
-    <div className="w-full max-w-lg bg-[#020617] rounded-[2rem] p-8 md:p-12 border border-slate-800 shadow-2xl mx-auto font-sans">
+    <div className="w-full max-w-lg bg-[#020617] rounded-[2rem] p-8 md:p-12 shadow-2xl mx-auto font-sans">
       
-      {/* LOGO & HEADER */}
       <div className="flex flex-col items-center text-center">
         <Image 
           src="/authImage.png"          
@@ -44,26 +63,27 @@ export default function SignInForm() {
         </p>
       </div>
    
-      <form onSubmit={handleSignIn} className="mt-10 space-y-5">
+      <form onSubmit={handleSubmit(onSubmit)} className="mt-10 space-y-5">
         <div className="space-y-4">
           {/* Email */}
           <div className="relative">
             <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500" />
             <Input 
+              {...register("email")}
               type="email" 
               placeholder="Email" 
-              required
               className="pl-12 h-12 md:h-14 bg-white border-none rounded-xl text-black font-medium focus:ring-2 focus:ring-blue-500"
             />
+            {errors.email && <p className="text-red-500 text-[10px] mt-1 ml-2 font-bold">{errors.email.message}</p>}
           </div>
 
           {/* Password */}
           <div className="relative">
             <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500" />
             <Input 
+              {...register("password")}
               type="password" 
               placeholder="Password" 
-              required
               className="pl-12 pr-32 h-12 md:h-14 bg-white border-none rounded-xl text-black font-medium focus:ring-2 focus:ring-blue-500"
             />
             <Link 
@@ -72,10 +92,10 @@ export default function SignInForm() {
             >
               Forgot password?
             </Link>
+            {errors.password && <p className="text-red-500 text-[10px] mt-1 ml-2 font-bold">{errors.password.message}</p>}
           </div>
         </div>
 
-        {/* Checkbox */}
         <div className="flex items-center space-x-2 py-1">
           <Checkbox 
             id="remember" 
@@ -89,7 +109,6 @@ export default function SignInForm() {
           </Label>
         </div>
 
-        {/* Sign in button */}
         <Button 
           type="submit"
           disabled={isLoading}
@@ -104,11 +123,10 @@ export default function SignInForm() {
           <div className="flex-grow border-t border-slate-800"></div>
         </div>
 
-        {/* Google Button */}
         <Button 
           type="button" 
           variant="outline" 
-          className="w-full h-12 md:h-14 bg-white text-black hover:bg-gray-100 flex items-center justify-center gap-3 border-none rounded-xl shadow-md transition-all active:scale-95"
+          className="w-full h-12 md:h-14 bg-white text-black hover:bg-gray-100 border-none rounded-xl shadow-md transition-all active:scale-95"
         >
           <svg className="h-5 w-5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
