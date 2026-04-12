@@ -32,30 +32,28 @@ export default function CoursesPage() {
   });
 
   const recommendedCourses = filteredCourses.filter(
-    (course) => course.isRecommended
+    (course) => course.isRecommended,
   );
 
-  const popularCourses = filteredCourses.filter(
-    (course) => course.isPopular
-  );
+  const popularCourses = filteredCourses.filter((course) => course.isPopular);
 
   return (
     <div className="p-6 space-y-8">
       <h1 className="text-2xl font-bold">Courses</h1>
 
-      <FiltersBar onChange={handleFilterChange} />
+      {/* You didnt pass filters into the component but called it inside of the component. I ADDED IT */}
+      <FiltersBar onChange={handleFilterChange} currentFilters={filters} />
 
       {recommendedCourses.length > 0 && (
-        <CourseSection 
-          title="Recommended for you" 
-          courses={recommendedCourses} 
+        <CourseSection
+          title="Recommended for you"
+          courses={recommendedCourses}
         />
       )}
 
-      {popularCourses.length > 0 && (<CourseSection 
-        title="Popular Courses" 
-        courses={popularCourses} 
-      />)}
+      {popularCourses.length > 0 && (
+        <CourseSection title="Popular Courses" courses={popularCourses} />
+      )}
     </div>
   );
 }
