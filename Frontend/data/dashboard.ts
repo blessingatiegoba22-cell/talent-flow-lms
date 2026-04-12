@@ -71,7 +71,7 @@ export const dashboardConfigs: Record<DashboardRole, DashboardConfig> = {
       ],
       [
         { href: "#", icon: Bell, label: "Notifications" },
-        { href: "#", icon: User, label: "Profile" },
+        { href: "/learner/profile", icon: User, label: "Profile" },
       ],
     ],
     profileName: "Samuel O.",
