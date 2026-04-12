@@ -7,7 +7,7 @@ import { ChevronRight } from "lucide-react"
 
 const LearnerDashboardPage = () => {
     return(
-        <div className="max-w-7xl mx-auto p-6 lg:p-10 bg-background min-h-screen">
+    <div className="max-w-7xl space-y-12">
       <header className="mb-10">
         <h1 className="text-display-xs font-bold text-foreground">Welcome back, Samuel!</h1>
         <p className="text-ink-500 mt-2">Ready to continue your learning journey? Lets keep the momentum going.</p>

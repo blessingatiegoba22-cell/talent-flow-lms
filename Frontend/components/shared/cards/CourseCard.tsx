@@ -2,9 +2,16 @@ import { Course } from "@/types/course";
 import React from "react";
 import Image from "next/image";
 import ActionButton from "../buttons/ActionButton";
-import { FolderEdit } from "lucide-react";
+import { Eye, FolderEdit, Play } from "lucide-react";
 
 const CourseCard = ({ course }: { course: Course }) => {
+  const isCompleted = course.progress === 100;
+  const getIcon = () => {
+    if (isCompleted) return Eye;
+    if (course.primaryAction) return FolderEdit;
+    return Play;
+  };
+
   return (
     <div className="bg-card p-4 border border-border shadow-sm hover:shadow-md transition-shadow rounded-[4px]">
       <div className="relative h-32 w-full overflow-hidden mb-4 bg-neutral-400">
@@ -43,8 +50,14 @@ const CourseCard = ({ course }: { course: Course }) => {
         </div>
 
         <ActionButton 
-          icon={FolderEdit} 
-          label={course.primaryAction ? "Manage Course" : "Manage Courses"} 
+          icon={getIcon()} 
+          label={
+            isCompleted
+              ? "View"
+              : course.primaryAction
+              ? "Manage Course"
+              : "Continue"
+          }
           variant={course.primaryAction ? "primary" : "outline"} 
         />
       </div>
