@@ -7,6 +7,9 @@ load_dotenv()
 from app.database import SessionLocal, engine
 from app.models.base import Base
 from app.models.admin import Admin, AdminRole
+from app.models.user import User           
+from app.models.mentor import Mentor       
+from app.models.team import TeamMember
 # from core.security import hash_password
 import bcrypt
 

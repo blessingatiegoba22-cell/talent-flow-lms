@@ -1,11 +1,12 @@
-from fastapi import APIRouter, HTTPException, status, Depends
-from pydantic import BaseModel
+from fastapi import APIRouter, HTTPException, status, Depends, Response
+from pydantic import BaseModel, EmailStr
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.user import User as UserModel
 from app.auth.jwt import create_access_token
 from datetime import timedelta
 import bcrypt
+import os
 import logging
 
 logger = logging.getLogger(__name__)
@@ -15,70 +16,78 @@ router = APIRouter(
     tags=["mentor authentication"]
 )
 
+IS_PRODUCTION = os.getenv("ENVIRONMENT", "development").lower() == "production"
+COOKIE_NAME = "access_token"
+
+
 class MentorLoginRequest(BaseModel):
-    email: str
+    email: EmailStr
     password: str
 
-class MentorTokenResponse(BaseModel):
-    access_token: str
-    token_type: str
-    expires_in: int
-    mentor: dict
 
-@router.post("/login", response_model=MentorTokenResponse)
-def mentor_login(login_data: MentorLoginRequest, db: Session = Depends(get_db)):
-    """Mentor login endpoint"""
-    # Find user by email
+class MentorLoginResponse(BaseModel):
+    message: str
+    mentor_id: int
+    name: str
+    email: str
+    role: str
+
+
+@router.post("/login", response_model=MentorLoginResponse)
+def mentor_login(login_data: MentorLoginRequest, response: Response, db: Session = Depends(get_db)):
+    """
+    Mentor login — sets JWT in HTTPOnly cookie (same flow as user login).
+    BUG FIX: was returning raw token in body; now uses cookie like /auth/login.
+    """
     user = db.query(UserModel).filter(UserModel.email == login_data.email).first()
-    
+
+    # BUG FIX: original checked role before password — leaked which emails are mentors.
+    # Check password first, then role.
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid credentials"
         )
-    
-    # Check if user is a mentor
+
+    try:
+        password_valid = bcrypt.checkpw(
+            login_data.password.encode("utf-8"),
+            user.password.encode("utf-8")
+        )
+    except Exception:
+        password_valid = False
+
+    if not password_valid:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid credentials"
+        )
+
     if user.role != "mentor":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Access restricted to mentors only"
         )
-    
-    # Verify password
-    try:
-        if not bcrypt.checkpw(login_data.password.encode('utf-8'), user.password.encode('utf-8')):
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid credentials"
-            )
-    except:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid credentials"
-        )
-    
-    # Create access token
-    access_token_expires = timedelta(minutes=30)
-    token_data = {
-        "sub": str(user.id),
-        "email": user.email,
-        "role": user.role,
-        "name": user.name
-    }
-    
-    access_token = create_access_token(
-        claims=token_data,
-        expires_delta=access_token_expires
+
+    token = create_access_token(
+        claims={"sub": str(user.id), "email": user.email, "role": user.role},
+        expires_delta=timedelta(hours=1)
     )
-    
-    return {
-        "access_token": access_token,
-        "token_type": "bearer",
-        "expires_in": 1800,  # 30 minutes in seconds
-        "mentor": {
-            "id": user.id,
-            "name": user.name,
-            "email": user.email,
-            "role": user.role
-        }
-    }
+
+    response.set_cookie(
+        key=COOKIE_NAME,
+        value=token,
+        httponly=True,
+        secure=IS_PRODUCTION,
+        samesite="lax",
+        max_age=3600,
+        path="/",
+    )
+
+    return MentorLoginResponse(
+        message="Login successful",
+        mentor_id=user.id,
+        name=user.name,
+        email=user.email,
+        role=user.role
+    )
