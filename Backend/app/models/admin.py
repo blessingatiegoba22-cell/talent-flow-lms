@@ -10,14 +10,10 @@ class Admin(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True, nullable=False, index=True)
     identifier = Column(String(50), unique=True, nullable=False)
-    full_name = Column(String(255), nullable=False)
+    name = Column(String(255), nullable=False)
     email = Column(String(255), unique=True, nullable=False, index=True)
-    hashed_password = Column(String(255), nullable=False)
-    role = Column(
-    SQLEnum(AdminRole, name="admin_role"),
-    nullable=False,
-    default=AdminRole.learner
-)
+    password = Column(String(255), nullable=False)
+    role = Column(SQLEnum(AdminRole, name="admin_role"), nullable=False,default=AdminRole.admin)
     is_active = Column(Boolean, nullable=False, default=True)
 
     created_at = Column(DateTime, default=datetime.utcnow)
@@ -33,10 +29,7 @@ class Program(Base):
     identifier = Column(String(50), unique=True, nullable=False)  # e.g TF-PROG-XXXXXX
     title = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
-    status = Column(
-    SQLEnum("active", "inactive", "completed", name="program_status_enum"),
-    nullable=False,
-    default="active"
+    status = Column(SQLEnum("active", "inactive", "completed", name="program_status_enum"),nullable=False,default="active"
 )
     created_by = Column(Integer, ForeignKey("admins.id"), nullable=False)
 
@@ -53,11 +46,7 @@ class Course(Base):
     identifier = Column(String(50), unique=True, nullable=False)  # e.g TF-CRS-XXXXXX
     title = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
-    status = Column(
-    SQLEnum("draft", "active", "inactive", name="course_status_enum"),
-    nullable=False,
-    default="draft"
-)
+    status = Column(SQLEnum("draft", "active", "inactive", name="course_status_enum"),nullable=False,default="draft")
     program_id = Column(Integer, ForeignKey("programs.id"), nullable=True)
     created_by = Column(Integer, ForeignKey("admins.id"), nullable=False)
 

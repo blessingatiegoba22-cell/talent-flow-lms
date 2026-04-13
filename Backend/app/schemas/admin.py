@@ -37,7 +37,7 @@ class LoginRequest(BaseModel):
 class AdminOut(BaseModel):
     id: int
     identifier: str
-    full_name: str
+    name: str
     email: str
     role: str
     is_active: bool
@@ -63,13 +63,13 @@ class LoginResponse(BaseModel):
 
 class StaffCreate(BaseModel):
     """Admin creates instructor or admin accounts only"""
-    full_name: str
+    name: str
     email: EmailStr
     password: str
     role: StaffRole #admin or instructor
 
 class UserUpdate(BaseModel):
-    full_name: Optional[str] = None
+    name: Optional[str] = None
     email: Optional[EmailStr] = None
     role: Optional[StaffRole] = None
     is_active: Optional[bool] = None
@@ -78,7 +78,7 @@ class UserUpdate(BaseModel):
 class UserOut(BaseModel):
     id: int
     identifier: str
-    full_name: str
+    name: str
     email: str
     role: str
     is_active: bool
@@ -136,6 +136,46 @@ class CourseOut(BaseModel):
     program_id: Optional[int]
     created_by: int
     created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class MentorCreate(BaseModel):
+    email: str
+    bio: Optional[str] = None
+    expertise: Optional[str] = None
+    experience_years: Optional[int] = None
+
+class MentorOut(BaseModel):
+    id: int
+    user_id: int
+    bio: Optional[str]
+    expertise: Optional[str]
+    experience_years: Optional[int]
+    rating: Optional[int]
+    is_active: bool
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class MentorAssignmentCreate(BaseModel):
+    """Admin assigns a mentor to a learner for a specific course"""
+    mentor_id: int
+    user_id: int
+    course_id: int
+    notes: Optional[str] = None
+
+
+class MentorAssignmentOut(BaseModel):
+    id: int
+    mentor_id: int
+    user_id: int
+    course_id: int
+    is_active: bool
+    notes: Optional[str]
+    assigned_at: datetime
 
     class Config:
         from_attributes = True

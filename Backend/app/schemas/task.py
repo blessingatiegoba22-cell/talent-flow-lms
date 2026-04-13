@@ -95,6 +95,7 @@ class TaskOut(BaseModel):
     task_type: TaskType
     status: TaskStatus
     mentor_id: int
+    mentor_name: Optional[str] = None
     course_id: int
     max_score: int
     due_date: Optional[datetime]

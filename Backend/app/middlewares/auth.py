@@ -28,7 +28,7 @@ class JWTBearer(HTTPBearer):
         if credentials:
             print(credentials)
             if credentials.scheme != 'Bearer':
-                raiseHttpException("Invalid authorization scheme. expected 'Bearer'")
+                raiseHttpException("Invalid authorization scheme", status=status.HTTP_401_UNAUTHORIZED)
 
             return self.verify_jwt(credentials.credentials, db)
             
@@ -43,7 +43,7 @@ class JWTBearer(HTTPBearer):
             if user_id is None:
                 return False
 
-            user = db.query(User).filter(User.id == user_id).first()
+            user = db.query(User).filter(User.id == int(user_id)).first()
 
             if not user:
                 raiseHttpException("user does not exist")
@@ -51,7 +51,7 @@ class JWTBearer(HTTPBearer):
             return user
 
         except Exception as e:
-            raiseHttpException("JWT verification failed: {e}")
+            raiseHttpException(f"JWT verification failed: {e}")
 
 def raiseHttpException(e, status=status.HTTP_403_FORBIDDEN):
     raise HTTPException(
