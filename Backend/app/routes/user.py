@@ -28,41 +28,41 @@ def handle_database_error(error: Exception, operation: str = "operation"):
             "timestamp": f"{datetime.utcnow()}"
         }
     )
+
 @router.post("/", response_model=UserResponse, status_code=201)
-def create_user(user: User, db: Session = Depends(get_db)):
-    
-    # Check email
-    if db.query(UserModel).filter(UserModel.email == user.email).first():
-        raise HTTPException(status_code=400, detail="Email already exists")
+def create_user(user: UserSchema, db: Session = Depends(get_db)):
+    try:                                       
+        # Check email
+        if db.query(UserModel).filter(UserModel.email == user.email).first():
+            raise HTTPException(status_code=400, detail="Email already exists")
 
-    # Check phone
-    if db.query(UserModel).filter(UserModel.phone == user.phone).first():
-        raise HTTPException(status_code=400, detail="Phone already exists")
+        # Check phone
+        if db.query(UserModel).filter(UserModel.phone == user.phone).first():
+            raise HTTPException(status_code=400, detail="Phone already exists")
 
-    # Hash password
-    hashed_password = bcrypt.hashpw(
-        user.password.encode("utf-8"),
-        bcrypt.gensalt()
-    ).decode("utf-8")
+        # Hash password
+        hashed_password = bcrypt.hashpw(
+            user.password.encode("utf-8"),
+            bcrypt.gensalt()
+        ).decode("utf-8")
 
-    # Create user using your model directly
-    new_user = UserModel(
-        name=user.name,
-        phone=user.phone,
-        email=user.email,
-        password=hashed_password,
-        gender=user.gender,
-        location=user.location
-        # role & verified use defaults automatically
-    )
+        # Create user
+        new_user = UserModel(
+            name=user.name,
+            phone=user.phone,
+            email=user.email,
+            password=hashed_password,
+            gender=user.gender,
+            location=user.location
+        )
 
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
 
-    return new_user
-        
-    except HTTPException:
+        return new_user                        
+
+    except HTTPException:                       
         raise
     except Exception as e:
         handle_database_error(e, "create user")

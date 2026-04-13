@@ -67,6 +67,10 @@ class CourseEnrollmentResponse(BaseModel):
     class Config:
         from_attributes = True
 
+class ProgressUpdate(BaseModel):
+    progress: int = Field(ge=0, le=100, description="Progress percentage 0-100")
+
+
 class UserCourseResponse(BaseModel):
     id: str
     name: str
