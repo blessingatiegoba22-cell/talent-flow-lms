@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException, status, Depends, Query
+from fastapi.security import HTTPBearer
 from pydantic import BaseModel
 from datetime import datetime
 from typing import List, Optional
@@ -11,7 +12,7 @@ from app.models.mentor import Mentor, MentorAssignment
 from app.models.task import Task, TaskSubmission, TaskGrade
 from app.models.user import User as UserModel
 from app.models.course import Course as CourseModel
-from app.middlewares.auth import AuthMiddleware
+from app.auth.security import get_current_user
 import logging
 
 logger = logging.getLogger(__name__)
@@ -85,7 +86,7 @@ def get_mentor(mentor_id: int, db: Session = Depends(get_db)):
 
 @router.get("/me/mentees", response_model=List[MentorAssignmentResponse])
 def get_my_mentees(
-    current_user = Depends(AuthMiddleware),
+    current_user: UserModel = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """Get current mentor's assigned mentees"""
@@ -143,7 +144,7 @@ def get_my_mentees(
 
 @router.get("/me/mentor", response_model=MentorAssignmentResponse)
 def get_my_mentor(
-    current_user = Depends(AuthMiddleware),
+    current_user: UserModel = Depends(get_current_user),
     course_id: int = Query(...),
     db: Session = Depends(get_db)
 ):
@@ -228,11 +229,80 @@ def check_task_access(db: Session, task_id: int, user_id: int, is_mentor: bool =
     
     return task
 
+@router.post("/tasks/simple", response_model=TaskOut, status_code=status.HTTP_201_CREATED)
+def create_task_simple(
+    task_data: TaskCreate,
+    db: Session = Depends(get_db),
+    authorization: str = Depends(HTTPBearer())
+):
+    """Create a new task (mentor only) - simplified authentication"""
+    # Extract token from authorization header
+    token = authorization.credentials
+    
+    # Verify token manually
+    try:
+        from app.auth.jwt import verify_access_token
+        payload = verify_access_token(token)
+        user_id = payload.get('sub')
+        
+        if not user_id:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token"
+            )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=f"Invalid token: {str(e)}"
+        )
+    
+    # Check if user is a mentor
+    mentor = get_mentor_by_user_id(db, int(user_id))
+    if not mentor:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only mentors can create tasks"
+        )
+    
+    # Verify course exists
+    course = db.query(CourseModel).filter(CourseModel.id == task_data.course_id).first()
+    if not course:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Course not found"
+        )
+    
+    # Create task
+    task = Task(
+        title=task_data.title,
+        description=task_data.description,
+        instructions=task_data.instructions,
+        task_type=task_data.task_type,
+        mentor_id=mentor.id,
+        course_id=task_data.course_id,
+        max_score=task_data.max_score,
+        due_date=task_data.due_date,
+        estimated_hours=task_data.estimated_hours,
+        allow_file_submission=task_data.allow_file_submission,
+        max_file_size_mb=task_data.max_file_size_mb,
+        allowed_file_types=task_data.allowed_file_types
+    )
+    
+    db.add(task)
+    db.commit()
+    db.refresh(task)
+    
+    # Add related data
+    task.mentor_name = mentor.user.name if mentor.user else None
+    
+    return task
+
+
 @router.post("/tasks", response_model=TaskOut, status_code=status.HTTP_201_CREATED)
 def create_task(
     task_data: TaskCreate,
     db: Session = Depends(get_db),
-    current_user = Depends(AuthMiddleware)
+    current_user: UserModel = Depends(get_current_user)
 ):
     """Create a new task (mentor only)"""
     # Check if user is a mentor
@@ -281,7 +351,7 @@ def get_mentor_tasks(
     course_id: Optional[int] = Query(None),
     status: Optional[str] = Query(None),
     db: Session = Depends(get_db),
-    current_user = Depends(AuthMiddleware)
+    current_user: UserModel = Depends(get_current_user)
 ):
     """Get tasks for current mentor"""
     mentor = get_mentor_by_user_id(db, current_user.id)
@@ -339,7 +409,7 @@ def get_mentor_tasks(
 def get_task(
     task_id: int,
     db: Session = Depends(get_db),
-    current_user = Depends(AuthMiddleware)
+    current_user: UserModel = Depends(get_current_user)
 ):
     """Get a specific task"""
     mentor = get_mentor_by_user_id(db, current_user.id)
@@ -356,7 +426,7 @@ def get_task(
 def get_task_submissions(
     task_id: int,
     db: Session = Depends(get_db),
-    current_user = Depends(AuthMiddleware)
+    current_user: UserModel = Depends(get_current_user)
 ):
     """Get all submissions for a task (mentor only)"""
     mentor = get_mentor_by_user_id(db, current_user.id)
@@ -388,7 +458,7 @@ def grade_submission(
     submission_id: int,
     grade_data: TaskGradeCreate,
     db: Session = Depends(get_db),
-    current_user = Depends(AuthMiddleware)
+    current_user: UserModel = Depends(get_current_user)
 ):
     """Grade a submission (mentor only)"""
     mentor = get_mentor_by_user_id(db, current_user.id)

@@ -23,6 +23,9 @@ class Admin(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     deleted_at = Column(DateTime, nullable=True)
+    
+    # Relationships
+    created_teams = relationship("Team", back_populates="creator")
 
 
 class Program(Base):
@@ -64,3 +67,6 @@ class Course(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     deleted_at = Column(DateTime, nullable=True)
+    
+    # Relationships
+    teams = relationship("TeamCourse", back_populates="course")

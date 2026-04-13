@@ -1,13 +1,13 @@
 version: '3.8'
 
 services:
-  talent_flow.api:
-    container_name: talent_flow.api
+  talent-flow:
+    container_name: talent_flow_api
     build:
       context: .
       dockerfile: Dockerfile
     ports:
-      - '${FORWARD_API_PORT:-8000}:8000'
+      - '${FORWARD_API_PORT:-8001}:8000'
     environment:
       - DB_HOST=talent_flow_db
       - DB_PORT=${DB_PORT:-5432}
@@ -23,7 +23,7 @@ services:
       - talent_flow_db
     restart: unless-stopped
 
-    
+
   talent_flow_db:
     container_name: talent_flow_db
     image: postgres:15                    # ← swap mysql for postgres
@@ -32,7 +32,7 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_DATABASE}
     ports:
-      - '${FORWARD_DB_PORT:-5432}:5432'
+      - '${FORWARD_DB_PORT:-5433}:5432'
     volumes:
       - talent_flow_data:/var/lib/postgresql/data   # ← postgres data path
     restart: unless-stopped
@@ -42,24 +42,6 @@ services:
       timeout: 5s
       retries: 10
       start_period: 30s
-  # talent_flow_db:
-  #   container_name: talent_flow_db
-  #   image: postgres:15-alpine
-  #   environment:
-  #     - POSTGRES_DB=${DB_DATABASE:-talent_flow_db}
-  #     - POSTGRES_USER=${DB_USER:-postgres}
-  #     - POSTGRES_PASSWORD=${DB_PASSWORD:-Password123!}
-  #   ports:
-  #     - '${FORWARD_DB_PORT:-5432}:5432'
-  #   volumes:
-  #     - talent_flow_data:/var/lib/postgresql/data
-  #   restart: unless-stopped
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "pg_isready", "-U", "postgres", "-d", "talent_flow_db"]
-  #     interval: 10s
-  #     timeout: 5s
-  #     retries: 10
-  #     start_period: 30s
-
+ 
 volumes:
   talent_flow_data:

@@ -1,5 +1,5 @@
 import re
-from pydantic import BaseModel, constr, EmailStr, validator, constr, Field, field_validator, model_validator
+from pydantic import BaseModel, constr, EmailStr, validator, Field, field_validator, model_validator
 from datetime import datetime
 from typing import Optional, Literal
 from app.models.enums import RoleEnum
@@ -9,21 +9,14 @@ class GenderEnum(str, Enum):
     male = "male"
     female = "female"
 
-
 class User(BaseModel):
     name: str = Field(min_length=4, max_length=30)
     phone: str = Field(min_length=11)
     email: EmailStr
-    password: str = Field(min_length=6, max_length= 24)
+    password: str = Field(min_length=6, max_length=24)
     confirm_password: str
     gender: GenderEnum
     location: str = Field(min_length=3)
-
-    # @model_validator(mode='before')
-    # def reject_id_field(cls, data):
-    #     if isinstance(data, dict) and 'id' in data:
-    #         raise ValueError('ID field should not be provided - it will be auto-generated')
-    #     return data
 
     @validator("name", "location")
     def not_empty(cls, v):
@@ -55,30 +48,19 @@ class User(BaseModel):
             raise ValueError("phone number must be digits")
         return value
 
-
-
-# class UserResponse(BaseModel):
-#     id: int
-#     name: str
-#     phone: Optional[str] = None
-#     email: str
-#     gender: Optional[Literal["male", "female"]] = None
-#     role: RoleEnum
-#     location: Optional[str] = None
-#     created_at: Optional[datetime] = None
-#     updated_at: Optional[datetime] = None
-
 class UserResponse(BaseModel):
     id: int
     name: str
-    phone: str
+    phone: Optional[str] = None
     email: str
-    gender: Literal["male", "female"]
+    gender: Optional[Literal["male", "female"]] = None
     role: RoleEnum
-    location: str
-    created_at: datetime
-    updated_at: datetime
+    location: Optional[str] = None
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
 
+    class Config:
+        from_attributes = True
 
 class UserUpdate(BaseModel):
     name: Optional[constr(min_length=4, max_length=20)] = None
@@ -103,4 +85,3 @@ class UserUpdate(BaseModel):
 
     class Config:
         from_attributes = True
-    

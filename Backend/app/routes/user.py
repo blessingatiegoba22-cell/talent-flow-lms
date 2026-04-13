@@ -28,39 +28,56 @@ def handle_database_error(error: Exception, operation: str = "operation"):
             "timestamp": f"{datetime.utcnow()}"
         }
     )
-@router.post("/", response_model=UserResponse, status_code=201)
-def create_user(user: User, db: Session = Depends(get_db)):
-    
-    # Check email
-    if db.query(UserModel).filter(UserModel.email == user.email).first():
-        raise HTTPException(status_code=400, detail="Email already exists")
 
-    # Check phone
-    if db.query(UserModel).filter(UserModel.phone == user.phone).first():
-        raise HTTPException(status_code=400, detail="Phone already exists")
-
-    # Hash password
-    hashed_password = bcrypt.hashpw(
-        user.password.encode("utf-8"),
-        bcrypt.gensalt()
-    ).decode("utf-8")
-
-    # Create user using your model directly
-    new_user = UserModel(
-        name=user.name,
-        phone=user.phone,
-        email=user.email,
-        password=hashed_password,
-        gender=user.gender,
-        location=user.location
-        # role & verified use defaults automatically
-    )
-
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-
-    return new_user
+@router.post("/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+def create_user(user: UserSchema, db: Session = Depends(get_db)):
+    """Create a new user"""
+    try:
+        # Check if user already exists
+        existing_user = db.query(UserModel).filter(
+            UserModel.email == user.email
+        ).first()
+        
+        if existing_user:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Email already registered"
+            )
+        
+        # Check phone
+        existing_phone = db.query(UserModel).filter(
+            UserModel.phone == user.phone
+        ).first()
+        
+        if existing_phone:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Phone number already registered"
+            )
+        
+        # Hash password
+        salt = bcrypt.gensalt(rounds=12)
+        hashed_password = bcrypt.hashpw(
+            user.password.encode('utf-8'), 
+            salt
+        ).decode()
+        
+        # Create new user
+        new_user = UserModel(
+            name=user.name,
+            phone=user.phone,
+            email=user.email,
+            password=hashed_password,
+            gender=user.gender,
+            location=user.location,
+            role="student"
+        )
+        
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
+        
+        return new_user
         
     except HTTPException:
         raise
@@ -94,12 +111,9 @@ def get_current_user(current_user = Depends(AuthMiddleware)):
 
 @router.get("/{user_id}", response_model=UserResponse)
 def get_user(user_id: int, current_user = Depends(AuthMiddleware), db: Session = Depends(get_db)):
-    """Get user by ID"""
+    """Get specific user by ID"""
     try:
-        user = db.query(UserModel)\
-            .options(defer(UserModel.password))\
-            .filter(UserModel.id == user_id)\
-            .first()
+        user = db.query(UserModel).filter(UserModel.id == user_id).first()
         
         if not user:
             raise HTTPException(
@@ -108,96 +122,38 @@ def get_user(user_id: int, current_user = Depends(AuthMiddleware), db: Session =
             )
         
         return user
-    except HTTPException:
-        raise
+        
     except Exception as e:
         handle_database_error(e, "get user")
 
 @router.put("/{user_id}", response_model=UserResponse)
-def update_user(
-    user_id: int,
-    user_update: UserUpdate,
-    current_user = Depends(AuthMiddleware),
-    db: Session = Depends(get_db)
-):
-    """Update user completely"""
+def update_user(user_id: int, user_update: UserUpdate, current_user = Depends(AuthMiddleware), db: Session = Depends(get_db)):
+    """Update user by ID"""
     try:
-        user_to_update = db.query(UserModel).filter(UserModel.id == user_id).first()
+        user = db.query(UserModel).filter(UserModel.id == user_id).first()
         
-        if not user_to_update:
+        if not user:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="User not found"
             )
         
-        # Update all provided fields
+        # Update user fields
         update_data = user_update.dict(exclude_unset=True)
-        
-        # Handle password hashing if provided
-        if "password" in update_data and update_data["password"]:
-            salt = bcrypt.gensalt(rounds=12)
-            update_data["password"] = bcrypt.hashpw(
-                update_data["password"].encode('utf-8'), 
-                salt
-            )
-        
         for field, value in update_data.items():
-            setattr(user_to_update, field, value)
+            if value is not None:
+                setattr(user, field, value)
         
-        user_to_update.updated_at = datetime.utcnow()
+        user.updated_at = datetime.utcnow()
         db.commit()
-        db.refresh(user_to_update)
+        db.refresh(user)
         
-        return user_to_update
+        return user
         
-    except HTTPException:
-        raise
     except Exception as e:
         handle_database_error(e, "update user")
 
-@router.patch("/{user_id}", response_model=UserResponse)
-def partial_update_user(
-    user_id: int,
-    user_update: UserUpdate,
-    current_user = Depends(AuthMiddleware),
-    db: Session = Depends(get_db)
-):
-    """Partially update user"""
-    try:
-        user_to_update = db.query(UserModel).filter(UserModel.id == user_id).first()
-        
-        if not user_to_update:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="User not found"
-            )
-        
-        # Update only provided fields
-        update_data = user_update.dict(exclude_unset=True)
-        
-        # Handle password hashing if provided
-        if "password" in update_data and update_data["password"]:
-            salt = bcrypt.gensalt(rounds=12)
-            update_data["password"] = bcrypt.hashpw(
-                update_data["password"].encode('utf-8'), 
-                salt
-            )
-        
-        for field, value in update_data.items():
-            setattr(user_to_update, field, value)
-        
-        user_to_update.updated_at = datetime.utcnow()
-        db.commit()
-        db.refresh(user_to_update)
-        
-        return user_to_update
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        handle_database_error(e, "partial update user")
-
-@router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{user_id}")
 def delete_user(
     user_id: int,
     current_user = Depends(AuthMiddleware),
@@ -218,7 +174,5 @@ def delete_user(
         
         return None
         
-    except HTTPException:
-        raise
     except Exception as e:
         handle_database_error(e, "delete user")

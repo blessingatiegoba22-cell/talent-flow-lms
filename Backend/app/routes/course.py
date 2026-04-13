@@ -5,7 +5,7 @@ from typing import List, Optional
 from app.database import get_db
 from sqlalchemy.orm import Session, defer
 from sqlalchemy import func, and_, or_
-from app.schemas.course import CourseResponse, CourseEnrollmentResponse, UserCourseResponse, CourseCreate
+from app.schemas.course import CourseResponse, CourseEnrollmentResponse, UserCourseResponse
 from app.models.course import Course, course_enrollments
 from app.models.user import User as UserModel
 from app.models.mentor import Mentor, MentorAssignment
@@ -79,56 +79,6 @@ def get_courses(
         )
 
 
-@router.post("/", response_model=dict, status_code=status.HTTP_201_CREATED)
-def create_course(
-    course_data: CourseCreate,
-    current_user = Depends(AuthMiddleware),
-    db: Session = Depends(get_db)
-):
-    """Create a new course - Admin only"""
-    # Check if user is admin
-    if current_user.role != "admin":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only admins can create courses"
-        )
-    
-    try:
-        # Create new course
-        course = Course(
-            title=course_data.title,
-            description=course_data.description,
-            category=course_data.category,
-            level=course_data.level,
-            duration_hours=course_data.duration_hours,
-            instructor_id=current_user.id,
-            is_published=True  # Auto-publish for simplicity
-        )
-        
-        db.add(course)
-        db.commit()
-        db.refresh(course)
-        
-        return {
-            "id": course.id,
-            "title": course.title,
-            "description": course.description,
-            "category": course.category,
-            "level": course.level,
-            "duration_hours": course.duration_hours,
-            "instructor_id": course.instructor_id,
-            "is_published": course.is_published,
-            "created_at": course.created_at,
-            "updated_at": course.updated_at
-        }
-        
-    except Exception as e:
-        logger.error(f"Failed to create course: {e}")
-        db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to create course"
-        )
 
 
 @router.get("/{course_id}", response_model=dict)

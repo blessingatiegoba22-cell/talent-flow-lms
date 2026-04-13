@@ -7,7 +7,7 @@ load_dotenv()
 from app.database import SessionLocal, engine
 from app.models.base import Base
 from app.models.admin import Admin, AdminRole
-from core.security import hash_password
+from app.auth.security import hash_password
 
 
 def generate_identifier():

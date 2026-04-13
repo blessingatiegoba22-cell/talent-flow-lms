@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 from app.database import get_db
 from app.models.admin import Admin, AdminRole, Course, Program
 from app.models.user import User
 from app.schemas.admin import CourseStatus, ProgramStatus, LoginRequest, LoginResponse, AdminOut, StaffCreate, UserUpdate, UserOut, CourseCreate, CourseUpdate, CourseOut, ProgramCreate, ProgramUpdate, ProgramOut, ReportOut, APIResponse
+from app.schemas.team import TeamCreate, TeamUpdate, TeamOut, TeamList, TeamDetail, TeamMemberCreate, TeamMemberOut, TeamCourseCreate, TeamCourseOut, TeamStatus, TeamRole
 from app.auth.security import verify_password, create_access_token, get_current_admin, hash_password
 from datetime import datetime
 import uuid
@@ -47,7 +48,83 @@ def get_admin_profile(
     return AdminOut.model_validate(current_admin)
 
 
-# # USER MANAGEMENT
+@router.post("/mentor-tasks", response_model=dict, status_code=status.HTTP_201_CREATED)
+def create_mentor_task(
+    task_data: dict,
+    db: Session = Depends(get_db),
+    current_admin: Admin = Depends(get_current_admin)
+):
+    """Admin creates task on behalf of mentor"""
+    try:
+        from app.models.task import Task
+        from app.models.mentor import Mentor
+        from app.models.course import Course as CourseModel
+        
+        # Get mentor by user ID or create one if needed
+        mentor_id = task_data.get("mentor_id")
+        if not mentor_id:
+            # Get the first mentor
+            mentor = db.query(Mentor).first()
+            if not mentor:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="No mentors found"
+                )
+            mentor_id = mentor.id
+        else:
+            mentor = db.query(Mentor).filter(Mentor.id == mentor_id).first()
+            if not mentor:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Mentor not found"
+                )
+        
+        # Verify course exists
+        course = db.query(CourseModel).filter(CourseModel.id == task_data["course_id"]).first()
+        if not course:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Course not found"
+            )
+        
+        # Create task
+        task = Task(
+            title=task_data["title"],
+            description=task_data["description"],
+            instructions=task_data.get("instructions", ""),
+            task_type=task_data.get("task_type", "assignment"),
+            mentor_id=mentor_id,
+            course_id=task_data["course_id"],
+            max_score=task_data.get("max_score", 100),
+            due_date=task_data.get("due_date"),
+            estimated_hours=task_data.get("estimated_hours"),
+            allow_file_submission=task_data.get("allow_file_submission", True),
+            max_file_size_mb=task_data.get("max_file_size_mb", 10),
+            allowed_file_types=task_data.get("allowed_file_types", "pdf,doc,docx,txt")
+        )
+        
+        db.add(task)
+        db.commit()
+        db.refresh(task)
+        
+        return {
+            "message": "Task created successfully",
+            "task_id": task.id,
+            "title": task.title,
+            "course_id": task.course_id,
+            "mentor_id": task.mentor_id
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Failed to create task: {str(e)}"
+        )
+
+
+# USER MANAGEMENT
 # NOTE: Admin no longer creates learners
 # Learners self-register via POST /auth/register
 
@@ -363,6 +440,617 @@ def delete_regular_user(
         success=True,
         message=f"User {user_name} deleted successfully"
     )
+
+
+# MENTOR TEAM ASSIGNMENT - Admin Only
+@router.post("/assign-mentor-to-team", response_model=dict, status_code=status.HTTP_201_CREATED)
+def assign_mentor_to_team(
+    data: dict,
+    db: Session = Depends(get_db),
+    current_admin: Admin = Depends(get_current_admin)
+):
+    """Assign a mentor to a specific team - Admin only"""
+    try:
+        from app.services.team_assignment import TeamAssignmentService
+        from app.models.mentor import Mentor
+        from app.models.team import Team
+        
+        mentor_id = data.get("mentor_id")
+        team_id = data.get("team_id")
+        
+        if not mentor_id or not team_id:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Both mentor_id and team_id are required"
+            )
+        
+        # Check if mentor exists
+        mentor = db.query(Mentor).filter(Mentor.id == mentor_id).first()
+        if not mentor:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Mentor not found"
+            )
+        
+        # Check if team exists
+        team = db.query(Team).filter(Team.id == team_id).first()
+        if not team:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Team not found"
+            )
+        
+        # Assign mentor to team
+        assigned = TeamAssignmentService.assign_mentor_to_team(mentor_id, team_id, db)
+        
+        if assigned:
+            return {
+                "message": "Mentor assigned to team successfully",
+                "mentor_id": mentor_id,
+                "team_id": team_id,
+                "mentor_name": mentor.user.name if mentor.user else None,
+                "team_name": team.name
+            }
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Failed to assign mentor to team"
+            )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to assign mentor to team: {str(e)}"
+        )
+
+
+@router.post("/auto-assign-mentors", response_model=dict, status_code=status.HTTP_201_CREATED)
+def auto_assign_mentors_to_teams(
+    db: Session = Depends(get_db),
+    current_admin: Admin = Depends(get_current_admin)
+):
+    """Automatically assign all available mentors to teams - Admin only"""
+    try:
+        from app.services.team_assignment import TeamAssignmentService
+        
+        # Create default teams if none exist
+        TeamAssignmentService.create_default_teams_if_none_exist(db)
+        
+        # Assign mentors to teams
+        assigned = TeamAssignmentService.assign_mentors_to_teams(db)
+        
+        if assigned:
+            return {
+                "message": "Mentors automatically assigned to teams successfully"
+            }
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Failed to assign mentors to teams"
+            )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to auto-assign mentors: {str(e)}"
+        )
+
+
+# TEAM MANAGEMENT - Admin Only (Simplified)
+@router.post("/teams", response_model=dict, status_code=status.HTTP_201_CREATED)
+def create_team(
+    data: dict,
+    db: Session = Depends(get_db),
+    current_admin: Admin = Depends(get_current_admin)
+):
+    """Create a new team - Admin only"""
+    try:
+        from app.models.team import Team, TeamMember
+        from app.models.user import User as UserModel
+        
+        # Check if team name already exists
+        existing_team = db.query(Team).filter(Team.name == data.get("name")).first()
+        if existing_team:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Team name already exists"
+            )
+        
+        # Create team
+        team = Team(
+            name=data.get("name"),
+            description=data.get("description", ""),
+            max_members=data.get("max_members", 10),
+            status=data.get("status", "active"),
+            created_by=current_admin.id,
+            team_lead_id=data.get("team_lead_id")
+        )
+        
+        db.add(team)
+        db.commit()
+        db.refresh(team)
+        
+        return {
+            "id": team.id,
+            "name": team.name,
+            "description": team.description,
+            "max_members": team.max_members,
+            "status": team.status,
+            "created_by": team.created_by,
+            "created_at": team.created_at,
+            "message": "Team created successfully"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Failed to create team: {str(e)}"
+        )
+
+
+@router.get("/teams", response_model=dict)
+def get_teams(
+    skip: int = Query(0, ge=0),
+    limit: int = Query(10, ge=1, le=100),
+    status: Optional[str] = Query(None),
+    db: Session = Depends(get_db),
+    current_admin: Admin = Depends(get_current_admin)
+):
+    """Get all teams - Admin only"""
+    try:
+        from app.models.team import Team
+        
+        query = db.query(Team)
+        
+        if status:
+            query = query.filter(Team.status == status)
+        
+        total = query.count()
+        teams = query.offset(skip).limit(limit).all()
+        
+        team_list = []
+        for team in teams:
+            team_data = {
+                "id": team.id,
+                "name": team.name,
+                "description": team.description,
+                "max_members": team.max_members,
+                "status": team.status,
+                "created_by": team.created_by,
+                "team_lead_id": team.team_lead_id,
+                "created_at": team.created_at,
+                "updated_at": team.updated_at
+            }
+            
+            # Add member count
+            from app.models.team import TeamMember
+            member_count = db.query(TeamMember).filter(TeamMember.team_id == team.id, TeamMember.is_active == True).count()
+            team_data["member_count"] = member_count
+            
+            team_list.append(team_data)
+        
+        return {
+            "teams": team_list,
+            "total": total,
+            "page": skip // limit + 1,
+            "per_page": limit
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get teams: {str(e)}"
+        )
+
+
+@router.get("/teams/{team_id}", response_model=dict)
+def get_team(
+    team_id: int,
+    db: Session = Depends(get_db),
+    current_admin: Admin = Depends(get_current_admin)
+):
+    """Get team details - Admin only"""
+    try:
+        from app.models.team import Team, TeamMember
+        
+        # Get team
+        team = db.query(Team).filter(Team.id == team_id).first()
+        if not team:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Team not found"
+            )
+        
+        # Get team members
+        members = db.query(TeamMember).filter(
+            TeamMember.team_id == team_id,
+            TeamMember.is_active == True
+        ).all()
+        
+        member_list = []
+        for member in members:
+            from app.models.user import User as UserModel
+            user = db.query(UserModel).filter(UserModel.id == member.user_id).first()
+            member_data = {
+                "id": member.id,
+                "team_id": member.team_id,
+                "user_id": member.user_id,
+                "role": member.role,
+                "joined_at": member.joined_at,
+                "is_active": member.is_active,
+                "user_name": user.name if user else None,
+                "user_email": user.email if user else None
+            }
+            member_list.append(member_data)
+        
+        return {
+            "team": {
+                "id": team.id,
+                "name": team.name,
+                "description": team.description,
+                "max_members": team.max_members,
+                "status": team.status,
+                "created_by": team.created_by,
+                "team_lead_id": team.team_lead_id,
+                "created_at": team.created_at,
+                "updated_at": team.updated_at
+            },
+            "members": member_list,
+            "member_count": len(member_list)
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get team details: {str(e)}"
+        )
+
+
+@router.post("/teams/{team_id}/members", response_model=dict, status_code=status.HTTP_201_CREATED)
+def add_team_member(
+    team_id: int,
+    data: dict,
+    db: Session = Depends(get_db),
+    current_admin: Admin = Depends(get_current_admin)
+):
+    """Add member to team - Admin only"""
+    try:
+        from app.models.team import Team, TeamMember
+        from app.models.user import User as UserModel
+        
+        # Check if team exists
+        team = db.query(Team).filter(Team.id == team_id).first()
+        if not team:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Team not found"
+            )
+        
+        # Check if user exists
+        user = db.query(UserModel).filter(UserModel.id == data.get("user_id")).first()
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found"
+            )
+        
+        # Check if user is already in team
+        existing_member = db.query(TeamMember).filter(
+            TeamMember.team_id == team_id,
+            TeamMember.user_id == data.get("user_id"),
+            TeamMember.is_active == True
+        ).first()
+        if existing_member:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="User is already a member of this team"
+            )
+        
+        # Check team capacity
+        current_members = db.query(TeamMember).filter(
+            TeamMember.team_id == team_id,
+            TeamMember.is_active == True
+        ).count()
+        if current_members >= team.max_members:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Team has reached maximum capacity"
+            )
+        
+        # Create team member
+        team_member = TeamMember(
+            team_id=team_id,
+            user_id=data.get("user_id"),
+            role=data.get("role", "member"),
+            joined_at=datetime.utcnow()
+        )
+        
+        db.add(team_member)
+        db.commit()
+        db.refresh(team_member)
+        
+        return {
+            "id": team_member.id,
+            "team_id": team_member.team_id,
+            "user_id": team_member.user_id,
+            "role": team_member.role,
+            "joined_at": team_member.joined_at,
+            "message": "Member added to team successfully"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Failed to add team member: {str(e)}"
+        )
+
+
+@router.delete("/teams/{team_id}/members/{user_id}", response_model=dict)
+def remove_team_member(
+    team_id: int,
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_admin: Admin = Depends(get_current_admin)
+):
+    """Remove member from team - Admin only"""
+    try:
+        from app.models.team import TeamMember
+        
+        # Check if team exists
+        team = db.query(Team).filter(Team.id == team_id).first()
+        if not team:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Team not found"
+            )
+        
+        # Find team member
+        member = db.query(TeamMember).filter(
+            TeamMember.team_id == team_id,
+            TeamMember.user_id == user_id,
+            TeamMember.is_active == True
+        ).first()
+        if not member:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Member not found in team"
+            )
+        
+        # Remove member (soft delete)
+        member.is_active = False
+        member.left_at = datetime.utcnow()
+        db.commit()
+        
+        return {
+            "message": "Member removed from team successfully",
+            "team_id": team_id,
+            "user_id": user_id
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Failed to remove team member: {str(e)}"
+        )
+
+
+@router.post("/teams/{team_id}/courses", response_model=dict, status_code=status.HTTP_201_CREATED)
+def assign_course_to_team(
+    team_id: int,
+    data: dict,
+    db: Session = Depends(get_db),
+    current_admin: Admin = Depends(get_current_admin)
+):
+    """Assign course to team - Admin only"""
+    try:
+        from app.models.team import Team, TeamCourse
+        from app.models.admin import Course as CourseModel
+        
+        # Check if team exists
+        team = db.query(Team).filter(Team.id == team_id).first()
+        if not team:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Team not found"
+            )
+        
+        # Check if course exists
+        course = db.query(CourseModel).filter(CourseModel.id == data.get("course_id")).first()
+        if not course:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Course not found"
+            )
+        
+        # Check if course is already assigned to team
+        existing_assignment = db.query(TeamCourse).filter(
+            TeamCourse.team_id == team_id,
+            TeamCourse.course_id == data.get("course_id")
+        ).first()
+        if existing_assignment:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Course is already assigned to this team"
+            )
+        
+        # Create assignment
+        team_course = TeamCourse(
+            team_id=team_id,
+            course_id=data.get("course_id")
+        )
+        
+        db.add(team_course)
+        db.commit()
+        db.refresh(team_course)
+        
+        return {
+            "id": team_course.id,
+            "team_id": team_course.team_id,
+            "course_id": team_course.course_id,
+            "assigned_at": team_course.assigned_at,
+            "message": "Course assigned to team successfully"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Failed to assign course to team: {str(e)}"
+        )
+
+
+@router.delete("/teams/{team_id}/courses/{course_id}", response_model=dict)
+def remove_course_from_team(
+    team_id: int,
+    course_id: int,
+    db: Session = Depends(get_db),
+    current_admin: Admin = Depends(get_current_admin)
+):
+    """Remove course from team - Admin only"""
+    try:
+        from app.models.team import TeamCourse
+        
+        # Find assignment
+        assignment = db.query(TeamCourse).filter(
+            TeamCourse.team_id == team_id,
+            TeamCourse.course_id == course_id
+        ).first()
+        if not assignment:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Course not assigned to team"
+            )
+        
+        # Remove assignment
+        db.delete(assignment)
+        db.commit()
+        
+        return {
+            "message": "Course removed from team successfully",
+            "team_id": team_id,
+            "course_id": course_id
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Failed to remove course from team: {str(e)}"
+        )
+
+
+@router.put("/teams/{team_id}", response_model=dict)
+def update_team(
+    team_id: int,
+    data: dict,
+    db: Session = Depends(get_db),
+    current_admin: Admin = Depends(get_current_admin)
+):
+    """Update team - Admin only"""
+    try:
+        from app.models.team import Team
+        
+        # Check if team exists
+        team = db.query(Team).filter(Team.id == team_id).first()
+        if not team:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Team not found"
+            )
+        
+        # Update team fields
+        if data.get("name") is not None:
+            team.name = data["name"]
+        if data.get("description") is not None:
+            team.description = data["description"]
+        if data.get("max_members") is not None:
+            team.max_members = data["max_members"]
+        if data.get("status") is not None:
+            team.status = data["status"]
+        if data.get("team_lead_id") is not None:
+            team.team_lead_id = data["team_lead_id"]
+        
+        team.updated_at = datetime.utcnow()
+        db.commit()
+        db.refresh(team)
+        
+        return {
+            "id": team.id,
+            "name": team.name,
+            "description": team.description,
+            "max_members": team.max_members,
+            "status": team.status,
+            "created_by": team.created_by,
+            "team_lead_id": team.team_lead_id,
+            "updated_at": team.updated_at,
+            "message": "Team updated successfully"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Failed to update team: {str(e)}"
+        )
+
+
+@router.delete("/teams/{team_id}", response_model=dict)
+def delete_team(
+    team_id: int,
+    db: Session = Depends(get_db),
+    current_admin: Admin = Depends(get_current_admin)
+):
+    """Delete team - Admin only"""
+    try:
+        from app.models.team import Team, TeamMember, TeamCourse
+        
+        # Check if team exists
+        team = db.query(Team).filter(Team.id == team_id).first()
+        if not team:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Team not found"
+            )
+        
+        # Remove all team members
+        db.query(TeamMember).filter(TeamMember.team_id == team_id).delete()
+        
+        # Remove all course assignments
+        db.query(TeamCourse).filter(TeamCourse.team_id == team_id).delete()
+        
+        # Delete team
+        db.delete(team)
+        db.commit()
+        
+        return {
+            "message": "Team deleted successfully",
+            "team_id": team_id
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Failed to delete team: {str(e)}"
+        )
 
 
 # MANAGEMENT

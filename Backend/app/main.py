@@ -2,6 +2,20 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.database import engine
 from app.models.base import Base
+# Import essential models first
+from app.models.user import User
+from app.models.admin import Admin, Course, Program
+from app.models.mentor import Mentor, MentorAssignment
+# Import team models separately to avoid circular dependencies
+try:
+    from app.models.team import Team, TeamMember, TeamCourse
+except ImportError:
+    pass
+# Import task models separately
+try:
+    from app.models.task import Task, TaskSubmission
+except ImportError:
+    pass
 import logging
 import time
 from app.routes import user, auth, course

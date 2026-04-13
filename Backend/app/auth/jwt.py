@@ -3,6 +3,7 @@ import bcrypt
 import os
 from typing import Optional
 from datetime import timedelta, datetime
+from app.auth.token_blacklist import is_blacklisted
 
 SECRET_KEY = os.getenv('JWT_SECRET_KEY', 'dd876043d55eebc302f01b3deeb99d8e5c3dceaf92675427c11067963fdefc55')
 ALGORITHM = os.getenv('JWT_ALGORITHM', 'HS256')
@@ -25,6 +26,10 @@ def create_access_token(claims: dict, expires_delta: Optional[timedelta] = None)
 
 def verify_access_token(token: str):
         try:
+            # Check if token is blacklisted
+            if is_blacklisted(token):
+                raise JWTError("Token has been revoked")
+            
             return jwt.decode(token, SECRET_KEY, ALGORITHM)
         except JWTError as e:
             raise e
