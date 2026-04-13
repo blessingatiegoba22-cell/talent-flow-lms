@@ -1,15 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from typing import List, Optional
+from typing import List
 from app.database import get_db
 from app.models.admin import Admin, AdminRole, Course, Program
 from app.models.user import User
-from app.models.mentor import Mentor, MentorAssignment
-from app.schemas.admin import CourseStatus, MentorAssignmentCreate, MentorAssignmentOut, MentorCreate, MentorOut, ProgramStatus, LoginRequest, LoginResponse, AdminOut, StaffCreate, UserUpdate, UserOut, CourseCreate, CourseUpdate, CourseOut, ProgramCreate, ProgramUpdate, ProgramOut, ReportOut, APIResponse
+from app.schemas.admin import CourseStatus, ProgramStatus, LoginRequest, LoginResponse, AdminOut, StaffCreate, UserUpdate, UserOut, CourseCreate, CourseUpdate, CourseOut, ProgramCreate, ProgramUpdate, ProgramOut, ReportOut, APIResponse
 from app.auth.security import verify_password, create_access_token, get_current_admin, hash_password
-from app.middlewares.auth import AuthMiddleware
 from datetime import datetime
-import bcrypt
+import uuid
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
 
@@ -21,7 +19,7 @@ def admin_login(credentials: LoginRequest, db: Session = Depends(get_db)):
     """Admin login - returns JWT token"""
     admin = db.query(Admin).filter(Admin.email == credentials.email).first()
 
-    if not admin or not bcrypt.checkpw(credentials.password.encode("utf-8"),admin.password.encode("utf-8")):
+    if not admin or not verify_password(credentials.password, admin.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid email or password"
@@ -37,7 +35,7 @@ def admin_login(credentials: LoginRequest, db: Session = Depends(get_db)):
             detail="Account is inactive"
         )
 
-    token = create_access_token(data={"sub": str(admin.id), "role": admin.role})
+    token = create_access_token(data={"sub": admin.email, "role": admin.role})
     return LoginResponse(access_token=token, admin=AdminOut.model_validate(admin))
 
 
@@ -133,9 +131,9 @@ def create_staff(
 
     staff = Admin(
         identifier=identifier,
-        name=data.name,
+        full_name=data.full_name,
         email=data.email,
-        password=hash_password(data.password),
+        hashed_password=hash_password(data.password),
         role=data.role,
         is_active=True
     )
@@ -148,7 +146,7 @@ def create_staff(
 
 @router.post("/mentors", response_model=dict, status_code=status.HTTP_201_CREATED)
 def create_mentor(
-    data: MentorCreate,
+    data: dict,
     db: Session = Depends(get_db),
     current_admin: Admin = Depends(get_current_admin)
 ):
@@ -221,8 +219,10 @@ def get_all_users(
     current_admin: Admin = Depends(get_current_admin)
 ):
     """Admin gets all users"""
-    users = db.query(User).all()
-    
+    users = db.query(Admin).filter(
+        Admin.deleted_at == None,
+        Admin.role != AdminRole.admin
+    ).all()
     return [UserOut.model_validate(u) for u in users]
 
 
@@ -265,8 +265,8 @@ def update_user(
             detail="User not found"
         )
 
-    if data.name is not None:
-        user.name = data.name
+    if data.full_name is not None:
+        user.full_name = data.full_name
     if data.email is not None:
         user.email = data.email
     if data.role is not None:
@@ -297,12 +297,13 @@ def delete_user(
             detail="User not found"
         )
 
-    user.verified = "unverified"     # deactivate
+    user.deleted_at = datetime.utcnow()
+    user.is_active = False
     db.commit()
 
     return APIResponse(
         success=True,
-        message=f"User {user.name} deleted successfully"
+        message=f"User {user.full_name} deleted successfully"
     )
 
 
@@ -416,7 +417,7 @@ def get_all_programs(
 
 @router.get("/programs/{program_id}", response_model=ProgramOut)
 def get_program(
-    program_id: int,
+    program_id: str,
     db: Session = Depends(get_db),
     current_admin: Admin = Depends(get_current_admin)
 ):
@@ -436,7 +437,7 @@ def get_program(
 
 @router.put("/programs/{program_id}", response_model=ProgramOut)
 def update_program(
-    program_id: int,
+    program_id: str,
     data: ProgramUpdate,
     db: Session = Depends(get_db),
     current_admin: Admin = Depends(get_current_admin)
@@ -467,7 +468,7 @@ def update_program(
 
 @router.delete("/programs/{program_id}", response_model=APIResponse)
 def delete_program(
-    program_id: int,
+    program_id: str,
     db: Session = Depends(get_db),
     current_admin: Admin = Depends(get_current_admin)
 ):
@@ -559,7 +560,7 @@ def get_all_courses(
 
 @router.get("/courses/{course_id}", response_model=CourseOut)
 def get_course(
-    course_id: int,
+    course_id: str,
     db: Session = Depends(get_db),
     current_admin: Admin = Depends(get_current_admin)
 ):
@@ -579,7 +580,7 @@ def get_course(
 
 @router.put("/courses/{course_id}", response_model=CourseOut)
 def update_course(
-    course_id: int,
+    course_id: str,
     data: CourseUpdate,
     db: Session = Depends(get_db),
     current_admin: Admin = Depends(get_current_admin)
@@ -612,7 +613,7 @@ def update_course(
 
 @router.delete("/courses/{course_id}", response_model=APIResponse)
 def delete_course(
-    course_id: int ,
+    course_id: str,
     db: Session = Depends(get_db),
     current_admin: Admin = Depends(get_current_admin)
 ):
@@ -636,199 +637,6 @@ def delete_course(
         message=f"Course {course.title} deleted successfully"
     )
 
-# MENTOR MANAGEMENT
-
-@router.get("/mentors", response_model=List[MentorOut])
-def get_all_mentors(
-    db: Session = Depends(get_db),
-    current_admin: Admin = Depends(get_current_admin)
-):
-    """Admin gets all mentors"""
-    mentors = db.query(Mentor).filter(
-        Mentor.is_active == True
-    ).all()
-    return [MentorOut.model_validate(m) for m in mentors]
-
-@router.get("/mentors/assignments", response_model=List[MentorAssignmentOut])
-def get_all_assignments(
-    db: Session = Depends(get_db),
-    current_admin: Admin = Depends(get_current_admin)
-):
-    """Admin gets all mentor assignments"""
-    assignments = db.query(MentorAssignment).filter(
-        MentorAssignment.is_active == True
-    ).all()
-    return [MentorAssignmentOut.model_validate(a) for a in assignments]
-
-
-@router.get("/mentors/{mentor_id}", response_model=MentorOut)
-def get_mentor(
-    mentor_id: int,
-    db: Session = Depends(get_db),
-    current_admin: Admin = Depends(get_current_admin)
-):
-    """Admin gets a single mentor"""
-    mentor = db.query(Mentor).filter(Mentor.id == mentor_id).first()
-
-    if not mentor:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Mentor not found"
-        )
-    return MentorOut.model_validate(mentor)
-
-@router.post("/mentors/promote/{user_id}", response_model=MentorOut, status_code=status.HTTP_201_CREATED)
-def promote_to_mentor(
-    user_id: int,
-    bio: Optional[str] = None,
-    expertise: Optional[str] = None,
-    experience_years: Optional[int] = None,
-    db: Session = Depends(get_db),
-    current_admin: Admin = Depends(get_current_admin)
-):
-    """Admin promotes a user to mentor"""
-    from app.models.user import User
-
-    # Check user exists
-    user = db.query(User).filter(User.id == user_id).first()
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found"
-        )
-
-    # Check if already a mentor
-    existing = db.query(Mentor).filter(Mentor.user_id == user_id).first()
-    if existing:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="User is already a mentor"
-        )
-
-    mentor = Mentor(
-        user_id=user_id,
-        bio=bio,
-        expertise=expertise,
-        experience_years=experience_years,
-        is_active=True
-    )
-
-    db.add(mentor)
-    db.commit()
-    db.refresh(mentor)
-    return MentorOut.model_validate(mentor)
-
-
-@router.put("/mentors/{mentor_id}/activate", response_model=APIResponse)
-def activate_mentor(
-    mentor_id: int,
-    db: Session = Depends(get_db),
-    current_admin: Admin = Depends(get_current_admin)
-):
-    """Admin activates a mentor"""
-    mentor = db.query(Mentor).filter(Mentor.id == mentor_id).first()
-
-    if not mentor:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Mentor not found"
-        )
-
-    mentor.is_active = True
-    db.commit()
-
-    return APIResponse(success=True, message="Mentor activated successfully")
-
-
-@router.put("/mentors/{mentor_id}/deactivate", response_model=APIResponse)
-def deactivate_mentor(
-    mentor_id: int,
-    db: Session = Depends(get_db),
-    current_admin: Admin = Depends(get_current_admin)
-):
-    """Admin deactivates a mentor"""
-    mentor = db.query(Mentor).filter(Mentor.id == mentor_id).first()
-
-    if not mentor:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Mentor not found"
-        )
-
-    mentor.is_active = False
-    db.commit()
-
-    return APIResponse(success=True, message="Mentor deactivated successfully")
-
-
-@router.post("/mentors/assign", response_model=MentorAssignmentOut, status_code=status.HTTP_201_CREATED)
-def assign_mentor(
-    data: MentorAssignmentCreate,
-    db: Session = Depends(get_db),
-    current_admin: Admin = Depends(get_current_admin)
-):
-    """Admin assigns a mentor to a learner for a course"""
-
-    # Check mentor exists
-    mentor = db.query(Mentor).filter(Mentor.id == data.mentor_id).first()
-    if not mentor:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Mentor not found"
-        )
-
-    # Check assignment doesn't already exist
-    existing = db.query(MentorAssignment).filter(
-        MentorAssignment.mentor_id == data.mentor_id,
-        MentorAssignment.user_id == data.user_id,
-        MentorAssignment.course_id == data.course_id
-    ).first()
-
-    if existing:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Mentor already assigned to this learner for this course"
-        )
-
-    assignment = MentorAssignment(
-        mentor_id=data.mentor_id,
-        user_id=data.user_id,
-        course_id=data.course_id,
-        notes=data.notes,
-        is_active=True
-    )
-
-    db.add(assignment)
-    db.commit()
-    db.refresh(assignment)
-    return MentorAssignmentOut.model_validate(assignment)
-
-
-@router.delete("/mentors/assignments/{assignment_id}", response_model=APIResponse)
-def remove_assignment(
-    assignment_id: int,
-    db: Session = Depends(get_db),
-    current_admin: Admin = Depends(get_current_admin)
-):
-    """Admin removes a mentor assignment"""
-    assignment = db.query(MentorAssignment).filter(
-        MentorAssignment.id == assignment_id
-    ).first()
-
-    if not assignment:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Assignment not found"
-        )
-
-    assignment.is_active = False
-    db.commit()
-
-    return APIResponse(
-        success=True,
-        message="Mentor assignment removed successfully"
-    )
-
 # REPORTS
 
 @router.get("/reports", response_model=ReportOut)
@@ -837,16 +645,20 @@ def generate_report(
     current_admin: Admin = Depends(get_current_admin)
 ):
     """Admin generates a full platform report"""
-    from app.models.user import User
-    from app.models.mentor import Mentor
-
-    total_learners = db.query(User).count()
-
-    total_instructors = db.query(Mentor).filter(    
-        Mentor.is_active == True
+    total_learners = db.query(Admin).filter(
+        Admin.role == AdminRole.learner,
+        Admin.deleted_at == None
     ).count()
 
-    total_active_users = db.query(User).count()
+    total_instructors = db.query(Admin).filter(
+        Admin.role == AdminRole.instructor,
+        Admin.deleted_at == None
+    ).count()
+
+    total_active_users = db.query(Admin).filter(
+        Admin.is_active == True,
+        Admin.deleted_at == None
+    ).count()
 
     total_courses = db.query(Course).filter(
         Course.deleted_at == None
@@ -857,17 +669,17 @@ def generate_report(
     ).count()
 
     active_courses = db.query(Course).filter(
-        Course.status == "active",
+        Course.status == CourseStatus.active,
         Course.deleted_at == None
     ).count()
 
     inactive_courses = db.query(Course).filter(
-        Course.status == "inactive",
+        Course.status == CourseStatus.inactive,
         Course.deleted_at == None
     ).count()
 
     draft_courses = db.query(Course).filter(
-        Course.status == "draft",
+        Course.status == CourseStatus.draft,
         Course.deleted_at == None
     ).count()
 

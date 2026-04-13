@@ -53,6 +53,35 @@ def get_mentors(
             detail="Failed to get mentors"
         )
 
+@router.get("/{mentor_id}", response_model=MentorResponse)
+def get_mentor(mentor_id: int, db: Session = Depends(get_db)):
+    """Get a specific mentor by ID"""
+    try:
+        mentor = db.query(Mentor, UserModel).join(UserModel, Mentor.user_id == UserModel.id).filter(
+            Mentor.id == mentor_id
+        ).first()
+        
+        if not mentor:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Mentor not found"
+            )
+        
+        mentor_data, user_data = mentor
+        mentor_response = MentorResponse.model_validate(mentor_data)
+        mentor_response.user_name = user_data.name
+        mentor_response.user_email = user_data.email
+        
+        return mentor_response
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to get mentor: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to get mentor"
+        )
 
 @router.get("/me/mentees", response_model=List[MentorAssignmentResponse])
 def get_my_mentees(
@@ -156,36 +185,6 @@ def get_my_mentor(
         assignment_dict.course_title = course_data.title
         
         return assignment_dict
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Failed to get mentor: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to get mentor"
-        )
-
-@router.get("/{mentor_id}", response_model=MentorResponse)
-def get_mentor(mentor_id: int, db: Session = Depends(get_db)):
-    """Get a specific mentor by ID"""
-    try:
-        mentor = db.query(Mentor, UserModel).join(UserModel, Mentor.user_id == UserModel.id).filter(
-            Mentor.id == mentor_id
-        ).first()
-        
-        if not mentor:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Mentor not found"
-            )
-        
-        mentor_data, user_data = mentor
-        mentor_response = MentorResponse.model_validate(mentor_data)
-        mentor_response.user_name = user_data.name
-        mentor_response.user_email = user_data.email
-        
-        return mentor_response
         
     except HTTPException:
         raise

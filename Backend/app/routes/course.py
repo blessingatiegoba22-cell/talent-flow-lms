@@ -5,7 +5,7 @@ from typing import List, Optional
 from app.database import get_db
 from sqlalchemy.orm import Session, defer
 from sqlalchemy import func, and_, or_
-from app.schemas.course import CourseResponse, CourseEnrollmentResponse, ProgressUpdate, UserCourseResponse, CourseCreate
+from app.schemas.course import CourseResponse, CourseEnrollmentResponse, UserCourseResponse, CourseCreate
 from app.models.course import Course, course_enrollments
 from app.models.user import User as UserModel
 from app.models.mentor import Mentor, MentorAssignment
@@ -87,10 +87,10 @@ def create_course(
 ):
     """Create a new course - Admin only"""
     # Check if user is admin
-    if current_user.role not in ["admin", "mentor"]:
+    if current_user.role != "admin":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only admins or mentors can create courses"
+            detail="Only admins can create courses"
         )
     
     try:
@@ -130,52 +130,6 @@ def create_course(
             detail="Failed to create course"
         )
 
-@router.get("/me/enrollments", response_model=List[CourseEnrollmentResponse])
-def get_my_enrollments(
-    current_user = Depends(AuthMiddleware),
-    db: Session = Depends(get_db)
-):
-    """Get current user's course enrollments"""
-    try:
-        enrollments = db.query(Course, course_enrollments.c.progress, course_enrollments.c.enrolled_at, course_enrollments.c.completed_at, UserModel.name.label('instructor_name')).join(
-            course_enrollments,
-            Course.id == course_enrollments.c.course_id
-        ).join(
-            UserModel,
-            Course.instructor_id == UserModel.id,
-            isouter=True
-        ).filter(
-            and_(
-                course_enrollments.c.user_id == current_user.id,
-                course_enrollments.c.is_active == True
-            )
-        ).all()
-        
-        enrollment_responses = []
-        for course, progress, enrolled_at, completed_at, instructor_name in enrollments:
-            enrollment_dict = {
-                "id": course.id,
-                "title": course.title,
-                "description": course.description,
-                "category": course.category,
-                "level": course.level,
-                "duration_hours": course.duration_hours,
-                "price": course.price,
-                "progress": progress,
-                "enrolled_at": enrolled_at,
-                "completed_at": completed_at,
-                "instructor_name": instructor_name
-            }
-            enrollment_responses.append(CourseEnrollmentResponse(**enrollment_dict))
-        
-        return enrollment_responses
-        
-    except Exception as e:
-        logger.error(f"Failed to get enrollments: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to get enrollments"
-        )
 
 @router.get("/{course_id}", response_model=dict)
 def get_course(course_id: int, db: Session = Depends(get_db)):
@@ -362,6 +316,53 @@ def unenroll_from_course(
         )
 
 
+@router.get("/me/enrollments", response_model=List[CourseEnrollmentResponse])
+def get_my_enrollments(
+    current_user = Depends(AuthMiddleware),
+    db: Session = Depends(get_db)
+):
+    """Get current user's course enrollments"""
+    try:
+        enrollments = db.query(Course, course_enrollments.c.progress, course_enrollments.c.enrolled_at, course_enrollments.c.completed_at, UserModel.name.label('instructor_name')).join(
+            course_enrollments,
+            Course.id == course_enrollments.c.course_id
+        ).join(
+            UserModel,
+            Course.instructor_id == UserModel.id,
+            isouter=True
+        ).filter(
+            and_(
+                course_enrollments.c.user_id == current_user.id,
+                course_enrollments.c.is_active == True
+            )
+        ).all()
+        
+        enrollment_responses = []
+        for course, progress, enrolled_at, completed_at, instructor_name in enrollments:
+            enrollment_dict = {
+                "id": course.id,
+                "title": course.title,
+                "description": course.description,
+                "category": course.category,
+                "level": course.level,
+                "duration_hours": course.duration_hours,
+                "price": course.price,
+                "progress": progress,
+                "enrolled_at": enrolled_at,
+                "completed_at": completed_at,
+                "instructor_name": instructor_name
+            }
+            enrollment_responses.append(CourseEnrollmentResponse(**enrollment_dict))
+        
+        return enrollment_responses
+        
+    except Exception as e:
+        logger.error(f"Failed to get enrollments: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to get enrollments"
+        )
+
 
 @router.get("/{course_id}/students", response_model=List[UserCourseResponse])
 def get_course_students(
@@ -425,13 +426,13 @@ def get_course_students(
 @router.put("/{course_id}/progress", response_model=dict)
 def update_course_progress(
     course_id: int,
-    progress_data: ProgressUpdate,
+    progress_data: dict,
     current_user = Depends(AuthMiddleware),
     db: Session = Depends(get_db)
 ):
     """Update user's progress in a course"""
     try:
-        progress = progress_data.progress
+        progress = progress_data.get("progress", 0)
         
         if not (0 <= progress <= 100):
             raise HTTPException(

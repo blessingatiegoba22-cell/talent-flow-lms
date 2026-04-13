@@ -7,14 +7,7 @@ load_dotenv()
 from app.database import SessionLocal, engine
 from app.models.base import Base
 from app.models.admin import Admin, AdminRole
-# from core.security import hash_password
-import bcrypt
-
-def hash_password(password: str) -> str:
-    return bcrypt.hashpw(
-        password.encode("utf-8"),
-        bcrypt.gensalt()
-    ).decode("utf-8")
+from core.security import hash_password
 
 
 def generate_identifier():
@@ -37,10 +30,10 @@ def create_admin():
         return
 
     admin = Admin(
-        # id=str(uuid.uuid4()),
-        name="TalentFlow Admin",
+        id=str(uuid.uuid4()),
+        full_name="TalentFlow Admin",
         email=os.getenv("FIRST_ADMIN_EMAIL"),
-        password=hash_password(os.getenv("FIRST_ADMIN_PASSWORD")),
+        hashed_password=hash_password(os.getenv("FIRST_ADMIN_PASSWORD")),
         role=AdminRole.admin,
         identifier=generate_identifier(),
         is_active=True
@@ -51,7 +44,6 @@ def create_admin():
     db.refresh(admin)
 
     print("✅ Admin created successfully!")
-    print(f"   ID:         {admin.id}")
     print(f"   Email:      {admin.email}")
     print(f"   Role:       {admin.role}")
     print(f"   Identifier: {admin.identifier}")

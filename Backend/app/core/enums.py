@@ -4,4 +4,3 @@ class AdminRole(str, PyEnum):
     learner = "learner"
     admin = "admin"
     super_admin = "super_admin"
-    instructor = "instructor"    
