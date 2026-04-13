@@ -23,7 +23,7 @@ export default function Landingpage() {
         </ul>
         <div className="flex flex-row justify-between gap-x-8">
           <PrimaryButton title="Login" link="/sign-in" />
-          <SecondaryButton title="Sign Up" link="/sing-up" />
+          <SecondaryButton title="Sign Up" link="/sign-up" />
         </div>
       </nav>
 
