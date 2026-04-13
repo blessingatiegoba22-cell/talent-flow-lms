@@ -454,6 +454,8 @@ export const assignments = {
     course: "Time Management",
     due: "11:59pm, Monday 31st December, 2025",
     grade: "86%",
+    instruction:
+      "Share a completed time management plan with practical examples from your weekly workflow.",
     posted: "01:16pm, Tuesday 4th December, 2025",
     status: "Graded",
     timeline: "Week 1 Assessment",
@@ -462,6 +464,8 @@ export const assignments = {
   recent: {
     course: "UI/UX Design Fundamentals",
     due: "10:12am, Monday 31st March, 2026",
+    instruction:
+      "Write exhaustively on the laws of UX, stating at least 10 UX laws and their examples. The assignment is done in a word document with a cover page, stating the student's name and course, instructor's name.",
     posted: "10:12am, Monday 24th March, 2026",
     timeline: "Week 4 Assessment",
     topic: "Laws of UX",

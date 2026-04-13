@@ -4,10 +4,11 @@ import { ProgressOverview } from "@/components/dashboard/dashboard-widgets";
 import { assignmentProgress } from "@/data/dashboard";
 import { cn } from "@/lib/utils";
 
-type Assignment = {
+export type Assignment = {
   course: string;
   due: string;
   grade?: string;
+  instruction?: string;
   posted: string;
   status?: string;
   timeline: string;
@@ -17,9 +18,13 @@ type Assignment = {
 export function AssignmentCard({
   assignment,
   completed = false,
+  onSubmit,
+  onView,
 }: {
   assignment: Assignment;
   completed?: boolean;
+  onSubmit?: (assignment: Assignment) => void;
+  onView?: (assignment: Assignment) => void;
 }) {
   const rows = [
     { icon: BookOpen, label: "Course:", value: assignment.course },
@@ -79,6 +84,7 @@ export function AssignmentCard({
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
         <button
           type="button"
+          onClick={() => onView?.(assignment)}
           className="h-12 cursor-pointer rounded-lg bg-(--brand-blue-700) text-[14px] font-extrabold text-white transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:bg-(--brand-blue-500) sm:h-14 sm:text-[16px]"
         >
           View
@@ -86,6 +92,7 @@ export function AssignmentCard({
         {!completed ? (
           <button
             type="button"
+            onClick={() => onSubmit?.(assignment)}
             className="h-12 cursor-pointer rounded-lg border border-black bg-transparent text-[14px] font-extrabold text-black transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:border-(--brand-blue-500) hover:text-(--brand-blue-500) sm:h-14 sm:text-[16px]"
           >
             Submit
