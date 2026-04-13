@@ -65,13 +65,13 @@ export const dashboardConfigs: Record<DashboardRole, DashboardConfig> = {
         { href: "/admin/dashboard", icon: LayoutDashboard, label: "Dashboard" },
         { href: "#", icon: UsersRound, label: "Users" },
         { href: "#", icon: Circle, label: "Courses" },
-        { href: "#", icon: UsersRound, label: "Teams" },
+        { href: "/admin/teams", icon: UsersRound, label: "Teams" },
         { href: "#", icon: ScrollText, label: "Analytics" },
         { href: "#", icon: MessageSquare, label: "Discussions" },
       ],
       [
         { href: "#", icon: Bell, label: "Notifications" },
-        { href: "/learner/profile", icon: User, label: "Profile" },
+        { href: "/admin/profile", icon: User, label: "Profile" },
       ],
     ],
     profileName: "Samuel O.",
@@ -91,7 +91,7 @@ export const dashboardConfigs: Record<DashboardRole, DashboardConfig> = {
       ],
       [
         { href: "#", icon: Bell, label: "Notifications" },
-        { href: "#", icon: User, label: "Profile" },
+        { href: "/learner/profile", icon: User, label: "Profile" },
       ],
     ],
     profileName: "Samuel O",
@@ -111,7 +111,7 @@ export const dashboardConfigs: Record<DashboardRole, DashboardConfig> = {
       ],
       [
         { href: "#", icon: Bell, label: "Notifications" },
-        { href: "#", icon: User, label: "Profile" },
+        { href: "/instructor/profile", icon: User, label: "Profile" },
       ],
     ],
     profileName: "Samuel O",
@@ -255,6 +255,29 @@ export const catalogPopularCourses: Course[] = [
   },
 ];
 
+export const catalogFilterGroups = [
+  {
+    label: "Categories",
+    options: ["Design", "Development", "Writing", "Productivity"],
+  },
+  {
+    label: "Level",
+    options: ["Beginner", "Intermediate", "Advanced"],
+  },
+  {
+    label: "Duration",
+    options: ["Under 30 minutes", "30-60 minutes", "1-2 hours"],
+  },
+  {
+    label: "Price",
+    options: ["Free", "Paid", "Scholarship eligible"],
+  },
+  {
+    label: "Sort By",
+    options: ["Most popular", "Highest rated", "Newest first", "Shortest first"],
+  },
+] as const;
+
 export const myLearningActiveCourses: Course[] = [
   {
     cta: "Continue",
@@ -328,21 +351,74 @@ export const myLearningCompletedCourses: Course[] = [
 export const teamCards = [
   {
     accent: "#2f6df2",
+    avatars: ["/user-icon-1.png", "/user-icon-2.png", "/user-icon-3.png", "/user-icon-1.png"],
     members: "23 members",
     name: "Team Lima",
     skills: ["UI/UX", "Frontend", "Backend", "Product Management"],
   },
   {
     accent: "#4338ca",
+    avatars: ["/user-icon-3.png", "/user-icon-2.png", "/user-icon-1.png", "/user-icon-3.png"],
     members: "21 members",
     name: "Team Raya",
     skills: ["UI/UX", "Frontend", "Backend", "Product Management"],
   },
   {
     accent: "#2f6df2",
+    avatars: ["/user-icon-1.png", "/user-icon-2.png", "/user-icon-3.png", "/user-icon-2.png"],
     members: "20 members",
     name: "Team Mira",
     skills: ["UI/UX", "Frontend", "Product Management"],
+  },
+] as const;
+
+const teamAssignmentOptions = [
+  "Unassigned",
+  "Team Lima",
+  "Team Raya",
+  "Team Mira",
+] as const;
+
+export const adminTeamAssignments = [
+  {
+    assignedTeam: "Unassigned",
+    avatar: "/user-icon-1.png",
+    currentTeam: "Unassigned",
+    currentTeamTone: "neutral",
+    id: "intern-ayankola-precious-frontend-unassigned",
+    name: "Ayankola Precious",
+    role: "Frontend Developer",
+    teamOptions: teamAssignmentOptions,
+  },
+  {
+    assignedTeam: "Unassigned",
+    avatar: "/user-icon-1.png",
+    currentTeam: "Team Lima",
+    currentTeamTone: "blue",
+    id: "intern-eze-emmanuella-uiux-lima",
+    name: "Eze Emmanuella",
+    role: "UI/UX Developer",
+    teamOptions: teamAssignmentOptions,
+  },
+  {
+    assignedTeam: "Team Raya",
+    avatar: "/user-icon-1.png",
+    currentTeam: "Team Raya",
+    currentTeamTone: "blue",
+    id: "intern-lawal-ridwanulla-backend-raya",
+    name: "Lawal Ridwanulla",
+    role: "Backend Developer",
+    teamOptions: teamAssignmentOptions,
+  },
+  {
+    assignedTeam: "Team Mira",
+    avatar: "/user-icon-1.png",
+    currentTeam: "Team Mira",
+    currentTeamTone: "green",
+    id: "intern-ayankola-precious-frontend-mira",
+    name: "Ayankola Precious",
+    role: "Frontend Developer",
+    teamOptions: teamAssignmentOptions,
   },
 ] as const;
 

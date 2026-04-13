@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 
-import { TeamCard, TeamMembersTable } from "@/components/dashboard/learner-widgets";
+import { TeamMembersTable } from "@/components/dashboard/learner-team-widgets";
+import { DashboardPageHeader } from "@/components/dashboard/page-heading";
+import { TeamSummaryCard } from "@/components/dashboard/team-components";
 import { teamCards, teamMembers } from "@/data/dashboard";
 
 export const metadata: Metadata = {
@@ -11,17 +13,15 @@ export const metadata: Metadata = {
 
 export default function LearnerTeamsPage() {
   return (
-    <div className="mx-auto max-w-[1120px] animate-fade-up">
-      <h1 className="text-[32px] font-extrabold leading-tight text-black sm:text-[36px]">
-        Teams
-      </h1>
-      <p className="mt-4 text-[15px] font-medium text-[#8a8a8a]">
-        Teams in the current cohort
-      </p>
+    <div className="mx-auto max-w-280 animate-fade-up">
+      <DashboardPageHeader
+        title="Teams"
+        description="Teams in the current cohort"
+      />
 
-      <div className="mt-6 flex gap-7 overflow-x-auto pb-3">
+      <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {teamCards.map((team) => (
-          <TeamCard key={team.name} team={team} />
+          <TeamSummaryCard key={team.name} team={team} />
         ))}
       </div>
 

@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 
 export default function InstructorDashboardPage() {
   return (
-    <div className="mx-auto grid max-w-[1024px] items-start gap-5 animate-fade-up lg:grid-cols-[minmax(0,1fr)_318px] xl:max-w-[1040px]">
+    <div className="mx-auto grid max-w-5xl items-start gap-5 animate-fade-up lg:grid-cols-[minmax(0,1fr)_318px] xl:max-w-[1040px]">
       <section>
         <div>
           <h1 className="text-[26px] font-extrabold leading-tight text-black sm:text-[29px]">

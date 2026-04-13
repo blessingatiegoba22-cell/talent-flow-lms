@@ -5,40 +5,58 @@ import { Lock, Mail, User } from "lucide-react";
 
 import { AuthDivider } from "@/components/auth/auth-divider";
 import { AuthField } from "@/components/auth/auth-field";
+import { AuthSubmitButton } from "@/components/auth/auth-submit-button";
+import {
+  getAuthFormErrors,
+  hasPasswordMismatch,
+  hasErrors,
+} from "@/components/auth/auth-validation";
 import { GoogleIcon } from "@/components/auth/google-icon";
+import { useFieldErrors } from "@/components/auth/use-field-errors";
+import { simulatedActionDelayMs } from "@/lib/timing";
+
+const studentSignUpLabels = {
+  confirmPassword: "Confirm Password",
+  email: "Email",
+  fullName: "Full Name",
+  password: "Password",
+};
 
 export function StudentSignUpForm() {
+  const { clearError, errors, setErrors } = useFieldErrors();
   const [feedback, setFeedback] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const form = event.currentTarget;
-    const password = form.elements.namedItem("password") as HTMLInputElement;
-    const confirmPassword = form.elements.namedItem(
-      "confirmPassword",
-    ) as HTMLInputElement;
+    const nextErrors = getAuthFormErrors(form, studentSignUpLabels);
 
-    confirmPassword.setCustomValidity("");
+    if (hasPasswordMismatch(form)) {
+      nextErrors.confirmPassword = "Passwords do not match.";
+    }
 
-    if (!form.reportValidity()) {
-      setFeedback("");
+    if (hasErrors(nextErrors)) {
+      setErrors(nextErrors);
+      setFeedback("Check the highlighted fields and try again.");
       return;
     }
 
-    if (password.value !== confirmPassword.value) {
-      confirmPassword.setCustomValidity("Passwords do not match.");
-      confirmPassword.reportValidity();
-      setFeedback("Passwords do not match.");
-      return;
-    }
+    setErrors({});
+    setFeedback("Creating your student account...");
+    setIsSubmitting(true);
 
-    setFeedback("Student account details look good.");
+    window.setTimeout(() => {
+      setIsSubmitting(false);
+      setFeedback("Student account details look good.");
+    }, simulatedActionDelayMs);
   }
 
   return (
     <form
       onSubmit={handleSubmit}
+      noValidate
       className="w-full rounded-[7px] border border-[#8ca0c5] p-2 shadow-[0_20px_45px_rgba(0,0,0,0.12)]"
     >
       <div className="space-y-3">
@@ -49,6 +67,8 @@ export function StudentSignUpForm() {
           placeholder="Full Name"
           autoComplete="name"
           minLength={2}
+          error={errors.fullName}
+          onInput={() => clearError("fullName")}
           required
         />
         <AuthField
@@ -58,6 +78,8 @@ export function StudentSignUpForm() {
           type="email"
           placeholder="Email"
           autoComplete="email"
+          error={errors.email}
+          onInput={() => clearError("email")}
           required
         />
         <AuthField
@@ -68,6 +90,8 @@ export function StudentSignUpForm() {
           placeholder="Password"
           autoComplete="new-password"
           minLength={8}
+          error={errors.password}
+          onInput={() => clearError("password")}
           required
         />
         <AuthField
@@ -78,8 +102,9 @@ export function StudentSignUpForm() {
           placeholder="Confirm Password"
           autoComplete="new-password"
           minLength={8}
+          error={errors.confirmPassword}
           required
-          onInput={(event) => event.currentTarget.setCustomValidity("")}
+          onInput={() => clearError("confirmPassword")}
         />
       </div>
 
@@ -87,17 +112,19 @@ export function StudentSignUpForm() {
         <input
           type="checkbox"
           name="remember"
-          className="h-5 w-5 cursor-pointer rounded-[4px] border-0 accent-[var(--brand-blue-500)]"
+          className="h-5 w-5 cursor-pointer rounded-sm border-0 accent-(--brand-blue-500)"
         />
         Remember Me
       </label>
 
-      <button
+      <AuthSubmitButton
         type="submit"
-        className="mt-6 h-[42px] w-full transform-gpu cursor-pointer rounded-[4px] bg-[var(--brand-blue-500)] text-[13px] font-bold text-white shadow-[0_18px_34px_rgba(37,99,235,0.22)] transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:bg-[var(--brand-blue-400)] hover:shadow-[0_22px_38px_rgba(37,99,235,0.28)] focus:outline-none focus:ring-4 focus:ring-[rgba(37,99,235,0.25)]"
+        isLoading={isSubmitting}
+        loadingLabel="Creating account..."
+        className="mt-6 rounded-sm"
       >
         Sign Up
-      </button>
+      </AuthSubmitButton>
 
       {feedback ? (
         <p className="mt-2 text-center text-xs font-semibold text-white/78" aria-live="polite">
@@ -111,7 +138,7 @@ export function StudentSignUpForm() {
 
       <button
         type="button"
-        className="flex h-[42px] w-full transform-gpu cursor-pointer items-center justify-center gap-3 rounded-[4px] bg-[#f4f4f4] text-[13px] font-extrabold text-[#202020] transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_18px_34px_rgba(0,0,0,0.16)]"
+        className="flex h-[42px] w-full transform-gpu cursor-pointer items-center justify-center gap-3 rounded-sm bg-[#f4f4f4] text-[13px] font-extrabold text-[#202020] transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_18px_34px_rgba(0,0,0,0.16)]"
       >
         <GoogleIcon />
         Sign up with Google

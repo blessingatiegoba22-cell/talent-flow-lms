@@ -7,28 +7,52 @@ import { Lock, Mail } from "lucide-react";
 
 import { AuthDivider } from "@/components/auth/auth-divider";
 import { AuthField } from "@/components/auth/auth-field";
+import { AuthSubmitButton } from "@/components/auth/auth-submit-button";
+import {
+  getAuthFormErrors,
+  hasErrors,
+} from "@/components/auth/auth-validation";
 import { GoogleIcon } from "@/components/auth/google-icon";
+import { useFieldErrors } from "@/components/auth/use-field-errors";
+import { dashboardHrefByRole } from "@/lib/routes";
+import { simulatedActionDelayMs } from "@/lib/timing";
+
+const signInLabels = {
+  email: "Email",
+  password: "Password",
+};
 
 export function SignInForm() {
+  const { clearError, errors, setErrors } = useFieldErrors();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [status, setStatus] = useState("");
   const router = useRouter();
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    if (!event.currentTarget.reportValidity()) {
-      setStatus("");
+    const nextErrors = getAuthFormErrors(event.currentTarget, signInLabels);
+
+    if (hasErrors(nextErrors)) {
+      setErrors(nextErrors);
+      setStatus("Check the highlighted fields and try again.");
       return;
     }
 
-    setStatus("");
-    router.push("/learner/dashboard");
+    setErrors({});
+    setIsSubmitting(true);
+    setStatus("Signing you in...");
+
+    window.setTimeout(() => {
+      router.push(dashboardHrefByRole.learner);
+    }, simulatedActionDelayMs);
   }
 
   return (
     <form
       onSubmit={handleSubmit}
-      className="mx-auto mt-7 w-full max-w-[320px] space-y-3 sm:max-w-[336px]"
+      noValidate
+      className="mx-auto mt-7 w-full max-w-80 space-y-3 sm:max-w-84"
     >
       <AuthField
         icon={Mail}
@@ -37,6 +61,8 @@ export function SignInForm() {
         type="email"
         placeholder="Email"
         autoComplete="email"
+        error={errors.email}
+        onInput={() => clearError("email")}
         required
       />
 
@@ -48,11 +74,13 @@ export function SignInForm() {
         placeholder="Password"
         autoComplete="current-password"
         minLength={8}
+        error={errors.password}
+        onInput={() => clearError("password")}
         required
         suffix={
           <Link
             href="/forgot-password"
-            className="cursor-pointer text-[var(--brand-blue-500)] transition-colors duration-300 ease-in-out hover:text-[var(--brand-blue-400)]"
+            className="cursor-pointer text-(--brand-blue-500) transition-colors duration-300 ease-in-out hover:text-(--brand-blue-400)"
           >
             Forgot password
           </Link>
@@ -63,17 +91,19 @@ export function SignInForm() {
         <input
           type="checkbox"
           name="remember"
-          className="h-5 w-5 cursor-pointer rounded-[4px] border-0 accent-[var(--brand-blue-500)]"
+          className="h-5 w-5 cursor-pointer rounded-sm border-0 accent-(--brand-blue-500)"
         />
         remember Me
       </label>
 
-      <button
+      <AuthSubmitButton
         type="submit"
-        className="mt-5 h-10 w-full transform-gpu cursor-pointer rounded-[5px] bg-[var(--brand-blue-500)] text-[13px] font-bold text-white shadow-[0_18px_34px_rgba(37,99,235,0.22)] transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:bg-[var(--brand-blue-400)] hover:shadow-[0_22px_38px_rgba(37,99,235,0.28)] focus:outline-none focus:ring-4 focus:ring-[rgba(37,99,235,0.25)] sm:h-[42px]"
+        isLoading={isSubmitting}
+        loadingLabel="Signing in..."
+        className="mt-5 h-10 sm:h-[42px]"
       >
         Sign In
-      </button>
+      </AuthSubmitButton>
 
       {status ? (
         <p className="text-center text-xs font-semibold text-white/75" aria-live="polite">

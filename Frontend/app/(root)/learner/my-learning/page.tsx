@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
-import { LearningCourseSection } from "@/components/dashboard/learner-widgets";
+import { LearningCourseSection } from "@/components/dashboard/learner-course-widgets";
+import { DashboardPageHeader } from "@/components/dashboard/page-heading";
 import {
   myLearningActiveCourses,
   myLearningCompletedCourses,
@@ -14,13 +15,12 @@ export const metadata: Metadata = {
 
 export default function MyLearningPage() {
   return (
-    <div className="mx-auto max-w-[1120px] animate-fade-up">
-      <h1 className="text-[32px] font-extrabold leading-tight text-black sm:text-[36px]">
-        My Courses
-      </h1>
-      <p className="mt-5 text-[15px] font-medium text-black">
-        All your enrolled courses and progress
-      </p>
+    <div className="mx-auto max-w-280 animate-fade-up">
+      <DashboardPageHeader
+        title="My Courses"
+        description="All your enrolled courses and progress"
+        descriptionClassName="text-black sm:mt-5"
+      />
 
       <LearningCourseSection
         title="Enrolled Courses  (12)"

@@ -4,7 +4,8 @@ import {
   DiscussionPostCard,
   MessageComposer,
   ParticipantsPanel,
-} from "@/components/dashboard/learner-widgets";
+} from "@/components/dashboard/learner-discussion-widgets";
+import { DashboardPageHeader } from "@/components/dashboard/page-heading";
 import { discussionParticipants, discussionPosts } from "@/data/dashboard";
 
 export const metadata: Metadata = {
@@ -15,22 +16,20 @@ export const metadata: Metadata = {
 
 export default function LearnerDiscussionsPage() {
   return (
-    <div className="mx-auto grid max-w-[1120px] gap-8 animate-fade-up lg:grid-cols-[minmax(0,1fr)_382px]">
+    <div className="mx-auto grid max-w-280 gap-6 animate-fade-up lg:grid-cols-[minmax(0,1fr)_382px] lg:gap-8">
       <section>
-        <h1 className="text-[32px] font-extrabold leading-tight text-black sm:text-[36px]">
-          Discussion
-        </h1>
-        <p className="mt-4 text-[15px] font-medium text-[#8a8a8a]">
-          Team discussions and updates
-        </p>
+        <DashboardPageHeader
+          title="Discussion"
+          description="Team discussions and updates"
+        />
 
-        <div className="mt-14 space-y-14">
+        <div className="mt-8 space-y-6 sm:mt-10 sm:space-y-8 lg:mt-14">
           {discussionPosts.map((post) => (
             <DiscussionPostCard key={`${post.name}-${post.time}`} post={post} />
           ))}
         </div>
 
-        <div className="mt-32 lg:mt-36">
+        <div className="mt-8 sm:mt-10 lg:mt-16">
           <MessageComposer />
         </div>
       </section>

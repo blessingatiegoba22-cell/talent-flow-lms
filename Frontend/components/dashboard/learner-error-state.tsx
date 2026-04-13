@@ -46,7 +46,7 @@ export function LearnerErrorState({ error, reset }: LearnerErrorStateProps) {
           ) : null}
           {error.stack ? (
             <details className="mt-4">
-              <summary className="cursor-pointer text-[12px] font-extrabold text-[var(--brand-blue-700)]">
+              <summary className="cursor-pointer text-[12px] font-extrabold text-(--brand-blue-700)">
                 Show stack trace
               </summary>
               <pre className="mt-3 max-h-[220px] overflow-auto whitespace-pre-wrap break-words text-[12px] leading-relaxed text-[#404040]">
@@ -60,7 +60,7 @@ export function LearnerErrorState({ error, reset }: LearnerErrorStateProps) {
           <button
             type="button"
             onClick={() => router.back()}
-            className="inline-flex h-12 cursor-pointer items-center justify-center gap-2 rounded-[8px] border border-[#b8b8b8] bg-white text-[14px] font-extrabold text-[#262626] transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:border-[var(--brand-blue-500)] hover:text-[var(--brand-blue-500)]"
+            className="inline-flex h-12 cursor-pointer items-center justify-center gap-2 rounded-lg border border-[#b8b8b8] bg-white text-[14px] font-extrabold text-[#262626] transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:border-(--brand-blue-500) hover:text-(--brand-blue-500)"
           >
             <ArrowLeft className="h-4 w-4" aria-hidden="true" />
             Go back
@@ -68,14 +68,14 @@ export function LearnerErrorState({ error, reset }: LearnerErrorStateProps) {
           <button
             type="button"
             onClick={reset}
-            className="inline-flex h-12 cursor-pointer items-center justify-center gap-2 rounded-[8px] bg-[var(--brand-blue-500)] text-[14px] font-extrabold text-white shadow-[0_14px_24px_rgba(37,99,235,0.24)] transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:bg-[var(--brand-blue-400)]"
+            className="inline-flex h-12 cursor-pointer items-center justify-center gap-2 rounded-lg bg-(--brand-blue-500) text-[14px] font-extrabold text-white shadow-[0_14px_24px_rgba(37,99,235,0.24)] transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:bg-(--brand-blue-400)"
           >
             <RotateCcw className="h-4 w-4" aria-hidden="true" />
             Try again
           </button>
           <Link
             href="/learner/dashboard"
-            className="inline-flex h-12 cursor-pointer items-center justify-center gap-2 rounded-[8px] border border-[#b8b8b8] bg-white text-[14px] font-extrabold text-[#262626] transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:border-[var(--brand-blue-500)] hover:text-[var(--brand-blue-500)]"
+            className="inline-flex h-12 cursor-pointer items-center justify-center gap-2 rounded-lg border border-[#b8b8b8] bg-white text-[14px] font-extrabold text-[#262626] transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:border-(--brand-blue-500) hover:text-(--brand-blue-500)"
           >
             <Home className="h-4 w-4" aria-hidden="true" />
             Dashboard

@@ -5,50 +5,71 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { AuthConfirmationModal } from "@/components/auth/auth-confirmation-modal";
+import {
+  getAuthFormErrors,
+  hasPasswordMismatch,
+  hasErrors,
+} from "@/components/auth/auth-validation";
 import { RecoveryButton } from "@/components/auth/recovery-button";
 import { RecoveryInput } from "@/components/auth/recovery-input";
+import { useFieldErrors } from "@/components/auth/use-field-errors";
+import { simulatedActionDelayMs } from "@/lib/timing";
+
+const resetPasswordLabels = {
+  code: "Code",
+  confirmPassword: "Confirm new Password",
+  password: "New Password",
+};
 
 export function ResetPasswordForm() {
   const router = useRouter();
+  const { clearError, errors, setErrors } = useFieldErrors();
   const [feedback, setFeedback] = useState("");
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const form = event.currentTarget;
-    const password = form.elements.namedItem("password") as HTMLInputElement;
-    const confirmPassword = form.elements.namedItem(
-      "confirmPassword",
-    ) as HTMLInputElement;
+    const nextErrors = getAuthFormErrors(form, resetPasswordLabels);
 
-    confirmPassword.setCustomValidity("");
+    if (hasPasswordMismatch(form)) {
+      nextErrors.confirmPassword = "Passwords do not match.";
+    }
 
-    if (!form.reportValidity()) {
+    if (hasErrors(nextErrors)) {
+      setErrors(nextErrors);
+      setFeedback("Check the highlighted fields and try again.");
+      return;
+    }
+
+    setErrors({});
+    setFeedback("Resetting your password...");
+    setIsSubmitting(true);
+
+    window.setTimeout(() => {
+      setIsSubmitting(false);
       setFeedback("");
-      return;
-    }
-
-    if (password.value !== confirmPassword.value) {
-      confirmPassword.setCustomValidity("Passwords do not match.");
-      confirmPassword.reportValidity();
-      setFeedback("Passwords do not match.");
-      return;
-    }
-
-    setFeedback("");
-    setIsConfirmationOpen(true);
+      setIsConfirmationOpen(true);
+    }, simulatedActionDelayMs);
   }
 
   return (
     <>
-      <form onSubmit={handleSubmit} className="mt-6 w-full space-y-3 sm:mt-8 sm:space-y-4">
+      <form
+        onSubmit={handleSubmit}
+        noValidate
+        className="mt-6 w-full space-y-3 sm:mt-8 sm:space-y-4"
+      >
         <RecoveryInput
           label="Code"
           name="code"
           inputMode="numeric"
           pattern="[0-9]{4,8}"
           placeholder="Code"
+          error={errors.code}
+          onInput={() => clearError("code")}
           required
         />
         <RecoveryInput
@@ -58,6 +79,8 @@ export function ResetPasswordForm() {
           placeholder="New Password"
           autoComplete="new-password"
           minLength={8}
+          error={errors.password}
+          onInput={() => clearError("password")}
           required
         />
         <RecoveryInput
@@ -67,11 +90,17 @@ export function ResetPasswordForm() {
           placeholder="Confirm new Password"
           autoComplete="new-password"
           minLength={8}
+          error={errors.confirmPassword}
           required
-          onInput={(event) => event.currentTarget.setCustomValidity("")}
+          onInput={() => clearError("confirmPassword")}
         />
 
-        <RecoveryButton type="submit" className="mt-5 sm:mt-7">
+        <RecoveryButton
+          type="submit"
+          isLoading={isSubmitting}
+          loadingLabel="Resetting..."
+          className="mt-5 sm:mt-7"
+        >
           Reset Password
         </RecoveryButton>
 
@@ -85,7 +114,7 @@ export function ResetPasswordForm() {
           Didn&apos;t get a code
           <Link
             href="/forgot-password"
-            className="ml-4 cursor-pointer font-extrabold text-white transition-colors duration-300 ease-in-out hover:text-[var(--brand-blue-200)] sm:ml-16"
+            className="ml-4 cursor-pointer font-extrabold text-white transition-colors duration-300 ease-in-out hover:text-(--brand-blue-200) sm:ml-16"
           >
             Resend code
           </Link>

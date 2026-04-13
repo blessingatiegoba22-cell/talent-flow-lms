@@ -20,7 +20,7 @@ export function AuthShell({
   return (
     <main
       className={cn(
-        "relative min-h-screen overflow-hidden bg-[var(--brand-blue-950)] text-[var(--neutral-50)]",
+        "relative min-h-screen overflow-hidden bg-(--brand-blue-950) text-(--neutral-50)",
         className,
       )}
     >
@@ -30,7 +30,7 @@ export function AuthShell({
         <Link
           href={backHref}
           aria-label={backLabel}
-          className="absolute left-5 top-6 z-20 inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-full text-white/85 transition-all duration-300 ease-in-out hover:-translate-x-1 hover:bg-white/8 hover:text-white sm:left-10 lg:left-[72px]"
+          className="absolute left-5 top-6 z-20 inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-full text-white/85 transition-all duration-300 ease-in-out hover:-translate-x-1 hover:bg-white/8 hover:text-white sm:left-10 lg:left-18"
         >
           <ArrowLeft className="h-7 w-7" aria-hidden="true" />
         </Link>

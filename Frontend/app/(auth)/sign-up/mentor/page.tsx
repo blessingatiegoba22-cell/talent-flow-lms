@@ -19,7 +19,7 @@ export default function MentorRequestPage() {
           <AuthLogo priority className="mt-1" />
 
           <div className="mt-7 animate-fade-up sm:mt-8">
-            <h1 className="mx-auto inline-flex min-w-[170px] justify-center rounded-[7px] bg-[var(--brand-blue-500)] px-6 py-2 text-[18px] font-extrabold leading-tight text-white shadow-[0_14px_30px_rgba(37,99,235,0.22)]">
+            <h1 className="mx-auto inline-flex min-w-[170px] justify-center rounded-[7px] bg-(--brand-blue-500) px-6 py-2 text-[18px] font-extrabold leading-tight text-white shadow-[0_14px_30px_rgba(37,99,235,0.22)]">
               Mentor Request
             </h1>
             <p className="mx-auto mt-5 max-w-[540px] text-[14px] font-bold leading-[1.45] text-white/78">

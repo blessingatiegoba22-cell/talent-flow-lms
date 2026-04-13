@@ -76,12 +76,12 @@ export function FeaturesSection() {
         <div className="animate-fade-in overflow-hidden rounded-lg bg-white shadow-[0_3px_8px_rgba(16,24,40,0.18)] transition-[transform,box-shadow] duration-700 ease-out hover:-translate-y-px hover:shadow-[0_14px_30px_rgba(16,24,40,0.16)]">
           <div className="grid gap-7 p-6 sm:p-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-center lg:gap-10 xl:gap-14">
             <div className="max-w-[420px]">
-              <h2 className="text-[length:var(--text-display-xs)] leading-[var(--text-display-xs--line-height)] font-bold tracking-[0] text-[#060606] sm:text-[length:var(--text-display-sm)] sm:leading-[var(--text-display-sm--line-height)]">
+              <h2 className="text-[length:var(--text-display-xs)] leading-(--text-display-xs--line-height) font-bold tracking-[0] text-[#060606] sm:text-[length:var(--text-display-sm)] sm:leading-(--text-display-sm--line-height)">
                 Everything you need to learn, teach, and manage all in one place
               </h2>
 
-              <p className="mt-4 text-[length:var(--text-sm)] leading-[var(--text-sm--line-height)] text-[#2f3440]">
-                <span className="font-semibold text-[var(--brand-blue-500)]">
+              <p className="mt-4 text-[length:var(--text-sm)] leading-(--text-sm--line-height) text-[#2f3440]">
+                <span className="font-semibold text-(--brand-blue-500)">
                   Talent Flow
                 </span>{" "}
                 is designed to remove friction, improve navigation and create a
@@ -91,14 +91,14 @@ export function FeaturesSection() {
               <div className="mt-6 flex flex-col gap-3 min-[420px]:flex-row">
                 <Link
                   href="/sign-up"
-                  className="inline-flex h-12 items-center justify-center rounded-lg bg-[var(--brand-blue-500)] px-8 text-[length:var(--text-sm)] font-semibold text-white shadow-[0_10px_18px_rgba(37,99,235,0.22)] transition-[transform,background-color,box-shadow] duration-500 ease-out hover:-translate-y-px hover:bg-[var(--brand-blue-600)] hover:shadow-[0_15px_26px_rgba(37,99,235,0.25)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-blue-500)]"
+                  className="inline-flex h-12 items-center justify-center rounded-lg bg-(--brand-blue-500) px-8 text-[length:var(--text-sm)] font-semibold text-white shadow-[0_10px_18px_rgba(37,99,235,0.22)] transition-[transform,background-color,box-shadow] duration-500 ease-out hover:-translate-y-px hover:bg-(--brand-blue-600) hover:shadow-[0_15px_26px_rgba(37,99,235,0.25)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--brand-blue-500)"
                 >
                   Get Started
                 </Link>
 
                 <a
                   href="#about"
-                  className="inline-flex h-12 items-center justify-center rounded-lg border border-[#8f949d] bg-white px-8 text-[length:var(--text-sm)] font-semibold text-[#252932] transition-[transform,color,border-color,box-shadow] duration-500 ease-out hover:-translate-y-px hover:border-[var(--brand-blue-500)] hover:text-[var(--brand-blue-600)] hover:shadow-[0_12px_24px_rgba(16,24,40,0.10)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-blue-500)]"
+                  className="inline-flex h-12 items-center justify-center rounded-lg border border-[#8f949d] bg-white px-8 text-[length:var(--text-sm)] font-semibold text-[#252932] transition-[transform,color,border-color,box-shadow] duration-500 ease-out hover:-translate-y-px hover:border-(--brand-blue-500) hover:text-(--brand-blue-600) hover:shadow-[0_12px_24px_rgba(16,24,40,0.10)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--brand-blue-500)"
                 >
                   Learn More
                 </a>
@@ -119,7 +119,7 @@ export function FeaturesSection() {
         </div>
 
         <div className="mt-9 animate-fade-up text-center" style={{ animationDelay: "80ms" }}>
-          <h3 className="text-[length:var(--text-display-xs)] leading-[var(--text-display-xs--line-height)] font-bold tracking-[0] text-[#070707] sm:text-[length:var(--text-display-sm)] sm:leading-[var(--text-display-sm--line-height)]">
+          <h3 className="text-[length:var(--text-display-xs)] leading-(--text-display-xs--line-height) font-bold tracking-[0] text-[#070707] sm:text-[length:var(--text-display-sm)] sm:leading-(--text-display-sm--line-height)">
             Our Features
           </h3>
         </div>
@@ -131,13 +131,13 @@ export function FeaturesSection() {
               className="animate-fade-in group rounded-lg bg-white p-5 shadow-[0_3px_7px_rgba(16,24,40,0.18)] transition-[transform,box-shadow] duration-700 ease-out hover:-translate-y-px hover:shadow-[0_16px_28px_rgba(16,24,40,0.16)] sm:p-6"
               style={{ animationDelay: `${index * 80}ms` }}
             >
-              <h4 className="text-[length:var(--text-xl)] leading-[var(--text-xl--line-height)] font-bold tracking-[0] text-[#111111]">
+              <h4 className="text-[length:var(--text-xl)] leading-(--text-xl--line-height) font-bold tracking-[0] text-[#111111]">
                 {feature.title}
               </h4>
-              <p className="mt-2 text-[length:var(--text-sm)] leading-[var(--text-sm--line-height)] text-[#20242b]">
+              <p className="mt-2 text-[length:var(--text-sm)] leading-(--text-sm--line-height) text-[#20242b]">
                 {feature.kicker}
               </p>
-              <p className="mt-6 max-w-[36rem] text-[length:var(--text-sm)] leading-[var(--text-md--line-height)] text-[#20242b]">
+              <p className="mt-6 max-w-[36rem] text-[length:var(--text-sm)] leading-(--text-md--line-height) text-[#20242b]">
                 {feature.body}
               </p>
 
@@ -145,13 +145,13 @@ export function FeaturesSection() {
                 {feature.items.map(({ icon: Icon, label }, itemIndex) => (
                   <li
                     key={label}
-                    className="flex items-start gap-3 text-[length:var(--text-sm)] leading-[var(--text-sm--line-height)] text-[#1e2430]"
+                    className="flex items-start gap-3 text-[length:var(--text-sm)] leading-(--text-sm--line-height) text-[#1e2430]"
                   >
                     <Icon
                       className={
                         itemIndex === 0
-                          ? "mt-0.5 h-4 w-4 shrink-0 text-[var(--brand-blue-500)] transition-transform duration-500 ease-out group-hover:scale-105"
-                          : "mt-0.5 h-4 w-4 shrink-0 text-[#101010] transition-[transform,color] duration-500 ease-out group-hover:scale-105 group-hover:text-[var(--brand-blue-500)]"
+                          ? "mt-0.5 h-4 w-4 shrink-0 text-(--brand-blue-500) transition-transform duration-500 ease-out group-hover:scale-105"
+                          : "mt-0.5 h-4 w-4 shrink-0 text-[#101010] transition-[transform,color] duration-500 ease-out group-hover:scale-105 group-hover:text-(--brand-blue-500)"
                       }
                       aria-hidden="true"
                       strokeWidth={1.8}
@@ -164,7 +164,7 @@ export function FeaturesSection() {
           ))}
         </div>
 
-        <div className="mt-9 animate-fade-in rounded-lg bg-[var(--brand-blue-500)] px-5 py-5 text-white shadow-[0_14px_30px_rgba(37,99,235,0.24)]">
+        <div className="mt-9 animate-fade-in rounded-lg bg-(--brand-blue-500) px-5 py-5 text-white shadow-[0_14px_30px_rgba(37,99,235,0.24)]">
           <div className="grid gap-4 text-[length:var(--text-sm)] font-semibold sm:grid-cols-3 sm:items-center sm:gap-6">
             {featureHighlights.map(({ icon: Icon, label }) => (
               <div

@@ -31,7 +31,7 @@ export default function SignInPage() {
           Don&apos;t have an account?
           <Link
             href="/sign-up"
-            className="ml-1 font-extrabold text-white transition hover:text-[var(--brand-blue-200)]"
+            className="ml-1 font-extrabold text-white transition hover:text-(--brand-blue-200)"
           >
             Sign Up
           </Link>

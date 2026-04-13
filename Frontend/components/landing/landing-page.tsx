@@ -6,7 +6,7 @@ import { LandingNavbar } from "./landing-navbar";
 
 export function LandingPage() {
   return (
-    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
+    <div className="min-h-screen bg-(--background) text-(--foreground)">
       <LandingNavbar />
 
       <main>

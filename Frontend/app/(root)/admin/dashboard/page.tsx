@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 
 export default function AdminDashboardPage() {
   return (
-    <div className="mx-auto max-w-[1024px] animate-fade-up xl:max-w-[1080px]">
+    <div className="mx-auto max-w-5xl animate-fade-up xl:max-w-[1080px]">
       <section>
         <h1 className="text-[26px] font-extrabold leading-tight text-black sm:text-[29px]">
           Welcome back, Admin
@@ -42,7 +42,7 @@ export default function AdminDashboardPage() {
           <AdminMetrics metrics={adminMetrics} />
           <QuickActions
             actions={adminQuickActions}
-            className="rounded-[4px] border-0 bg-[#f2f2f2]"
+            className="rounded-sm border-0 bg-[#f2f2f2]"
             title="Quick Action"
           />
         </div>

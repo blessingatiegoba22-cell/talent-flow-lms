@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 
+import { FilterBar } from "@/components/dashboard/learner-filter-bar";
+import { CatalogCourseSection } from "@/components/dashboard/learner-course-widgets";
+import { DashboardPageHeader } from "@/components/dashboard/page-heading";
 import {
-  CatalogCourseSection,
-  FilterBar,
-} from "@/components/dashboard/learner-widgets";
-import {
+  catalogFilterGroups,
   catalogPopularCourses,
   catalogRecommendedCourses,
 } from "@/data/dashboard";
@@ -17,18 +17,19 @@ export const metadata: Metadata = {
 
 export default function CourseCatalogPage() {
   return (
-    <div className="mx-auto max-w-[1120px] animate-fade-up">
-      <h1 className="text-[32px] font-extrabold leading-tight text-black sm:text-[36px]">
-        Courses
-      </h1>
+    <div className="mx-auto max-w-280 animate-fade-up">
+      <DashboardPageHeader title="Courses" />
 
-      <FilterBar filters={["Categories", "Level", "Duration", "Price", "Sort By"]} />
+      <FilterBar groups={catalogFilterGroups} />
 
       <CatalogCourseSection
         title="Recommended for you"
         courses={catalogRecommendedCourses}
       />
-      <CatalogCourseSection title="Popular Courses" courses={catalogPopularCourses} />
+      <CatalogCourseSection
+        title="Popular Courses"
+        courses={catalogPopularCourses}
+      />
     </div>
   );
 }
