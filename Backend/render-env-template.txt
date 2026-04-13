@@ -1,0 +1,31 @@
+# ========================================
+# TALENT FLOW LMS - PRODUCTION
+# ========================================
+
+# DATABASE CONFIGURATION - RENDER POSTGRESQL
+# ========================================
+# Render provides PostgreSQL connection automatically
+# These will be set by Render environment variables
+# DB_HOST=your-render-db-host.compute-1.amazonaws.com
+# DB_PORT=5432
+# DB_USER=your_db_user
+# DB_PASSWORD=your_secure_db_password
+# DB_DATABASE=talent_flow_prod
+
+# API CONFIGURATION
+# ========================================
+# Generate a secure JWT secret key
+SECRET_KEY=your-super-secure-jwt-secret-key-min-32-chars-change-this-in-production-2024
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=60
+
+# ADMIN CONFIGURATION
+# ========================================
+# Change these to secure admin credentials
+FIRST_ADMIN_EMAIL=admin@yourdomain.com
+FIRST_ADMIN_PASSWORD=YourSecureAdminPassword123!
+
+# RENDER-SPECIFIC CONFIGURATION
+# ========================================
+# Render automatically sets PORT
+PORT=8000
