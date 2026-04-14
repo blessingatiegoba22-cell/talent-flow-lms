@@ -82,7 +82,7 @@ export default function Features() {
 
           {/* Buttons */}
           <div className="flex flex-col sm:flex-row items-center gap-4 pt-2 w-full sm:w-auto">
-            <PrimaryButton title="Get Started" link="/sign-up" />
+            <PrimaryButton title="Get Started" link="/role-selection" />
             <SecondaryButton title="Learn More" link="/#" />
           </div>
           

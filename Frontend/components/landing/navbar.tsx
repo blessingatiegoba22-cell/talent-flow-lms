@@ -78,7 +78,7 @@ export default function Navbar() {
           {/* Mobile CTAs (Shows here if screen is very small) */}
           <div className="flex flex-col gap-y-4 sm:hidden">
             <PrimaryButton title="Login" link="/sign-in" />
-            <SecondaryButton title="Sign Up" link="/sign-up" />
+            <SecondaryButton title="Sign Up" link="/role-selection" />
           </div>
         </div>
       )}

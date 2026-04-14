@@ -24,7 +24,7 @@ import Avatar from "../Shareable/Avartar";
           </p>
           
           <div className="flex flex-row gap-x-4 md:gap-x-8 mt-4">
-            <PrimaryButton title="Get Started" link="/sign-up" />
+            <PrimaryButton title="Get Started" link="/role-selection" />
             <SecondaryButton title="Learn More" link="/#" />
           </div>
 
