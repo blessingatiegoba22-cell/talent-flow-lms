@@ -1,6 +1,7 @@
 import Image from "next/image";
-import { ChevronDown, UsersRound } from "lucide-react";
+import { UsersRound } from "lucide-react";
 
+import { AnimatedSelect } from "@/components/dashboard/animated-select";
 import { cn } from "@/lib/utils";
 
 export type TeamSummary = {
@@ -254,21 +255,15 @@ function TeamSelect({
   options: readonly string[];
 }) {
   return (
-    <div className={cn("relative w-full max-w-[156px]", className)}>
-      <select
-        defaultValue={defaultValue}
-        className="h-11 w-full appearance-none rounded-md border-0 bg-[#f7f7f7] px-4 pr-9 text-[15px] font-medium text-[#171717] outline-none transition-colors duration-300 focus:bg-white focus:ring-4 focus:ring-[rgba(37,99,235,0.14)] sm:h-12 sm:text-[16px]"
-      >
-        {options.map((option) => (
-          <option key={option} value={option}>
-            {option}
-          </option>
-        ))}
-      </select>
-      <ChevronDown
-        className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-black"
-        aria-hidden="true"
-      />
-    </div>
+    <AnimatedSelect
+      ariaLabel="Assign team"
+      buttonClassName="h-11 border-0 px-4 text-[15px] font-medium text-[#171717] shadow-none hover:bg-white hover:text-(--brand-blue-600) sm:h-12 sm:text-[16px]"
+      className={cn("w-full max-w-[156px]", className)}
+      defaultValue={defaultValue}
+      menuClassName="z-40 min-w-[180px]"
+      optionClassName="text-[14px]"
+      options={options}
+      placeholder={defaultValue}
+    />
   );
 }

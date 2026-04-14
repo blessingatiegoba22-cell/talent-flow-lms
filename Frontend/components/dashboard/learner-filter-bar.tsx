@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, SlidersHorizontal, X } from "lucide-react";
+import { SlidersHorizontal, X } from "lucide-react";
 
+import { AnimatedSelect } from "@/components/dashboard/animated-select";
 import { cn } from "@/lib/utils";
 
 export type CatalogFilterGroup = {
@@ -30,8 +31,16 @@ export function FilterBar({ filters = [], groups }: FilterBarProps) {
       label: filter,
       options: fallbackOptions[filter] ?? ["All"],
     }));
-  const [activeFilter, setActiveFilter] = useState<string | null>(null);
+  const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>(
+    {},
+  );
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const updateFilter = (label: string, option: string) => {
+    setSelectedOptions((current) => ({
+      ...current,
+      [label]: option,
+    }));
+  };
 
   return (
     <section className="mt-7 sm:mt-8" aria-label="Course filters">
@@ -47,47 +56,17 @@ export function FilterBar({ filters = [], groups }: FilterBarProps) {
       </div>
 
       <div className="relative hidden rounded-lg border border-[#c7c7c7] bg-white p-3 md:grid md:grid-cols-3 md:gap-3 xl:grid-cols-5">
-        {filterGroups.map((group) => {
-          const isActive = activeFilter === group.label;
-
-          return (
-            <div key={group.label} className="relative">
-              <button
-                type="button"
-                onClick={() => setActiveFilter(isActive ? null : group.label)}
-                className={cn(
-                  "flex h-11 w-full cursor-pointer items-center justify-between gap-3 rounded-md border border-transparent bg-[#f7f7f7] px-4 text-left text-[14px] font-extrabold text-black transition-all duration-300 ease-in-out hover:border-(--brand-blue-300) hover:bg-white hover:text-(--brand-blue-600)",
-                  isActive &&
-                    "border-(--brand-blue-300) bg-white text-(--brand-blue-700) shadow-[0_10px_22px_rgba(37,99,235,0.12)]",
-                )}
-                aria-expanded={isActive}
-              >
-                <span className="min-w-0 truncate">{group.label}</span>
-                <ChevronDown
-                  className={cn(
-                    "h-4 w-4 shrink-0 transition-transform duration-300",
-                    isActive && "rotate-180",
-                  )}
-                  aria-hidden="true"
-                />
-              </button>
-
-              {isActive ? (
-                <div className="absolute left-0 top-full z-20 mt-2 w-full min-w-[190px] rounded-lg border border-[#d7d7d7] bg-white p-2 shadow-[0_18px_40px_rgba(0,0,0,0.16)]">
-                  {group.options.map((option) => (
-                    <button
-                      key={option}
-                      type="button"
-                      className="flex min-h-9 w-full cursor-pointer items-center rounded-md px-3 text-left text-[13px] font-semibold text-[#2b2b2b] transition-colors duration-200 hover:bg-[#eef3ff] hover:text-(--brand-blue-700)"
-                    >
-                      {option}
-                    </button>
-                  ))}
-                </div>
-              ) : null}
-            </div>
-          );
-        })}
+        {filterGroups.map((group) => (
+          <AnimatedSelect
+            key={group.label}
+            ariaLabel={`${group.label} filter`}
+            buttonClassName="border border-transparent hover:border-(--brand-blue-300)"
+            onChange={(option) => updateFilter(group.label, option)}
+            options={group.options}
+            placeholder={group.label}
+            value={selectedOptions[group.label] ?? ""}
+          />
+        ))}
       </div>
 
       {isMobileOpen ? (
@@ -129,7 +108,12 @@ export function FilterBar({ filters = [], groups }: FilterBarProps) {
                       <button
                         key={option}
                         type="button"
-                        className="min-h-9 rounded-md border border-[#d7d7d7] bg-[#f8f8f8] px-3 text-[13px] font-semibold text-[#252525] transition-colors duration-200 hover:border-(--brand-blue-300) hover:bg-[#eef3ff] hover:text-(--brand-blue-700)"
+                        onClick={() => updateFilter(group.label, option)}
+                        className={cn(
+                          "min-h-9 rounded-md border border-[#d7d7d7] bg-[#f8f8f8] px-3 text-[13px] font-semibold text-[#252525] transition-colors duration-200 hover:border-(--brand-blue-300) hover:bg-[#eef3ff] hover:text-(--brand-blue-700)",
+                          selectedOptions[group.label] === option &&
+                            "border-(--brand-blue-300) bg-[#eef3ff] text-(--brand-blue-700)",
+                        )}
                       >
                         {option}
                       </button>
@@ -142,6 +126,7 @@ export function FilterBar({ filters = [], groups }: FilterBarProps) {
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
               <button
                 type="button"
+                onClick={() => setSelectedOptions({})}
                 className="h-11 rounded-lg border border-[#c7c7c7] bg-white text-[14px] font-extrabold text-[#2b2b2b]"
               >
                 Reset

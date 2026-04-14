@@ -2,6 +2,7 @@ import type { LucideIcon } from "lucide-react";
 import {
   Bell,
   BookOpenCheck,
+  CalendarCheck,
   Circle,
   ClipboardList,
   GraduationCap,
@@ -57,6 +58,41 @@ type Action = {
   primary?: boolean;
 };
 
+export type NotificationTone = "blue" | "brown" | "softBlue";
+
+export type DashboardNotification =
+  | {
+      id: string;
+      media: {
+        icon: LucideIcon;
+        kind: "icon";
+        tone: NotificationTone;
+      };
+      message: string;
+      surface?: "muted";
+      time: string;
+      title: string;
+      unread?: boolean;
+    }
+  | {
+      id: string;
+      media: {
+        alt: string;
+        kind: "image";
+        src: string;
+      };
+      message: string;
+      surface?: "muted";
+      time: string;
+      title: string;
+      unread?: boolean;
+    };
+
+export type DashboardNotificationSection = {
+  label: string;
+  notifications: readonly DashboardNotification[];
+};
+
 export const dashboardConfigs: Record<DashboardRole, DashboardConfig> = {
   admin: {
     avatar: "/user-icon-1.png",
@@ -70,7 +106,7 @@ export const dashboardConfigs: Record<DashboardRole, DashboardConfig> = {
         { href: "#", icon: MessageSquare, label: "Discussions" },
       ],
       [
-        { href: "#", icon: Bell, label: "Notifications" },
+        { href: "/admin/notifications", icon: Bell, label: "Notifications" },
         { href: "/admin/profile", icon: User, label: "Profile" },
       ],
     ],
@@ -90,7 +126,7 @@ export const dashboardConfigs: Record<DashboardRole, DashboardConfig> = {
         { href: "/learner/discussions", icon: MessageSquare, label: "Discussions" },
       ],
       [
-        { href: "#", icon: Bell, label: "Notifications" },
+        { href: "/learner/notifications", icon: Bell, label: "Notifications" },
         { href: "/learner/profile", icon: User, label: "Profile" },
       ],
     ],
@@ -110,7 +146,7 @@ export const dashboardConfigs: Record<DashboardRole, DashboardConfig> = {
         { href: "#", icon: MessageSquare, label: "Discussions" },
       ],
       [
-        { href: "#", icon: Bell, label: "Notifications" },
+        { href: "/instructor/notifications", icon: Bell, label: "Notifications" },
         { href: "/instructor/profile", icon: User, label: "Profile" },
       ],
     ],
@@ -119,6 +155,185 @@ export const dashboardConfigs: Record<DashboardRole, DashboardConfig> = {
     role: "instructor",
   },
 };
+
+export const notificationSectionsByRole = {
+  learner: [
+    {
+      label: "Today",
+      notifications: [
+        {
+          id: "learner-grade-uiux",
+          media: { icon: GraduationCap, kind: "icon", tone: "blue" },
+          message:
+            'Your submission for "UIUX Design Fundamentals" has been graded. Your final score is 94/100.',
+          time: "2 hours ago",
+          title: "New Grade Posted: UIUX Design Fundamentals",
+          unread: true,
+        },
+        {
+          id: "learner-mention-samuel",
+          media: {
+            alt: "Samuel avatar",
+            kind: "image",
+            src: "/user-icon-3.png",
+          },
+          message:
+            '"I think @User really hit the nail on the head regarding the Bauhaus influence in modern UI."',
+          time: "5 hours ago",
+          title: "Samuel mentioned you",
+          unread: true,
+        },
+      ],
+    },
+    {
+      label: "Yesterday",
+      notifications: [
+        {
+          id: "learner-deadline-uiux",
+          media: { icon: CalendarCheck, kind: "icon", tone: "brown" },
+          message:
+            "Deadline for the submission of the assignment on UIUX Design Fundamentals is fast approaching",
+          surface: "muted",
+          time: "1 day ago",
+          title: "Upcoming Deadline",
+        },
+      ],
+    },
+    {
+      label: "Last Week",
+      notifications: [
+        {
+          id: "learner-content-mobile",
+          media: { icon: BookOpenCheck, kind: "icon", tone: "softBlue" },
+          message: "A new video was uploaded on the mobile design course",
+          surface: "muted",
+          time: "5 days ago",
+          title: "Course Content Updated",
+        },
+        {
+          id: "learner-content-research",
+          media: { icon: BookOpenCheck, kind: "icon", tone: "softBlue" },
+          message: "New reading material was added to User Research & Testing",
+          surface: "muted",
+          time: "5 days ago",
+          title: "Course Content Updated",
+        },
+      ],
+    },
+  ],
+  instructor: [
+    {
+      label: "Today",
+      notifications: [
+        {
+          id: "instructor-submission-uiux",
+          media: { icon: ClipboardList, kind: "icon", tone: "blue" },
+          message:
+            "Samuel submitted the Week 4 assessment for UIUX Design Fundamentals and is ready for review.",
+          time: "2 hours ago",
+          title: "New Assignment Submitted",
+          unread: true,
+        },
+        {
+          id: "instructor-mention-discussion",
+          media: {
+            alt: "Student avatar",
+            kind: "image",
+            src: "/user-icon-2.png",
+          },
+          message:
+            '"Can you clarify how much detail we should include for the Bauhaus design reference?"',
+          time: "5 hours ago",
+          title: "Student mentioned you",
+          unread: true,
+        },
+      ],
+    },
+    {
+      label: "Yesterday",
+      notifications: [
+        {
+          id: "instructor-deadline-grading",
+          media: { icon: CalendarCheck, kind: "icon", tone: "brown" },
+          message:
+            "Deadline to publish grades for UIUX Design Fundamentals is fast approaching",
+          surface: "muted",
+          time: "1 day ago",
+          title: "Upcoming Deadline",
+        },
+      ],
+    },
+    {
+      label: "Last Week",
+      notifications: [
+        {
+          id: "instructor-content-mobile",
+          media: { icon: BookOpenCheck, kind: "icon", tone: "softBlue" },
+          message: "A new lesson resource was added to the mobile design course",
+          surface: "muted",
+          time: "5 days ago",
+          title: "Course Content Updated",
+        },
+      ],
+    },
+  ],
+  admin: [
+    {
+      label: "Today",
+      notifications: [
+        {
+          id: "admin-user-request",
+          media: { icon: UserPlus, kind: "icon", tone: "blue" },
+          message:
+            "A new instructor request has been submitted and is waiting for account approval.",
+          time: "2 hours ago",
+          title: "New User Request",
+          unread: true,
+        },
+        {
+          id: "admin-mention-team",
+          media: {
+            alt: "Instructor avatar",
+            kind: "image",
+            src: "/user-icon-3.png",
+          },
+          message:
+            '"Please review the latest team allocation before the cohort update goes live."',
+          time: "5 hours ago",
+          title: "Samuel mentioned you",
+          unread: true,
+        },
+      ],
+    },
+    {
+      label: "Yesterday",
+      notifications: [
+        {
+          id: "admin-deadline-cohort",
+          media: { icon: CalendarCheck, kind: "icon", tone: "brown" },
+          message:
+            "Deadline for publishing the next cohort announcement is fast approaching",
+          surface: "muted",
+          time: "1 day ago",
+          title: "Upcoming Deadline",
+        },
+      ],
+    },
+    {
+      label: "Last Week",
+      notifications: [
+        {
+          id: "admin-content-course",
+          media: { icon: BookOpenCheck, kind: "icon", tone: "softBlue" },
+          message: "A course content update was uploaded for review",
+          surface: "muted",
+          time: "5 days ago",
+          title: "Course Content Updated",
+        },
+      ],
+    },
+  ],
+} satisfies Record<DashboardRole, readonly DashboardNotificationSection[]>;
 
 export const learningCourses: Course[] = [
   {

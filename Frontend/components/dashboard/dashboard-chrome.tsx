@@ -10,7 +10,11 @@ import { dashboardConfigs, type DashboardRole } from "@/data/dashboard";
 import { DashboardAccountMenu } from "@/components/dashboard/dashboard-account-menu";
 import { DashboardSidebar } from "@/components/dashboard/dashboard-sidebar";
 import { useAuthSessionStore } from "@/lib/auth-store";
-import { dashboardHrefByRole, signOutRedirectHref } from "@/lib/routes";
+import {
+  dashboardHrefByRole,
+  notificationsHrefByRole,
+  signOutRedirectHref,
+} from "@/lib/routes";
 import { simulatedActionDelayMs } from "@/lib/timing";
 import { cn } from "@/lib/utils";
 
@@ -130,13 +134,14 @@ export function DashboardChrome({ role }: DashboardChromeProps) {
           </div>
 
           <div className="ml-auto flex items-center gap-2 sm:gap-3">
-            <button
-              type="button"
+            <Link
+              href={notificationsHrefByRole[role]}
+              prefetch={false}
               className="hidden h-9 w-9 cursor-pointer items-center justify-center rounded-lg text-(--brand-blue-950) transition-all duration-300 ease-in-out hover:bg-white hover:text-(--brand-blue-500) sm:inline-flex"
               aria-label="Notifications"
             >
               <Bell className="h-5 w-5" aria-hidden="true" />
-            </button>
+            </Link>
 
             <div className="relative" ref={userMenuRef}>
               <button

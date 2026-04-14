@@ -13,3 +13,9 @@ export const profileHrefByRole: Record<DashboardRole, string> = {
   instructor: "/instructor/profile",
   learner: "/learner/profile",
 };
+
+export const notificationsHrefByRole: Record<DashboardRole, string> = {
+  admin: "/admin/notifications",
+  instructor: "/instructor/notifications",
+  learner: "/learner/notifications",
+};

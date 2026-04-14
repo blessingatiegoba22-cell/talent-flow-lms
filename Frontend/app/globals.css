@@ -84,6 +84,12 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 
+  --animate-fade-up: fade-up 0.8s ease-out both;
+  --animate-fade-up-delay: fade-up 0.8s ease-out 0.14s both;
+  --animate-fade-in: fade-in 0.7s ease-out both;
+  --animate-float-soft: float-soft 7s ease-in-out infinite;
+  --animate-sidebar-ad-bounce: sidebar-ad-bounce 4.8s ease-in-out infinite;
+
   --color-brand-blue: var(--brand-blue-500);
   --color-brand-blue-50: var(--brand-blue-50);
   --color-brand-blue-100: var(--brand-blue-100);
@@ -264,22 +270,27 @@ html {
 
 .animate-fade-up {
   animation: fade-up 0.8s ease-out both;
+  will-change: opacity, transform;
 }
 
 .animate-fade-up-delay {
   animation: fade-up 0.8s ease-out 0.14s both;
+  will-change: opacity, transform;
 }
 
 .animate-fade-in {
   animation: fade-in 0.7s ease-out both;
+  will-change: opacity;
 }
 
 .animate-float-soft {
   animation: float-soft 7s ease-in-out infinite;
+  will-change: transform;
 }
 
 .animate-sidebar-ad-bounce {
   animation: sidebar-ad-bounce 4.8s ease-in-out infinite;
+  will-change: transform;
 }
 
 @media (prefers-reduced-motion: reduce) {
