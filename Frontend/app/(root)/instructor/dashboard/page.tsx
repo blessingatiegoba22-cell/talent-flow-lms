@@ -6,7 +6,7 @@ import { ChevronRight } from "lucide-react";
 
 const InstructorDashboardPage = () => {
     return (
-        <div className="max-w-7xl mx-auto p-6 lg:p-10 bg-background min-h-screen">
+    <div className="max-w-9xl space-y-12">
       <header className="mb-10">
         <h1 className="text-display-xs font-bold text-foreground">
           Welcome back, Teddy!

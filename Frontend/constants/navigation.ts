@@ -27,7 +27,10 @@ export const NAVIGATION_CONFIG: Record<string, NavItem[]> = {
   ],
   learner: [
     { name: 'Dashboard', icon: 'LayoutDashboard', href: '/learner/dashboard' },
-    { name: 'My Learning', icon: 'GraduationCap', href: '/learner/learning' },
+    { name: 'Course Catalog', icon: 'Notebook', href: '/learner/catalog'},
+    { name: 'My Learning', icon: 'GraduationCap', href: '/learner/learnings' },
+    { name: 'Teams', icon: 'Users', href: '/learner/teams' },
     { name: 'Assignments', icon: 'FileText', href: '/learner/assignments' },
+    { name: 'Discussions', icon: 'MessqeSquare', href: '/learner/discussions' },
   ],
 };
