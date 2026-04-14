@@ -63,7 +63,6 @@ export default function SignInForm() {
           Please sign in to your account
         </p>
       </div>
-
       <form onSubmit={handleSubmit(onSubmit)} className="mt-10 space-y-5">
         <div className="space-y-4">
           {/* Email */}
@@ -167,7 +166,7 @@ export default function SignInForm() {
         <p className="text-center text-xs md:text-sm text-gray-400 mt-6">
           Don&apos;t have an account?{" "}
           <Link
-            href="/sign-up"
+            href="/role-selection"
             className="text-white font-bold hover:underline ml-1"
           >
             Sign Up
