@@ -166,7 +166,7 @@ export default function SignInForm() {
         <p className="text-center text-xs md:text-sm text-gray-400 mt-6">
           Don&apos;t have an account?{" "}
           <Link
-            href="/sign-up"
+            href="/role-selection"
             className="text-white font-bold hover:underline ml-1"
           >
             Sign Up
