@@ -1,4 +1,4 @@
-import type { ComponentPropsWithoutRef, ReactNode } from "react";
+import { forwardRef, type ComponentPropsWithoutRef, type ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -10,16 +10,20 @@ type AuthFieldProps = ComponentPropsWithoutRef<"input"> & {
   suffix?: ReactNode;
 };
 
-export function AuthField({
-  className,
-  error,
-  icon: Icon,
-  label,
-  name,
-  suffix,
-  "aria-describedby": ariaDescribedBy,
-  ...props
-}: AuthFieldProps) {
+export const AuthField = forwardRef<HTMLInputElement, AuthFieldProps>(
+  function AuthField(
+    {
+      className,
+      error,
+      icon: Icon,
+      label,
+      name,
+      suffix,
+      "aria-describedby": ariaDescribedBy,
+      ...props
+    },
+    ref,
+  ) {
   const errorId = name ? `${name}-error` : undefined;
 
   return (
@@ -35,6 +39,7 @@ export function AuthField({
           aria-invalid={error ? "true" : "false"}
           aria-label={label}
           name={name}
+          ref={ref}
           className={cn(
             "h-10 w-full rounded-sm border border-transparent bg-[#f4f4f4] py-2 pl-11 text-[13px] font-semibold text-[#2f2f2f] outline-none transition duration-300 placeholder:text-[#777] focus:border-(--brand-blue-300) focus:ring-4 focus:ring-[rgba(37,99,235,0.18)]",
             suffix ? "pr-32" : "pr-4",
@@ -57,4 +62,5 @@ export function AuthField({
       ) : null}
     </label>
   );
-}
+  },
+);

@@ -1,9 +1,11 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { CreditCard, LoaderCircle, LogOut, Trash2 } from "lucide-react";
 
+import { useAuthSessionStore } from "@/lib/auth-store";
 import { signOutRedirectHref } from "@/lib/routes";
 import { simulatedActionDelayMs } from "@/lib/timing";
 import { cn } from "@/lib/utils";
@@ -13,12 +15,14 @@ const actionButtonClass =
 
 export function AccountSecurityActions() {
   const router = useRouter();
+  const signOut = useAuthSessionStore((state) => state.signOut);
   const [isSigningOut, setIsSigningOut] = useState(false);
 
   function handleSignOut() {
     setIsSigningOut(true);
 
     window.setTimeout(() => {
+      signOut();
       router.push(signOutRedirectHref);
     }, simulatedActionDelayMs);
   }
@@ -26,13 +30,13 @@ export function AccountSecurityActions() {
   return (
     <div>
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-        <button type="button" className={actionButtonClass}>
+        <Link href="/learner/certificate" className={actionButtonClass}>
           <CreditCard
             className="h-4 w-4 text-(--brand-blue-500)"
             aria-hidden="true"
           />
           View Certificate
-        </button>
+        </Link>
         <button
           type="button"
           className={cn(

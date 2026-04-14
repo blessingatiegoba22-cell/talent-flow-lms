@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Bell, ChevronDown, Menu, Search } from "lucide-react";
@@ -8,7 +9,8 @@ import { Bell, ChevronDown, Menu, Search } from "lucide-react";
 import { dashboardConfigs, type DashboardRole } from "@/data/dashboard";
 import { DashboardAccountMenu } from "@/components/dashboard/dashboard-account-menu";
 import { DashboardSidebar } from "@/components/dashboard/dashboard-sidebar";
-import { signOutRedirectHref } from "@/lib/routes";
+import { useAuthSessionStore } from "@/lib/auth-store";
+import { dashboardHrefByRole, signOutRedirectHref } from "@/lib/routes";
 import { simulatedActionDelayMs } from "@/lib/timing";
 import { cn } from "@/lib/utils";
 
@@ -23,6 +25,7 @@ export function DashboardChrome({ role }: DashboardChromeProps) {
   const userMenuRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const router = useRouter();
+  const signOut = useAuthSessionStore((state) => state.signOut);
   const config = dashboardConfigs[role];
 
   useEffect(() => {
@@ -58,6 +61,7 @@ export function DashboardChrome({ role }: DashboardChromeProps) {
     setIsSigningOut(true);
 
     window.setTimeout(() => {
+      signOut();
       router.push(signOutRedirectHref);
     }, simulatedActionDelayMs);
   }
@@ -90,16 +94,30 @@ export function DashboardChrome({ role }: DashboardChromeProps) {
 
       <header className="fixed left-0 right-0 top-0 z-30 h-[70px] border-b border-black/5 bg-[#f7f7f7] lg:left-55 xl:left-[274px]">
         <div className="flex h-full items-center gap-3 px-4 sm:px-5 lg:px-4 xl:px-5">
-          <button
-            type="button"
-            onClick={() => setIsSidebarOpen(true)}
-            className="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg border border-black/10 bg-white text-(--brand-blue-950) transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:border-(--brand-blue-300) hover:text-(--brand-blue-500) lg:hidden"
-            aria-label="Open dashboard navigation"
+          <Link
+            href={dashboardHrefByRole[role]}
+            className="flex min-w-0 shrink-0 items-center gap-2 lg:hidden"
+            aria-label="TalentFlow dashboard home"
           >
-            <Menu className="h-5 w-5" aria-hidden="true" />
-          </button>
+            <Image
+              src="/logo.png"
+              alt=""
+              width={50}
+              height={48}
+              priority
+              className="h-8 w-auto shrink-0 sm:h-9"
+            />
+            <Image
+              src="/logo-text.png"
+              alt="TalentFlow"
+              width={177}
+              height={48}
+              priority
+              className="h-6 w-auto max-w-[122px] sm:max-w-[142px]"
+            />
+          </Link>
 
-          <div className="relative hidden w-full max-w-[486px] sm:block">
+          <div className="relative hidden w-full max-w-[486px] md:block">
             <Search
               className="pointer-events-none absolute left-5 top-1/2 h-4 w-4 -translate-y-1/2 text-transparent"
               aria-hidden="true"
@@ -111,7 +129,7 @@ export function DashboardChrome({ role }: DashboardChromeProps) {
             />
           </div>
 
-          <div className="ml-auto flex items-center gap-4">
+          <div className="ml-auto flex items-center gap-2 sm:gap-3">
             <button
               type="button"
               className="hidden h-9 w-9 cursor-pointer items-center justify-center rounded-lg text-(--brand-blue-950) transition-all duration-300 ease-in-out hover:bg-white hover:text-(--brand-blue-500) sm:inline-flex"
@@ -164,6 +182,15 @@ export function DashboardChrome({ role }: DashboardChromeProps) {
                 />
               ) : null}
             </div>
+
+            <button
+              type="button"
+              onClick={() => setIsSidebarOpen(true)}
+              className="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg border border-black/10 bg-white text-(--brand-blue-950) transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:border-(--brand-blue-300) hover:text-(--brand-blue-500) lg:hidden"
+              aria-label="Open dashboard navigation"
+            >
+              <Menu className="h-5 w-5" aria-hidden="true" />
+            </button>
           </div>
         </div>
       </header>

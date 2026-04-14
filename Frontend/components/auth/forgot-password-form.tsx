@@ -1,68 +1,66 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Mail } from "lucide-react";
+import { useForm } from "react-hook-form";
 
 import { AuthDivider } from "@/components/auth/auth-divider";
 import { AuthConfirmationModal } from "@/components/auth/auth-confirmation-modal";
 import {
-  getAuthFormErrors,
-  hasErrors,
-} from "@/components/auth/auth-validation";
+  forgotPasswordSchema,
+  type ForgotPasswordFormValues,
+} from "@/components/auth/auth-schemas";
 import { GoogleIcon } from "@/components/auth/google-icon";
 import { RecoveryButton } from "@/components/auth/recovery-button";
 import { RecoveryInput } from "@/components/auth/recovery-input";
-import { useFieldErrors } from "@/components/auth/use-field-errors";
 import { simulatedActionDelayMs } from "@/lib/timing";
-
-const forgotPasswordLabels = {
-  email: "Email",
-};
 
 export function ForgotPasswordForm() {
   const router = useRouter();
-  const { clearError, errors, setErrors } = useFieldErrors();
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const {
+    formState: { errors, isSubmitting },
+    handleSubmit,
+    register,
+    setError,
+  } = useForm<ForgotPasswordFormValues>({
+    defaultValues: {
+      email: "",
+    },
+    resolver: zodResolver(forgotPasswordSchema),
+  });
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    const nextErrors = getAuthFormErrors(event.currentTarget, forgotPasswordLabels);
-
-    if (hasErrors(nextErrors)) {
-      setErrors(nextErrors);
-      return;
-    }
-
-    setErrors({});
-    setIsSubmitting(true);
-
-    window.setTimeout(() => {
-      setIsSubmitting(false);
+  const onSubmit = handleSubmit(async () => {
+    try {
+      await new Promise((resolve) =>
+        window.setTimeout(resolve, simulatedActionDelayMs),
+      );
       setIsConfirmationOpen(true);
-    }, simulatedActionDelayMs);
-  }
+    } catch {
+      setError("root", {
+        message: "Unable to send a reset code right now. Please try again.",
+      });
+    }
+  });
 
   return (
     <>
       <form
-        onSubmit={handleSubmit}
+        onSubmit={onSubmit}
         noValidate
         className="mt-6 w-full space-y-5 sm:mt-8 sm:space-y-8"
       >
         <RecoveryInput
           icon={Mail}
           label="Email"
-          name="email"
           type="email"
           placeholder="Email"
           autoComplete="email"
-          error={errors.email}
-          onInput={() => clearError("email")}
-          required
+          error={errors.email?.message}
+          {...register("email")}
         />
 
         <RecoveryButton
@@ -72,6 +70,12 @@ export function ForgotPasswordForm() {
         >
           Get Code
         </RecoveryButton>
+
+        {errors.root?.message ? (
+          <p className="text-center text-xs font-semibold text-red-100" aria-live="polite">
+            {errors.root.message}
+          </p>
+        ) : null}
 
         <AuthDivider />
 

@@ -242,13 +242,13 @@ export function QuickActions({
       <h2 className="text-[17px] font-extrabold leading-tight text-black">
         {title}
       </h2>
-      <div className="mt-5 grid gap-3 sm:mt-7">
+      <div className="mt-5 grid grid-cols-[repeat(auto-fit,minmax(min(100%,180px),1fr))] gap-3 sm:mt-7">
         {actions.map(({ icon: Icon, label, primary }) => (
           <button
             key={label}
             type="button"
             className={cn(
-              "mx-auto flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-[5px] border text-[13px] font-extrabold transition-all duration-300 ease-in-out hover:-translate-y-0.5 sm:max-w-[188px]",
+              "flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-[5px] border px-3 text-[13px] font-extrabold transition-all duration-300 ease-in-out hover:-translate-y-0.5",
               primary
                 ? "border-(--brand-blue-500) bg-(--brand-blue-500) text-white shadow-[0_12px_22px_rgba(37,99,235,0.25)] hover:bg-(--brand-blue-400)"
                 : "border-[#b7b7b7] bg-white text-[#3b3b3b] hover:border-(--brand-blue-400) hover:text-(--brand-blue-500)",

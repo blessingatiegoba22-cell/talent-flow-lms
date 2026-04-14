@@ -1,98 +1,82 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 
 import { AuthConfirmationModal } from "@/components/auth/auth-confirmation-modal";
 import {
-  getAuthFormErrors,
-  hasPasswordMismatch,
-  hasErrors,
-} from "@/components/auth/auth-validation";
+  resetPasswordSchema,
+  type ResetPasswordFormValues,
+} from "@/components/auth/auth-schemas";
 import { RecoveryButton } from "@/components/auth/recovery-button";
 import { RecoveryInput } from "@/components/auth/recovery-input";
-import { useFieldErrors } from "@/components/auth/use-field-errors";
 import { simulatedActionDelayMs } from "@/lib/timing";
-
-const resetPasswordLabels = {
-  code: "Code",
-  confirmPassword: "Confirm new Password",
-  password: "New Password",
-};
 
 export function ResetPasswordForm() {
   const router = useRouter();
-  const { clearError, errors, setErrors } = useFieldErrors();
-  const [feedback, setFeedback] = useState("");
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const {
+    formState: { errors, isSubmitting },
+    handleSubmit,
+    register,
+    setError,
+  } = useForm<ResetPasswordFormValues>({
+    defaultValues: {
+      code: "",
+      confirmPassword: "",
+      password: "",
+    },
+    resolver: zodResolver(resetPasswordSchema),
+  });
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    const form = event.currentTarget;
-    const nextErrors = getAuthFormErrors(form, resetPasswordLabels);
-
-    if (hasPasswordMismatch(form)) {
-      nextErrors.confirmPassword = "Passwords do not match.";
-    }
-
-    if (hasErrors(nextErrors)) {
-      setErrors(nextErrors);
-      setFeedback("Check the highlighted fields and try again.");
-      return;
-    }
-
-    setErrors({});
-    setFeedback("Resetting your password...");
-    setIsSubmitting(true);
-
-    window.setTimeout(() => {
-      setIsSubmitting(false);
-      setFeedback("");
+  const onSubmit = handleSubmit(async () => {
+    try {
+      await new Promise((resolve) =>
+        window.setTimeout(resolve, simulatedActionDelayMs),
+      );
       setIsConfirmationOpen(true);
-    }, simulatedActionDelayMs);
-  }
+    } catch {
+      setError("root", {
+        message: "Unable to reset your password right now. Please try again.",
+      });
+    }
+  });
 
   return (
     <>
       <form
-        onSubmit={handleSubmit}
+        onSubmit={onSubmit}
         noValidate
         className="mt-6 w-full space-y-3 sm:mt-8 sm:space-y-4"
       >
         <RecoveryInput
           label="Code"
-          name="code"
           inputMode="numeric"
           pattern="[0-9]{4,8}"
           placeholder="Code"
-          error={errors.code}
-          onInput={() => clearError("code")}
-          required
+          error={errors.code?.message}
+          {...register("code")}
         />
         <RecoveryInput
           label="New Password"
-          name="password"
           type="password"
           placeholder="New Password"
           autoComplete="new-password"
           minLength={8}
-          error={errors.password}
-          onInput={() => clearError("password")}
-          required
+          error={errors.password?.message}
+          {...register("password")}
         />
         <RecoveryInput
           label="Confirm new Password"
-          name="confirmPassword"
           type="password"
           placeholder="Confirm new Password"
           autoComplete="new-password"
           minLength={8}
-          error={errors.confirmPassword}
-          required
-          onInput={() => clearError("confirmPassword")}
+          error={errors.confirmPassword?.message}
+          {...register("confirmPassword")}
         />
 
         <RecoveryButton
@@ -104,9 +88,9 @@ export function ResetPasswordForm() {
           Reset Password
         </RecoveryButton>
 
-        {feedback ? (
-          <p className="text-center text-xs font-semibold text-white/78" aria-live="polite">
-            {feedback}
+        {errors.root?.message ? (
+          <p className="text-center text-xs font-semibold text-red-100" aria-live="polite">
+            {errors.root.message}
           </p>
         ) : null}
 

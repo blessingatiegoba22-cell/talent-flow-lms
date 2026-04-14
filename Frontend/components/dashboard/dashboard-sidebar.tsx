@@ -102,7 +102,7 @@ export function DashboardSidebar({
       </nav>
 
       <div className="mt-auto pt-8">
-        <div className="rounded-[2px] bg-(--brand-blue-500) p-4 text-white">
+        <div className="animate-sidebar-ad-bounce rounded-[2px] bg-(--brand-blue-500) p-4 text-white shadow-[0_12px_30px_rgba(37,99,235,0.22)]">
           <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-white/12">
             <GraduationCap className="h-5 w-5" aria-hidden="true" />
           </div>

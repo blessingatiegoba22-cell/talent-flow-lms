@@ -132,21 +132,21 @@ export function TeamAllocationTable({
         </table>
       </div>
 
-      <div className="mt-6 grid gap-4 md:hidden">
+      <div className="mt-6 grid grid-cols-[repeat(auto-fit,minmax(min(100%,280px),1fr))] gap-4 md:hidden">
         {assignments.map((assignment) => (
           <article
             key={assignment.id}
             className="rounded-lg border border-[#c9c9c9] bg-white p-4 shadow-[0_4px_10px_rgba(0,0,0,0.08)]"
           >
             <InternIdentity avatar={assignment.avatar} name={assignment.name} />
-            <div className="mt-4 grid gap-3 text-[14px] font-medium text-[#252525]">
-              <div>
+            <div className="mt-5 grid grid-cols-[repeat(auto-fit,minmax(min(100%,150px),1fr))] gap-4 text-[14px] font-medium text-[#252525]">
+              <div className="min-w-0">
                 <p className="text-[12px] font-extrabold uppercase tracking-[0.08em] text-[#777]">
                   Role
                 </p>
-                <p className="mt-1">{assignment.role}</p>
+                <p className="mt-1 break-words">{assignment.role}</p>
               </div>
-              <div>
+              <div className="min-w-0">
                 <p className="text-[12px] font-extrabold uppercase tracking-[0.08em] text-[#777]">
                   Current Team
                 </p>
@@ -156,11 +156,12 @@ export function TeamAllocationTable({
                   tone={assignment.currentTeamTone}
                 />
               </div>
-              <div>
+              <div className="min-w-0">
                 <p className="mb-2 text-[12px] font-extrabold uppercase tracking-[0.08em] text-[#777]">
                   Assign Team
                 </p>
                 <TeamSelect
+                  className="max-w-none"
                   defaultValue={assignment.assignedTeam}
                   options={assignment.teamOptions}
                 />
@@ -244,14 +245,16 @@ function TeamBadge({
 }
 
 function TeamSelect({
+  className,
   defaultValue,
   options,
 }: {
+  className?: string;
   defaultValue: string;
   options: readonly string[];
 }) {
   return (
-    <div className="relative w-full max-w-[156px]">
+    <div className={cn("relative w-full max-w-[156px]", className)}>
       <select
         defaultValue={defaultValue}
         className="h-11 w-full appearance-none rounded-md border-0 bg-[#f7f7f7] px-4 pr-9 text-[15px] font-medium text-[#171717] outline-none transition-colors duration-300 focus:bg-white focus:ring-4 focus:ring-[rgba(37,99,235,0.14)] sm:h-12 sm:text-[16px]"

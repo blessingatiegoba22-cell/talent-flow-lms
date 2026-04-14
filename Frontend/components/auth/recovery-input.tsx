@@ -1,4 +1,4 @@
-import type { ComponentPropsWithoutRef } from "react";
+import { forwardRef, type ComponentPropsWithoutRef } from "react";
 import type { LucideIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -9,15 +9,19 @@ type RecoveryInputProps = ComponentPropsWithoutRef<"input"> & {
   label: string;
 };
 
-export function RecoveryInput({
-  className,
-  error,
-  icon: Icon,
-  label,
-  name,
-  "aria-describedby": ariaDescribedBy,
-  ...props
-}: RecoveryInputProps) {
+export const RecoveryInput = forwardRef<HTMLInputElement, RecoveryInputProps>(
+  function RecoveryInput(
+    {
+      className,
+      error,
+      icon: Icon,
+      label,
+      name,
+      "aria-describedby": ariaDescribedBy,
+      ...props
+    },
+    ref,
+  ) {
   const errorId = name ? `${name}-error` : undefined;
 
   return (
@@ -35,6 +39,7 @@ export function RecoveryInput({
           aria-invalid={error ? "true" : "false"}
           aria-label={label}
           name={name}
+          ref={ref}
           className={cn(
             "h-12 w-full rounded-md border border-transparent bg-[#f4f4f4] px-4 text-[14px] font-bold text-[#202020] outline-none transition-all duration-300 ease-in-out placeholder:text-[#858585] focus:border-(--brand-blue-300) focus:ring-4 focus:ring-[rgba(37,99,235,0.18)] sm:h-14 sm:px-5 sm:text-[16px]",
             Icon ? "pl-11 sm:pl-12" : "",
@@ -52,4 +57,5 @@ export function RecoveryInput({
       ) : null}
     </label>
   );
-}
+  },
+);

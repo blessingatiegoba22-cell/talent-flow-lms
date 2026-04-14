@@ -233,6 +233,25 @@ html {
   }
 }
 
+@keyframes sidebar-ad-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  45% {
+    transform: translateY(-6px);
+  }
+
+  60% {
+    transform: translateY(0);
+  }
+
+  72% {
+    transform: translateY(-3px);
+  }
+}
+
 @keyframes fade-in {
   from {
     opacity: 0;
@@ -259,6 +278,10 @@ html {
   animation: float-soft 7s ease-in-out infinite;
 }
 
+.animate-sidebar-ad-bounce {
+  animation: sidebar-ad-bounce 4.8s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -267,7 +290,8 @@ html {
   .animate-fade-up,
   .animate-fade-up-delay,
   .animate-fade-in,
-  .animate-float-soft {
+  .animate-float-soft,
+  .animate-sidebar-ad-bounce {
     animation: none;
   }
 }
