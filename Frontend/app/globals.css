@@ -30,7 +30,7 @@
   --brand-purple-950: #0d0b28;
 
   /* Neutral surface scale */
-  --neutral-50: #fcfcfc;
+  --neutral-50: #ffffff;
   --neutral-100: #fafafa;
   --neutral-200: #f8f8f8;
   --neutral-300: #f6f6f6;
@@ -83,6 +83,12 @@
 @theme inline {
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  --animate-fade-up: fade-up 0.8s ease-out both;
+  --animate-fade-up-delay: fade-up 0.8s ease-out 0.14s both;
+  --animate-fade-in: fade-in 0.7s ease-out both;
+  --animate-float-soft: float-soft 7s ease-in-out infinite;
+  --animate-sidebar-ad-bounce: sidebar-ad-bounce 4.8s ease-in-out infinite;
 
   --color-brand-blue: var(--brand-blue-500);
   --color-brand-blue-50: var(--brand-blue-50);
@@ -202,4 +208,101 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), Helvetica, Arial, sans-serif;
+  overflow-x: hidden;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 6rem;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float-soft {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes sidebar-ad-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  45% {
+    transform: translateY(-6px);
+  }
+
+  60% {
+    transform: translateY(0);
+  }
+
+  72% {
+    transform: translateY(-3px);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.8s ease-out both;
+  will-change: opacity, transform;
+}
+
+.animate-fade-up-delay {
+  animation: fade-up 0.8s ease-out 0.14s both;
+  will-change: opacity, transform;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.7s ease-out both;
+  will-change: opacity;
+}
+
+.animate-float-soft {
+  animation: float-soft 7s ease-in-out infinite;
+  will-change: transform;
+}
+
+.animate-sidebar-ad-bounce {
+  animation: sidebar-ad-bounce 4.8s ease-in-out infinite;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .animate-fade-up,
+  .animate-fade-up-delay,
+  .animate-fade-in,
+  .animate-float-soft,
+  .animate-sidebar-ad-bounce {
+    animation: none;
+  }
 }
