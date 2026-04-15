@@ -1,80 +1,124 @@
 """
-Script to create sample courses for testing
+seed_courses.py — Seed sample courses into the database on startup.
+
+Called from app/main.py after table creation. Uses the first admin or
+mentor user as the instructor. If no such user exists, courses are not
+seeded (they will be seeded on next startup once a privileged user
+has been created via the admin script).
 """
-import os
-import sys
 
-# Add the app directory to Python path
-sys.path.append('/app')
+import logging
+from sqlalchemy.orm import Session
+from app.models.course import Course
+from app.models.user import User
 
-from database import SessionLocal
-from models.course import Course
-from models.user import User
+logger = logging.getLogger(__name__)
 
-def create_sample_courses():
-    """Create sample courses"""
-    db = SessionLocal()
-    
-    try:
-        # Get first user as instructor
-        instructor = db.query(User).first()
-        
-        if not instructor:
-            print("No users found. Please create a user first.")
-            return
-        
-        sample_courses = [
-            {
-                "title": "Introduction to Python Programming",
-                "description": "Learn the basics of Python programming from scratch",
-                "category": "Programming",
-                "level": "beginner",
-                "duration_hours": 40,
-                "price": 9999,  # $99.99 in cents
-                "instructor_id": instructor.id,
-                "is_published": True
-            },
-            {
-                "title": "Advanced Web Development",
-                "description": "Master modern web development with React and Node.js",
-                "category": "Web Development",
-                "level": "advanced",
-                "duration_hours": 60,
-                "price": 19999,  # $199.99 in cents
-                "instructor_id": instructor.id,
-                "is_published": True
-            },
-            {
-                "title": "Database Design Fundamentals",
-                "description": "Learn how to design and optimize databases",
-                "category": "Database",
-                "level": "intermediate",
-                "duration_hours": 30,
-                "price": 14999,  # $149.99 in cents
-                "instructor_id": instructor.id,
-                "is_published": True
-            }
-        ]
-        
-        for course_data in sample_courses:
-            # Check if course already exists
-            existing = db.query(Course).filter(Course.title == course_data["title"]).first()
-            if existing:
-                print(f"Course '{course_data['title']}' already exists")
-                continue
-            
-            course = Course(**course_data)
-            db.add(course)
-            print(f"Created course: {course.title}")
-        
+SAMPLE_COURSES = [
+    {
+        "title": "Introduction to Python Programming",
+        "description": (
+            "Learn the fundamentals of Python from scratch. Covers variables, "
+            "control flow, functions, modules, and basic OOP — everything you "
+            "need to start writing real scripts and applications."
+        ),
+        "category": "Programming",
+        "level": "beginner",
+        "duration_hours": 40,
+        "price":"Free",       
+        "is_published": True,
+    },
+    {
+        "title": "Advanced Web Development with React & Node.js",
+        "description": (
+            "Master the modern full-stack JavaScript ecosystem. Build scalable "
+            "SPAs with React, RESTful APIs with Express/Node, and deploy "
+            "production-ready applications."
+        ),
+        "category": "Web Development",
+        "level": "advanced",
+        "duration_hours": 60,
+        "price": "Free",      
+        "is_published": True,
+    },
+    {
+        "title": "Database Design Fundamentals",
+        "description": (
+            "Understand relational database design, normalisation, indexing, "
+            "and query optimisation. Hands-on practice with PostgreSQL."
+        ),
+        "category": "Database",
+        "level": "intermediate",
+        "duration_hours": 30,
+        "price": "Free",     
+        "is_published": True,
+    },
+    {
+        "title": "FastAPI: Building Production APIs",
+        "description": (
+            "Create high-performance REST APIs with FastAPI, SQLAlchemy, "
+            "Pydantic, Alembic, and PostgreSQL. Covers auth, testing, and "
+            "Docker deployment."
+        ),
+        "category": "Backend Development",
+        "level": "intermediate",
+        "duration_hours": 25,
+        "price": "Free",      # $129.99 in cents
+        "is_published": True,
+    },
+    {
+        "title": "Data Science with Python",
+        "description": (
+            "A hands-on introduction to data analysis using Pandas, NumPy, "
+            "Matplotlib, and Scikit-learn. Suitable for beginners with basic "
+            "Python knowledge."
+        ),
+        "category": "Data Science",
+        "level": "beginner",
+        "duration_hours": 50,
+        "price":"Free",          
+        "is_published": True,
+    },
+]
+
+
+def seed_courses(db: Session) -> None:
+    """
+    Idempotently insert sample courses. Skips courses whose titles
+    already exist so re-running on subsequent startups is safe.
+    """
+    # Find a suitable instructor (admin first, then mentor, then any user)
+    instructor = (
+        db.query(User).filter(User.role == "admin").first()
+        or db.query(User).filter(User.role == "mentor").first()
+        or db.query(User).first()
+    )
+
+    if not instructor:
+        logger.info("No users found — skipping course seeding. Re-run after first user is created.")
+        return
+
+    seeded = 0
+    for data in SAMPLE_COURSES:
+        exists = db.query(Course).filter(Course.title == data["title"]).first()
+        if exists:
+            continue
+
+        course = Course(
+            title=data["title"],
+            description=data["description"],
+            category=data["category"],
+            level=data["level"],
+            duration_hours=data["duration_hours"],
+            price=data["price"],
+            instructor_id=instructor.id,
+            is_published=data["is_published"],
+        )
+        db.add(course)
+        seeded += 1
+
+    if seeded:
         db.commit()
-        print("Sample courses created successfully!")
-        
-    except Exception as e:
-        print(f"Error creating courses: {e}")
-        db.rollback()
-    finally:
-        db.close()
-
-if __name__ == "__main__":
-    create_sample_courses()
+        logger.info(f"Seeded {seeded} sample course(s) into the database.")
+    else:
+        logger.info("All sample courses already exist — nothing to seed.")

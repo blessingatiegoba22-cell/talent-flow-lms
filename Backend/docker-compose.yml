@@ -7,6 +7,7 @@ services:
     ports:
       - '${FORWARD_API_PORT:-8000}:8000'
     environment:
+      - PYTHONPATH=/app
       - DB_HOST=talent_flow_db
       - DB_PORT=${DB_PORT:-5432}
       - DB_USER=${DB_USER:-postgres}
@@ -25,7 +26,7 @@ services:
     restart: unless-stopped
 
   talent_flow_db:
-    container_name: talent_flow_db
+    container_name: talent_flow_dbx
     image: postgres:15-alpine
     environment:
       POSTGRES_USER: ${DB_USER:-postgres}
