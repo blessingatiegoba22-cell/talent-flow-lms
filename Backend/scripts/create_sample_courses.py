@@ -6,13 +6,16 @@ mentor user as the instructor. If no such user exists, courses are not
 seeded (they will be seeded on next startup once a privileged user
 has been created via the admin script).
 """
+import sys, os
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
-import logging
-from sqlalchemy.orm import Session
+from dotenv import load_dotenv
+load_dotenv()
+
 from app.models.course import Course
 from app.models.user import User
 
-logger = logging.getLogger(__name__)
+# logger = logging.getLogger(__name__)
 
 SAMPLE_COURSES = [
     {
