@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { OptimizedImage as Image } from "@/components/shared/optimized-image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -23,7 +23,7 @@ export function LearnerAssignmentSuccess() {
       <div className="grid overflow-hidden rounded-lg border border-(--brand-blue-950) bg-white shadow-[0_14px_36px_rgba(7,20,47,0.1)] lg:grid-cols-[minmax(320px,460px)_minmax(0,1fr)]">
         <div className="bg-[#f4f7fd] p-4 sm:p-5">
           <Image
-            src="/submit-img.png"
+            src="/submit-img.webp"
             alt="Study desk with reminder board"
             width={424}
             height={589}

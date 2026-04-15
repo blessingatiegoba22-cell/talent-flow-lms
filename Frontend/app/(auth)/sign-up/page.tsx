@@ -31,7 +31,7 @@ export default function SignUpPage() {
           <RoleSelectionCard
             title="Student /Intern"
             description="Start Your learning journey, get industry sought-out skills."
-            imageSrc="/student-img.png"
+            imageSrc="/student-img.webp"
             imageAlt="Student learning with a laptop"
             href="/sign-up/student"
             actionLabel="Join"
@@ -40,7 +40,7 @@ export default function SignUpPage() {
           <RoleSelectionCard
             title="Mentor/Teacher"
             description="Share your unique knowledge and skills with others."
-            imageSrc="/instructor-img.png"
+            imageSrc="/instructor-img.webp"
             imageAlt="Mentor teaching students"
             href="/sign-up/mentor"
             actionLabel="Get Invite"

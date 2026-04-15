@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { OptimizedImage as Image } from "@/components/shared/optimized-image";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -53,7 +53,7 @@ type CertificateCourse = {
 
 const courses: CertificateCourse[] = [
   {
-    image: "/course-card-1.png",
+    image: "/course-card-1.webp",
     meta: "3 Modules . 10 Hours",
     progress: 70,
     status: "In Progress",
@@ -62,7 +62,7 @@ const courses: CertificateCourse[] = [
   },
   {
     helper: "Last accessed: Yesterday",
-    image: "/course-card-2.png",
+    image: "/course-card-2.webp",
     meta: "2 Modules . 6 hours",
     progress: 50,
     status: "In Progress",
@@ -70,7 +70,7 @@ const courses: CertificateCourse[] = [
     title: "Web Development Basics",
   },
   {
-    image: "/course-card-3.png",
+    image: "/course-card-3.webp",
     meta: "8 Modules . 50 Hours",
     progress: 100,
     status: "Completed",
@@ -180,7 +180,7 @@ export function LearnerCertificatePage() {
 
               <div className="relative mt-4 aspect-[538/351] overflow-hidden rounded-sm bg-white">
                 <Image
-                  src="/certiicate.png"
+                  src="/certiicate.webp"
                   alt="Ui/Ux Design Fundamentals certificate preview"
                   fill
                   sizes="(min-width: 1280px) 520px, 100vw"
@@ -334,7 +334,7 @@ function EarnedCertificateCard({
     <article className="grid gap-4 rounded-lg border border-[#dedede] bg-white p-4 shadow-[0_10px_24px_rgba(0,0,0,0.08)] sm:grid-cols-[92px_minmax(0,1fr)_auto] sm:items-center">
       <div className="relative h-[76px] w-[92px] overflow-hidden rounded-sm bg-[#f4efe5]">
         <Image
-          src="/certiicate.png"
+          src="/certiicate.webp"
           alt={`${certificate.title} certificate`}
           fill
           sizes="92px"

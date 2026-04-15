@@ -107,7 +107,7 @@ export function ResetPasswordForm() {
 
       {isConfirmationOpen ? (
         <AuthConfirmationModal
-          imageSrc="/reset-done.png"
+          imageSrc="/reset-done.webp"
           imageAlt="Learner celebrating a successful password reset"
           title="Password successfully reset"
           description="Keep your password safe, store it in a private folder."

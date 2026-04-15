@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { OptimizedImage as Image } from "@/components/shared/optimized-image";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { aboutHighlights, whoWeServe } from "@/data/landing-page";

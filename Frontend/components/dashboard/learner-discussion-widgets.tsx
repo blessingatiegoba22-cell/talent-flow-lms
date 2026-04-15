@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { OptimizedImage as Image } from "@/components/shared/optimized-image";
 import {
   MessageCircle,
   Paperclip,

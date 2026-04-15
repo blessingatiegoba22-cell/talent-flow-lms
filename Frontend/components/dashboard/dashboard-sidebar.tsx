@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { OptimizedImage as Image } from "@/components/shared/optimized-image";
 import Link from "next/link";
 import type { MouseEvent } from "react";
 import { ArrowRight, GraduationCap, X } from "lucide-react";
@@ -41,7 +41,7 @@ export function DashboardSidebar({
           onClick={closeSidebar}
         >
           <Image
-            src="/logo.png"
+            src="/logo.webp"
             alt="Talent Flow icon"
             width={50}
             height={48}
@@ -49,7 +49,7 @@ export function DashboardSidebar({
             className="h-10 w-auto shrink-0 xl:h-12"
           />
           <Image
-            src="/logo-text.png"
+            src="/logo-text.webp"
             alt="TalentFlow"
             width={177}
             height={48}

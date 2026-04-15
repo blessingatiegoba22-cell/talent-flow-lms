@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { OptimizedImage as Image } from "@/components/shared/optimized-image";
 
 import { cn } from "@/lib/utils";
 
@@ -19,7 +19,7 @@ export function BrandLogo({
       className={cn("inline-flex items-center gap-3 transition-transform", className)}
     >
       <Image
-        src="/logo.png"
+        src="/logo.webp"
         alt="Talent Flow icon"
         width={50}
         height={48}
@@ -27,7 +27,7 @@ export function BrandLogo({
         className="h-10 w-auto sm:h-11"
       />
       <Image
-        src="/logo-text.png"
+        src="/logo-text.webp"
         alt="TalentFlow"
         width={177}
         height={48}

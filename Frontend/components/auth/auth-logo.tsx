@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { OptimizedImage as Image } from "@/components/shared/optimized-image";
 import Link from "next/link";
 
 import { cn } from "@/lib/utils";
@@ -18,7 +18,7 @@ export function AuthLogo({ className, priority = false }: AuthLogoProps) {
       )}
     >
       <Image
-        src="/logo.png"
+        src="/logo.webp"
         alt="Talent Flow icon"
         width={50}
         height={48}
@@ -26,7 +26,7 @@ export function AuthLogo({ className, priority = false }: AuthLogoProps) {
         className="h-11 w-auto"
       />
       <Image
-        src="/logo-text.png"
+        src="/logo-text.webp"
         alt="TalentFlow"
         width={177}
         height={48}

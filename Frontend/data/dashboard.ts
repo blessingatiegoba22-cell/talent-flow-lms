@@ -95,7 +95,7 @@ export type DashboardNotificationSection = {
 
 export const dashboardConfigs: Record<DashboardRole, DashboardConfig> = {
   admin: {
-    avatar: "/user-icon-1.png",
+    avatar: "/user-icon-1.webp",
     navGroups: [
       [
         { href: "/admin/dashboard", icon: LayoutDashboard, label: "Dashboard" },
@@ -115,7 +115,7 @@ export const dashboardConfigs: Record<DashboardRole, DashboardConfig> = {
     role: "admin",
   },
   learner: {
-    avatar: "/user-icon-2.png",
+    avatar: "/user-icon-2.webp",
     navGroups: [
       [
         { href: "/learner/dashboard", icon: LayoutDashboard, label: "Dashboard" },
@@ -135,7 +135,7 @@ export const dashboardConfigs: Record<DashboardRole, DashboardConfig> = {
     role: "learner",
   },
   instructor: {
-    avatar: "/user-icon-3.png",
+    avatar: "/user-icon-3.webp",
     navGroups: [
       [
         { href: "/instructor/dashboard", icon: LayoutDashboard, label: "Dashboard" },
@@ -175,7 +175,7 @@ export const notificationSectionsByRole = {
           media: {
             alt: "Samuel avatar",
             kind: "image",
-            src: "/user-icon-3.png",
+            src: "/user-icon-3.webp",
           },
           message:
             '"I think @User really hit the nail on the head regarding the Bauhaus influence in modern UI."',
@@ -239,7 +239,7 @@ export const notificationSectionsByRole = {
           media: {
             alt: "Student avatar",
             kind: "image",
-            src: "/user-icon-2.png",
+            src: "/user-icon-2.webp",
           },
           message:
             '"Can you clarify how much detail we should include for the Bauhaus design reference?"',
@@ -295,7 +295,7 @@ export const notificationSectionsByRole = {
           media: {
             alt: "Instructor avatar",
             kind: "image",
-            src: "/user-icon-3.png",
+            src: "/user-icon-3.webp",
           },
           message:
             '"Please review the latest team allocation before the cohort update goes live."',
@@ -339,7 +339,7 @@ export const learningCourses: Course[] = [
   {
     cta: "Continue",
     href: "#",
-    image: "/course-1.png",
+    image: "/course-1.webp",
     meta: "Lesson 14. 4m left",
     progress: 75,
     title: "UI/UX Design Fundamentals",
@@ -347,7 +347,7 @@ export const learningCourses: Course[] = [
   {
     cta: "Continue",
     href: "#",
-    image: "/course-2.png",
+    image: "/course-2.webp",
     meta: "Lesson 8 • 1hr 55m left",
     progress: 50,
     title: "Web Development Basics",
@@ -359,7 +359,7 @@ export const enrolledCourses: Course[] = [
     author: "By Oliver Gasner",
     cta: "Continue",
     href: "#",
-    image: "/course-1.png",
+    image: "/course-1.webp",
     meta: "Lesson 14. 4m left",
     progress: 75,
     title: "UI/UX Design Fundamental",
@@ -368,7 +368,7 @@ export const enrolledCourses: Course[] = [
     author: "By Sharon Abraham",
     cta: "Continue",
     href: "#",
-    image: "/course-2.png",
+    image: "/course-2.webp",
     meta: "Lesson 8 • 1hr 55m left",
     progress: 50,
     title: "Web Development Basics",
@@ -377,7 +377,7 @@ export const enrolledCourses: Course[] = [
     author: "By Praise Mba",
     cta: "Continue",
     href: "#",
-    image: "/course-3.png",
+    image: "/course-3.webp",
     meta: "Module 3 • 24m left",
     progress: 80,
     title: "Time Management",
@@ -389,7 +389,7 @@ export const catalogRecommendedCourses: Course[] = [
     author: "By Michael Chen",
     cta: "Enroll",
     href: "#",
-    image: "/course-4.png",
+    image: "/course-4.webp",
     meta: "2 hrs",
     progress: 0,
     rating: "4.5",
@@ -399,7 +399,7 @@ export const catalogRecommendedCourses: Course[] = [
     author: "By Aisha Bello",
     cta: "Enroll",
     href: "#",
-    image: "/course-5.png",
+    image: "/course-5.webp",
     meta: "1hr",
     progress: 0,
     rating: "4.0",
@@ -409,7 +409,7 @@ export const catalogRecommendedCourses: Course[] = [
     author: "By Emily Carter",
     cta: "Enroll",
     href: "#",
-    image: "/course-6.png",
+    image: "/course-6.webp",
     meta: "30min",
     progress: 0,
     rating: "2.5",
@@ -419,7 +419,7 @@ export const catalogRecommendedCourses: Course[] = [
     author: "By Grace Williams",
     cta: "Enroll",
     href: "#",
-    image: "/course-7.png",
+    image: "/course-7.webp",
     meta: "30min",
     progress: 0,
     rating: "2.5",
@@ -432,7 +432,7 @@ export const catalogPopularCourses: Course[] = [
     author: "By Nina Patel",
     cta: "Enroll",
     href: "#",
-    image: "/course-8.png",
+    image: "/course-8.webp",
     meta: "30 min",
     progress: 0,
     rating: "4.5",
@@ -442,7 +442,7 @@ export const catalogPopularCourses: Course[] = [
     author: "By Rita Mulcahy",
     cta: "Enroll",
     href: "#",
-    image: "/course-5.png",
+    image: "/course-5.webp",
     meta: "1hr 30min",
     progress: 0,
     rating: "3.8",
@@ -452,7 +452,7 @@ export const catalogPopularCourses: Course[] = [
     author: "By Austin Belcak",
     cta: "Enroll",
     href: "#",
-    image: "/course-7.png",
+    image: "/course-7.webp",
     meta: "55min",
     progress: 0,
     rating: "4.0",
@@ -462,7 +462,7 @@ export const catalogPopularCourses: Course[] = [
     author: "By Thomas Frank",
     cta: "Enroll",
     href: "#",
-    image: "/course-6.png",
+    image: "/course-6.webp",
     meta: "45min",
     progress: 0,
     rating: "4.5",
@@ -497,7 +497,7 @@ export const myLearningActiveCourses: Course[] = [
   {
     cta: "Continue",
     href: "#",
-    image: "/course-2.png",
+    image: "/course-2.webp",
     meta: "Lesson 1 • 1hr 55m left",
     progress: 5,
     title: "Mobile App Development",
@@ -505,7 +505,7 @@ export const myLearningActiveCourses: Course[] = [
   {
     cta: "Continue",
     href: "#",
-    image: "/course-1.png",
+    image: "/course-1.webp",
     meta: "Lesson 14. 4m left",
     progress: 75,
     title: "UI/UX Design Fundamentals",
@@ -513,7 +513,7 @@ export const myLearningActiveCourses: Course[] = [
   {
     cta: "Continue",
     href: "#",
-    image: "/course-2.png",
+    image: "/course-2.webp",
     meta: "Lesson 8 • 1hr 55m left",
     progress: 50,
     title: "Web Development Basics",
@@ -521,7 +521,7 @@ export const myLearningActiveCourses: Course[] = [
   {
     cta: "Continue",
     href: "#",
-    image: "/course-1.png",
+    image: "/course-1.webp",
     meta: "Lesson 14. 4m left",
     progress: 75,
     title: "UI/UX Design Advanced",
@@ -532,7 +532,7 @@ export const myLearningCompletedCourses: Course[] = [
   {
     cta: "View",
     href: "#",
-    image: "/course-2.png",
+    image: "/course-2.webp",
     meta: "All • Completed",
     progress: 100,
     title: "Workplace Skills",
@@ -540,7 +540,7 @@ export const myLearningCompletedCourses: Course[] = [
   {
     cta: "View",
     href: "#",
-    image: "/course-2.png",
+    image: "/course-2.webp",
     meta: "All • Completed",
     progress: 100,
     title: "Microsoft AI Skills",
@@ -548,7 +548,7 @@ export const myLearningCompletedCourses: Course[] = [
   {
     cta: "View",
     href: "#",
-    image: "/course-2.png",
+    image: "/course-2.webp",
     meta: "All • Completed",
     progress: 100,
     title: "Talentflow Introduction",
@@ -556,7 +556,7 @@ export const myLearningCompletedCourses: Course[] = [
   {
     cta: "View",
     href: "#",
-    image: "/course-2.png",
+    image: "/course-2.webp",
     meta: "All • Completed",
     progress: 100,
     title: "Truemind Basics",
@@ -566,21 +566,21 @@ export const myLearningCompletedCourses: Course[] = [
 export const teamCards = [
   {
     accent: "#2f6df2",
-    avatars: ["/user-icon-1.png", "/user-icon-2.png", "/user-icon-3.png", "/user-icon-1.png"],
+    avatars: ["/user-icon-1.webp", "/user-icon-2.webp", "/user-icon-3.webp", "/user-icon-1.webp"],
     members: "23 members",
     name: "Team Lima",
     skills: ["UI/UX", "Frontend", "Backend", "Product Management"],
   },
   {
     accent: "#4338ca",
-    avatars: ["/user-icon-3.png", "/user-icon-2.png", "/user-icon-1.png", "/user-icon-3.png"],
+    avatars: ["/user-icon-3.webp", "/user-icon-2.webp", "/user-icon-1.webp", "/user-icon-3.webp"],
     members: "21 members",
     name: "Team Raya",
     skills: ["UI/UX", "Frontend", "Backend", "Product Management"],
   },
   {
     accent: "#2f6df2",
-    avatars: ["/user-icon-1.png", "/user-icon-2.png", "/user-icon-3.png", "/user-icon-2.png"],
+    avatars: ["/user-icon-1.webp", "/user-icon-2.webp", "/user-icon-3.webp", "/user-icon-2.webp"],
     members: "20 members",
     name: "Team Mira",
     skills: ["UI/UX", "Frontend", "Product Management"],
@@ -597,7 +597,7 @@ const teamAssignmentOptions = [
 export const adminTeamAssignments = [
   {
     assignedTeam: "Unassigned",
-    avatar: "/user-icon-1.png",
+    avatar: "/user-icon-1.webp",
     currentTeam: "Unassigned",
     currentTeamTone: "neutral",
     id: "intern-ayankola-precious-frontend-unassigned",
@@ -607,7 +607,7 @@ export const adminTeamAssignments = [
   },
   {
     assignedTeam: "Unassigned",
-    avatar: "/user-icon-1.png",
+    avatar: "/user-icon-1.webp",
     currentTeam: "Team Lima",
     currentTeamTone: "blue",
     id: "intern-eze-emmanuella-uiux-lima",
@@ -617,7 +617,7 @@ export const adminTeamAssignments = [
   },
   {
     assignedTeam: "Team Raya",
-    avatar: "/user-icon-1.png",
+    avatar: "/user-icon-1.webp",
     currentTeam: "Team Raya",
     currentTeamTone: "blue",
     id: "intern-lawal-ridwanulla-backend-raya",
@@ -627,7 +627,7 @@ export const adminTeamAssignments = [
   },
   {
     assignedTeam: "Team Mira",
-    avatar: "/user-icon-1.png",
+    avatar: "/user-icon-1.webp",
     currentTeam: "Team Mira",
     currentTeamTone: "green",
     id: "intern-ayankola-precious-frontend-mira",
@@ -639,25 +639,25 @@ export const adminTeamAssignments = [
 
 export const teamMembers = [
   {
-    avatar: "/user-icon-1.png",
+    avatar: "/user-icon-1.webp",
     name: "Ayankola Precious",
     role: "Team Lead",
     skill: "Project Manager",
   },
   {
-    avatar: "/user-icon-1.png",
+    avatar: "/user-icon-1.webp",
     name: "Ayankola Precious",
     role: "Assistant",
     skill: "Project Manager",
   },
   {
-    avatar: "/user-icon-1.png",
+    avatar: "/user-icon-1.webp",
     name: "Ayankola Precious",
     role: "Assistant 2",
     skill: "Project Manager",
   },
   {
-    avatar: "/user-icon-1.png",
+    avatar: "/user-icon-1.webp",
     name: "Ayankola Precious",
     role: "Member",
     skill: "Graphics Design",
@@ -696,7 +696,7 @@ export const assignmentProgress = {
 
 export const discussionPosts = [
   {
-    avatar: "/user-icon-3.png",
+    avatar: "/user-icon-3.webp",
     badge: "Instructor",
     likes: "8",
     name: "Jessica Obasi",
@@ -706,7 +706,7 @@ export const discussionPosts = [
     time: "10:30 AM",
   },
   {
-    avatar: "/user-icon-1.png",
+    avatar: "/user-icon-1.webp",
     badge: "Student",
     likes: "8",
     name: "Lawal Praise",
@@ -719,49 +719,49 @@ export const discussionPosts = [
 
 export const discussionParticipants = [
   {
-    avatar: "/user-icon-3.png",
+    avatar: "/user-icon-3.webp",
     name: "Jessica Obasi",
     role: "Instructor",
     status: "online",
   },
   {
-    avatar: "/user-icon-1.png",
+    avatar: "/user-icon-1.webp",
     name: "Ayankola Pr...",
     role: "Student",
     status: "online",
   },
   {
-    avatar: "/user-icon-2.png",
+    avatar: "/user-icon-2.webp",
     name: "Eze Emman...",
     role: "Student",
     status: "away",
   },
   {
-    avatar: "/user-icon-1.png",
+    avatar: "/user-icon-1.webp",
     name: "Lawal Praise",
     role: "Student",
     status: "online",
   },
   {
-    avatar: "/user-icon-3.png",
+    avatar: "/user-icon-3.webp",
     name: "Daud Rofiat",
     role: "Student",
     status: "online",
   },
   {
-    avatar: "/user-icon-2.png",
+    avatar: "/user-icon-2.webp",
     name: "Layo Ridwan",
     role: "Student",
     status: "away",
   },
   {
-    avatar: "/user-icon-3.png",
+    avatar: "/user-icon-3.webp",
     name: "David Philips",
     role: "Instructor",
     status: "offline",
   },
   {
-    avatar: "/user-icon-3.png",
+    avatar: "/user-icon-3.webp",
     name: "David Philips",
     role: "Instructor",
     status: "offline",
@@ -772,7 +772,7 @@ export const instructorCourses: Course[] = [
   {
     cta: "Manage Course",
     href: "#",
-    image: "/course-1.png",
+    image: "/course-1.webp",
     meta: "120 Students",
     progress: 75,
     title: "UI/UX Design Fundamentals",
@@ -780,7 +780,7 @@ export const instructorCourses: Course[] = [
   {
     cta: "Manage Courses",
     href: "#",
-    image: "/course-2.png",
+    image: "/course-2.webp",
     meta: "105 Students",
     progress: 50,
     title: "Web Development Basics",
@@ -789,19 +789,19 @@ export const instructorCourses: Course[] = [
 
 export const studentActivities: Activity[] = [
   {
-    image: "/course-1.png",
+    image: "/course-1.webp",
     progress: 75,
     subtitle: "2h ago",
     title: "Sharon Lee submitted an assignment 3",
   },
   {
-    image: "/course-2.png",
+    image: "/course-2.webp",
     progress: 50,
     subtitle: "3h ago",
     title: "Olajuwon Aina completed Lesson 8",
   },
   {
-    image: "/course-3.png",
+    image: "/course-3.webp",
     progress: 80,
     subtitle: "a day ago",
     title: "Adebisi Oni submitted an Assignment 4",

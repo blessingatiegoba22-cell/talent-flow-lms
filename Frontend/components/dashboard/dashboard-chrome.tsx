@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { OptimizedImage as Image } from "@/components/shared/optimized-image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -104,7 +104,7 @@ export function DashboardChrome({ role }: DashboardChromeProps) {
             aria-label="TalentFlow dashboard home"
           >
             <Image
-              src="/logo.png"
+              src="/logo.webp"
               alt=""
               width={50}
               height={48}
@@ -112,7 +112,7 @@ export function DashboardChrome({ role }: DashboardChromeProps) {
               className="h-8 w-auto shrink-0 sm:h-9"
             />
             <Image
-              src="/logo-text.png"
+              src="/logo-text.webp"
               alt="TalentFlow"
               width={177}
               height={48}

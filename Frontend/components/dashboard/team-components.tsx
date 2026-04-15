@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { OptimizedImage as Image } from "@/components/shared/optimized-image";
 import { UsersRound } from "lucide-react";
 
 import { AnimatedSelect } from "@/components/dashboard/animated-select";
@@ -24,10 +24,10 @@ export type TeamAssignment = {
 };
 
 const defaultTeamAvatars = [
-  "/user-icon-1.png",
-  "/user-icon-2.png",
-  "/user-icon-3.png",
-  "/user-icon-1.png",
+  "/user-icon-1.webp",
+  "/user-icon-2.webp",
+  "/user-icon-3.webp",
+  "/user-icon-1.webp",
 ] as const;
 
 export function TeamSummaryCard({

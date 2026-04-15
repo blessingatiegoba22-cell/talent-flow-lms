@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { OptimizedImage as Image } from "@/components/shared/optimized-image";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -85,11 +85,12 @@ export function HeroSection() {
           <div className="mx-auto max-w-[34rem] rounded-lg bg-white/10 p-3 shadow-[0_28px_60px_rgba(7,20,47,0.35)] backdrop-blur-sm lg:max-w-none">
             <div className="overflow-hidden rounded-lg">
               <Image
-                src="/banner-img.png"
+                src="/banner-img.webp"
                 alt="Learners collaborating around laptops"
-                width={2424}
-                height={2476}
+                width={1400}
+                height={1430}
                 priority
+                sizes="(min-width: 1280px) 640px, (min-width: 1024px) 48vw, (min-width: 640px) 34rem, 100vw"
                 className="animate-float-soft aspect-[0.97] w-full object-cover"
               />
             </div>

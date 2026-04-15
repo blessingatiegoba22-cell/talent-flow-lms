@@ -27,9 +27,9 @@ export const landingNavLinks = [
 ] as const;
 
 export const trustedUserImages = [
-  { src: "/user-icon-1.png", alt: "Talent Flow learner avatar" },
-  { src: "/user-icon-2.png", alt: "Talent Flow tutor avatar" },
-  { src: "/user-icon-3.png", alt: "Talent Flow instructor avatar" },
+  { src: "/user-icon-1.webp", alt: "Talent Flow learner avatar" },
+  { src: "/user-icon-2.webp", alt: "Talent Flow tutor avatar" },
+  { src: "/user-icon-3.webp", alt: "Talent Flow instructor avatar" },
 ] as const;
 
 export const heroMetrics: HeroMetric[] = [
@@ -43,7 +43,7 @@ export const aboutHighlights: AboutHighlight[] = [
     title: "About Us",
     description:
       "We are a comprehensive learning management platform designed to connect learners, tutors, and administrators in one seamless digital experience. Our platform goes beyond just learning. It creates an ecosystem where education is managed, delivered, and experienced efficiently without unnecessary friction.",
-    imageSrc: "/about-1.png",
+    imageSrc: "/about-1.webp",
     imageAlt: "Two learners reviewing content on a tablet",
     imagePosition: "right",
   },
@@ -51,7 +51,7 @@ export const aboutHighlights: AboutHighlight[] = [
     title: "Our Mission",
     description:
       "Our mission is to simplify and enhance the way education works by empowering every part of the system, from learners gaining knowledge, to tutors delivering impactful lessons, to administrators managing operations with ease.",
-    imageSrc: "/about-3.png",
+    imageSrc: "/about-3.webp",
     imageAlt: "Hands joined together to represent collaboration",
     imagePosition: "left",
   },
@@ -59,7 +59,7 @@ export const aboutHighlights: AboutHighlight[] = [
     title: "Why Choose Us",
     description:
       "We understand that education is not just about content. It is about structure, delivery, and management. That is why we built a platform that supports every role involved, ensuring a smooth, scalable, and effective learning environment.",
-    imageSrc: "/about-2.png",
+    imageSrc: "/about-2.webp",
     imageAlt: "Books arranged on a shelf in a learning space",
     imagePosition: "right",
   },
@@ -67,7 +67,7 @@ export const aboutHighlights: AboutHighlight[] = [
     title: "Our Vision",
     description:
       "To build a smart, all-in-one learning ecosystem that transforms how education is delivered, managed, and experienced globally.",
-    imageSrc: "/about-4.png",
+    imageSrc: "/about-4.webp",
     imageAlt: "Learners holding up a sign about the future",
     imagePosition: "left",
   },

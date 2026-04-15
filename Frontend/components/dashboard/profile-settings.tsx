@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { OptimizedImage as Image } from "@/components/shared/optimized-image";
 
 import { AccountSecurityActions } from "@/components/dashboard/account-security-actions";
 
@@ -30,7 +30,7 @@ export function ProfileSettings() {
         <div className="mt-6 flex flex-col items-start gap-4 sm:mt-8 sm:flex-row sm:items-center sm:justify-center">
           <div className="relative h-[63px] w-[63px] overflow-hidden rounded-full">
             <Image
-              src="/user-icon-2.png"
+              src="/user-icon-2.webp"
               alt="Samuel O. profile picture"
               fill
               sizes="63px"

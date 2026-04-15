@@ -100,7 +100,7 @@ export function ForgotPasswordForm() {
 
       {isConfirmationOpen ? (
         <AuthConfirmationModal
-          imageSrc="/code-mail.png"
+          imageSrc="/code-mail.webp"
           imageAlt="Mail app with unread reset code notification"
           title="Reset code Request Successfully sent"
           description="Check your email for the code, ensure to check your spam folders too."

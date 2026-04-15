@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { OptimizedImage as Image } from "@/components/shared/optimized-image";
 import Link from "next/link";
 import {
   BarChart3,
@@ -107,12 +107,11 @@ export function FeaturesSection() {
 
             <div className="relative min-h-[180px] overflow-hidden rounded-md bg-[#dfe5e8] sm:min-h-[220px] md:min-h-[260px] lg:min-h-[280px]">
               <Image
-                src="/working-imag.png"
+                src="/working-imag.webp"
                 alt="Students working on laptops in a classroom"
                 fill
                 sizes="(min-width: 1024px) 620px, (min-width: 640px) 90vw, 100vw"
                 className="object-cover transition-transform duration-700 ease-out hover:scale-[1.02]"
-                priority={false}
               />
             </div>
           </div>

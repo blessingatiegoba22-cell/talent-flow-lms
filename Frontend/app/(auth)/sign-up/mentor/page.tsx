@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Image from "next/image";
+import { OptimizedImage as Image } from "@/components/shared/optimized-image";
 
 import { AccountRedirect } from "@/components/auth/account-redirect";
 import { AuthLogo } from "@/components/auth/auth-logo";
@@ -32,7 +32,7 @@ export default function MentorRequestPage() {
         <div className="mt-6 grid items-center gap-7 sm:mt-7 lg:grid-cols-[386px_minmax(320px,400px)] lg:justify-between lg:gap-20">
           <div className="relative mx-auto hidden h-[400px] w-full max-w-[386px] overflow-hidden rounded-[7px] bg-white shadow-[0_20px_50px_rgba(0,0,0,0.16)] lg:block">
             <Image
-              src="/instructor-img.png"
+              src="/instructor-img.webp"
               alt="Mentor teaching students"
               fill
               sizes="386px"
