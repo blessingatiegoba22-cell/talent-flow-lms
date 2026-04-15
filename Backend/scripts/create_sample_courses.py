@@ -16,7 +16,10 @@ import logging
 
 from sqlalchemy.orm import Session  
 
-from app.models.course import Course
+from app.models.admin import Admin, AdminRole   
+from app.models.course import Course            
+from app.models.mentor import Mentor
+from app.models.team import TeamMember
 from app.models.user import User
 
 logger = logging.getLogger(__name__)  
