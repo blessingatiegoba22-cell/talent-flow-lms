@@ -1,29 +1,31 @@
-import { TeamCard } from "@/components/shared/cards/TeamCard";
-import { TeamTable } from "@/components/shared/tables/TeamTable";
-import { MY_TEAM_MEMBERS, TEAMS } from "@/constants/dashboard";
+import type { Metadata } from "next";
 
-export default function TeamsPage() {
+import { TeamMembersTable } from "@/components/dashboard/learner-team-widgets";
+import { DashboardPageHeader } from "@/components/dashboard/page-heading";
+import { TeamSummaryCard } from "@/components/dashboard/team-components";
+import { teamCards, teamMembers } from "@/data/dashboard";
+
+export const metadata: Metadata = {
+  title: "Teams",
+  description:
+    "View cohort teams, team members, and assigned learner roles on Talent Flow LMS.",
+};
+
+export default function LearnerTeamsPage() {
   return (
-    <div className="max-w-9xl space-y-12">
-      <header>
-        <h1 className="text-3xl font-black text-gray-900">Teams</h1>
-        <p className="text-sm text-gray-400 font-medium mt-1">Teams in the current cohort</p>
-      </header>
+    <div className="mx-auto max-w-280 animate-fade-up">
+      <DashboardPageHeader
+        title="Teams"
+        description="Teams in the current cohort"
+      />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {TEAMS.map((team) => (
-          <TeamCard key={team.id} team={team} />
+      <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        {teamCards.map((team) => (
+          <TeamSummaryCard key={team.name} team={team} />
         ))}
       </div>
 
-      <section className="pt-10">
-        <header className="mb-6">
-          <h2 className="text-xl font-black text-gray-900">My Team - Team Lima</h2>
-          <p className="text-sm text-gray-400 font-medium mt-0.5">Team members and roles</p>
-        </header>
-
-        <TeamTable members={MY_TEAM_MEMBERS} />
-      </section>
+      <TeamMembersTable members={teamMembers} />
     </div>
   );
 }

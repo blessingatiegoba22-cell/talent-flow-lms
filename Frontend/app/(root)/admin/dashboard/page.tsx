@@ -1,44 +1,52 @@
-import StatCard from "@/components/shared/cards/StatCard";
-import { ADMIN_STATS } from "@/constants/dashboard";
+import type { Metadata } from "next";
 
-const DashboardPage = () => {
+import {
+  AdminMetrics,
+  QuickActions,
+  SectionHeader,
+  StatCard,
+} from "@/components/dashboard/dashboard-widgets";
+import { adminMetrics, adminQuickActions, adminStats } from "@/data/dashboard";
+
+export const metadata: Metadata = {
+  title: "Admin Dashboard",
+  description:
+    "Monitor platform users, courses, activity metrics, and admin actions on Talent Flow LMS.",
+};
+
+export default function AdminDashboardPage() {
   return (
-    <div className="max-w-9xl space-y-12">
-      <header className="mb-10">
-        <h1 className="text-display-xs font-bold text-foreground">
+    <div className="mx-auto max-w-5xl animate-fade-up xl:max-w-[1080px]">
+      <section>
+        <h1 className="text-[26px] font-extrabold leading-tight text-black sm:text-[29px]">
           Welcome back, Admin
         </h1>
-        <p className="text-ink-300 mt-2 max-w-2xl">
-          Everything is running smoothly and under your control. Let's get
-          things moving and keep the system at its best today.
+        <p className="mt-4 max-w-[600px] text-[13px] font-medium leading-[1.45] text-black">
+          Everything is running smoothly and under your control. Lets get things
+          moving and keep the system at its best today
         </p>
-      </header>
+      </section>
 
-      <section className="mb-12">
-        <h2 className="text-xl font-bold text-foreground mb-6">
-          Platform Overview
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {ADMIN_STATS.map((stat, index) => (
-            <StatCard key={index} {...stat} />
+      <section className="mt-10">
+        <SectionHeader title="Platform Overview" />
+        <div className="grid gap-5 sm:grid-cols-3">
+          {adminStats.map((stat) => (
+            <StatCard key={stat.label} {...stat} />
           ))}
         </div>
       </section>
 
-      <section>
-        <h2 className="text-xl font-bold text-foreground mb-6">
-          System Metrics
-        </h2>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="bg-neutral-300 min-h-75 rounded-2xl border border-border animate-pulse" />
-
-          <div className="bg-neutral-100 min-h-75 rounded-2xl border border-border p-8">
-            <h3 className="text-ink-300 font-medium">Quick Action</h3>
-          </div>
+      <section className="mt-12">
+        <SectionHeader title="System Metrics" />
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(300px,1.27fr)]">
+          <AdminMetrics metrics={adminMetrics} />
+          <QuickActions
+            actions={adminQuickActions}
+            className="rounded-sm border-0 bg-[#f2f2f2]"
+            title="Quick Action"
+          />
         </div>
       </section>
     </div>
   );
-};
-
-export default DashboardPage;
+}
