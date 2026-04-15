@@ -7,12 +7,19 @@ seeded (they will be seeded on next startup once a privileged user
 has been created via the admin script).
 """
 
-import logging
-from sqlalchemy.orm import Session
+import sys
+import os  
+
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+
+import logging  
+
+from sqlalchemy.orm import Session  
+
 from app.models.course import Course
 from app.models.user import User
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)  
 
 SAMPLE_COURSES = [
     {
@@ -25,7 +32,7 @@ SAMPLE_COURSES = [
         "category": "Programming",
         "level": "beginner",
         "duration_hours": 40,
-        "price":"Free",       
+        "price": "Free",
         "is_published": True,
     },
     {
@@ -38,7 +45,7 @@ SAMPLE_COURSES = [
         "category": "Web Development",
         "level": "advanced",
         "duration_hours": 60,
-        "price": "Free",      
+        "price": "Free",
         "is_published": True,
     },
     {
@@ -50,7 +57,7 @@ SAMPLE_COURSES = [
         "category": "Database",
         "level": "intermediate",
         "duration_hours": 30,
-        "price": "Free",     
+        "price": "Free",
         "is_published": True,
     },
     {
@@ -63,7 +70,7 @@ SAMPLE_COURSES = [
         "category": "Backend Development",
         "level": "intermediate",
         "duration_hours": 25,
-        "price": "Free",      # $129.99 in cents
+        "price": "Free",  
         "is_published": True,
     },
     {
@@ -76,7 +83,7 @@ SAMPLE_COURSES = [
         "category": "Data Science",
         "level": "beginner",
         "duration_hours": 50,
-        "price":"Free",          
+        "price": "Free",
         "is_published": True,
     },
 ]
@@ -95,7 +102,10 @@ def seed_courses(db: Session) -> None:
     )
 
     if not instructor:
-        logger.info("No users found — skipping course seeding. Re-run after first user is created.")
+        logger.info(
+            "No users found — skipping course seeding. "
+            "Re-run after first user is created."
+        )
         return
 
     seeded = 0
@@ -117,8 +127,33 @@ def seed_courses(db: Session) -> None:
         db.add(course)
         seeded += 1
 
-    if seeded:
-        db.commit()
-        logger.info(f"Seeded {seeded} sample course(s) into the database.")
-    else:
+    if not seeded:
         logger.info("All sample courses already exist — nothing to seed.")
+        return
+
+
+    # instead of leaving the session in a dirty/broken state.
+    try:
+        db.commit()
+        logger.info("Seeded %d sample course(s) into the database.", seeded)
+    except Exception:
+        db.rollback()
+        logger.exception("Failed to seed courses — transaction rolled back.")
+        raise
+
+
+# keeping imports side-effect-free for callers (e.g. app/main.py).
+if __name__ == "__main__":
+    from dotenv import load_dotenv
+
+    load_dotenv()
+
+    from app.database import SessionLocal  # adjust to your actual session factory
+
+    logging.basicConfig(level=logging.INFO)
+
+    db_session = SessionLocal()
+    try:
+        seed_courses(db_session)
+    finally:
+        db_session.close()
