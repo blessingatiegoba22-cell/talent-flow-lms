@@ -1,6 +1,6 @@
 import type { DashboardRole } from "@/data/dashboard";
 
-export const signOutRedirectHref = "/sign-in";
+export const signOutRedirectHref = "/";
 
 export const dashboardHrefByRole: Record<DashboardRole, string> = {
   admin: "/admin/dashboard",

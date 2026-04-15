@@ -15,6 +15,7 @@ import {
 import { AuthSubmitButton } from "@/components/auth/auth-submit-button";
 import { GoogleIcon } from "@/components/auth/google-icon";
 import { useAuthSessionStore } from "@/lib/auth-store";
+import { resolveMockRoleFromEmail } from "@/lib/mock-session";
 import { dashboardHrefByRole } from "@/lib/routes";
 import { simulatedActionDelayMs } from "@/lib/timing";
 
@@ -40,8 +41,9 @@ export function SignInForm() {
       await new Promise((resolve) =>
         window.setTimeout(resolve, simulatedActionDelayMs),
       );
-      signIn({ remember: Boolean(values.remember), role: "learner" });
-      router.push(dashboardHrefByRole.learner);
+      const role = resolveMockRoleFromEmail(values.email);
+      signIn({ remember: Boolean(values.remember), role });
+      router.push(dashboardHrefByRole[role]);
     } catch {
       setError("root", {
         message: "Unable to sign in right now. Please try again.",

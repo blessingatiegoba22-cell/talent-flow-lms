@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Lock, Mail, User } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -13,10 +13,13 @@ import {
   type StudentSignUpFormValues,
 } from "@/components/auth/auth-schemas";
 import { GoogleIcon } from "@/components/auth/google-icon";
+import { useAuthSessionStore } from "@/lib/auth-store";
+import { dashboardHrefByRole } from "@/lib/routes";
 import { simulatedActionDelayMs } from "@/lib/timing";
 
 export function StudentSignUpForm() {
-  const [feedback, setFeedback] = useState("");
+  const router = useRouter();
+  const signIn = useAuthSessionStore((state) => state.signIn);
   const {
     formState: { errors, isSubmitting },
     handleSubmit,
@@ -33,14 +36,13 @@ export function StudentSignUpForm() {
     resolver: zodResolver(studentSignUpSchema),
   });
 
-  const onSubmit = handleSubmit(async () => {
-    setFeedback("");
-
+  const onSubmit = handleSubmit(async (values) => {
     try {
       await new Promise((resolve) =>
         window.setTimeout(resolve, simulatedActionDelayMs),
       );
-      setFeedback("Student account details look good.");
+      signIn({ remember: Boolean(values.remember), role: "learner" });
+      router.push(dashboardHrefByRole.learner);
     } catch {
       setError("root", {
         message: "Unable to create your account right now. Please try again.",
@@ -116,10 +118,6 @@ export function StudentSignUpForm() {
       {errors.root?.message ? (
         <p className="mt-2 text-center text-xs font-semibold text-red-100" aria-live="polite">
           {errors.root.message}
-        </p>
-      ) : feedback ? (
-        <p className="mt-2 text-center text-xs font-semibold text-white/78" aria-live="polite">
-          {feedback}
         </p>
       ) : null}
 
