@@ -1,14 +1,12 @@
 from fastapi import APIRouter, HTTPException, status, Depends, Query
-from pydantic import BaseModel
 from datetime import datetime
 from typing import List, Optional
 from app.database import get_db
-from sqlalchemy.orm import Session, defer
-from sqlalchemy import func, and_, or_
+from sqlalchemy.orm import Session
+from sqlalchemy import or_
 from app.schemas.course import CourseResponse, CourseEnrollmentResponse, ProgressUpdate, UserCourseResponse, CourseCreate
 from app.models.course import Course, course_enrollments
 from app.models.user import User as UserModel
-from app.models.mentor import Mentor, MentorAssignment
 from app.middlewares.auth import AuthMiddleware
 import logging
 
@@ -29,16 +27,16 @@ def get_courses(
     search: Optional[str] = Query(None),
     db: Session = Depends(get_db)
 ):
-    """Get all published courses with filtering and pagination"""
+    """Get all published courses with optional filtering and pagination."""
     try:
         query = db.query(Course).filter(Course.is_published == True)
-        
+
         if category:
             query = query.filter(Course.category.ilike(f"%{category}%"))
-        
+
         if level:
             query = query.filter(Course.level == level)
-        
+
         if search:
             query = query.filter(
                 or_(
@@ -46,13 +44,11 @@ def get_courses(
                     Course.description.ilike(f"%{search}%")
                 )
             )
-        
+
         courses = query.offset(skip).limit(limit).all()
-        
-        # Convert to dict format
+
         course_list = []
         for course in courses:
-            # Convert to dict format with user-friendly price
             course_dict = {
                 "id": course.id,
                 "title": course.title,
@@ -60,17 +56,17 @@ def get_courses(
                 "category": course.category,
                 "level": course.level,
                 "duration_hours": course.duration_hours,
-                "price": f"${course.price / 100:.2f}" if course.price else "Free",  # Convert cents to dollars
+                "price": f"${course.price / 100:.2f}" if course.price else "Free",
                 "instructor_id": course.instructor_id,
                 "is_published": course.is_published,
                 "created_at": course.created_at,
                 "updated_at": course.updated_at,
-                "enrollment_count": 0  # Will be implemented later
+                "enrollment_count": 0,
             }
             course_list.append(course_dict)
-        
+
         return course_list
-        
+
     except Exception as e:
         logger.error(f"Failed to get courses: {e}")
         raise HTTPException(
@@ -82,127 +78,34 @@ def get_courses(
 @router.post("/", response_model=dict, status_code=status.HTTP_201_CREATED)
 def create_course(
     course_data: CourseCreate,
-    current_user = Depends(AuthMiddleware),
+    current_user=Depends(AuthMiddleware),
     db: Session = Depends(get_db)
 ):
-    """Create a new course - Admin only"""
-    # Check if user is admin
+    """Create a new course - Admin or Mentor only."""
     if current_user.role not in ["admin", "mentor"]:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Only admins or mentors can create courses"
         )
-    
+
     try:
-        # Create new course
+        instructor_id = course_data.instructor_id or current_user.id
+
         course = Course(
             title=course_data.title,
             description=course_data.description,
             category=course_data.category,
-            level=course_data.level,
+            level=course_data.level.value if course_data.level else None,
             duration_hours=course_data.duration_hours,
-            instructor_id=current_user.id,
-            is_published=True  # Auto-publish for simplicity
+            price=course_data.price,
+            instructor_id=instructor_id,
+            is_published=False,
         )
-        
         db.add(course)
         db.commit()
         db.refresh(course)
-        
+
         return {
-            "id": course.id,
-            "title": course.title,
-            "description": course.description,
-            "category": course.category,
-            "level": course.level,
-            "duration_hours": course.duration_hours,
-            "instructor_id": course.instructor_id,
-            "is_published": course.is_published,
-            "created_at": course.created_at,
-            "updated_at": course.updated_at
-        }
-        
-    except Exception as e:
-        logger.error(f"Failed to create course: {e}")
-        db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to create course"
-        )
-
-@router.get("/me/enrollments", response_model=List[CourseEnrollmentResponse])
-def get_my_enrollments(
-    current_user = Depends(AuthMiddleware),
-    db: Session = Depends(get_db)
-):
-    """Get current user's course enrollments"""
-    try:
-        enrollments = db.query(Course, course_enrollments.c.progress, course_enrollments.c.enrolled_at, course_enrollments.c.completed_at, UserModel.name.label('instructor_name')).join(
-            course_enrollments,
-            Course.id == course_enrollments.c.course_id
-        ).join(
-            UserModel,
-            Course.instructor_id == UserModel.id,
-            isouter=True
-        ).filter(
-            and_(
-                course_enrollments.c.user_id == current_user.id,
-                course_enrollments.c.is_active == True
-            )
-        ).all()
-        
-        enrollment_responses = []
-        for course, progress, enrolled_at, completed_at, instructor_name in enrollments:
-            enrollment_dict = {
-                "id": course.id,
-                "title": course.title,
-                "description": course.description,
-                "category": course.category,
-                "level": course.level,
-                "duration_hours": course.duration_hours,
-                "price": course.price,
-                "progress": progress,
-                "enrolled_at": enrolled_at,
-                "completed_at": completed_at,
-                "instructor_name": instructor_name
-            }
-            enrollment_responses.append(CourseEnrollmentResponse(**enrollment_dict))
-        
-        return enrollment_responses
-        
-    except Exception as e:
-        logger.error(f"Failed to get enrollments: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to get enrollments"
-        )
-
-@router.get("/{course_id}", response_model=dict)
-def get_course(course_id: int, db: Session = Depends(get_db)):
-    """Get a specific course by ID"""
-    try:
-        course = db.query(Course).filter(
-            and_(
-                Course.id == course_id,
-                Course.is_published == True
-            )
-        ).first()
-        
-        if not course:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Course not found"
-            )
-        
-        # Get enrollment count
-        enrollment_count = db.query(course_enrollments).filter(
-            and_(
-                course_enrollments.c.course_id == course.id,
-                course_enrollments.c.is_active == True
-            )
-        ).count()
-        
-        course_dict = {
             "id": course.id,
             "title": course.title,
             "description": course.description,
@@ -214,11 +117,46 @@ def get_course(course_id: int, db: Session = Depends(get_db)):
             "is_published": course.is_published,
             "created_at": course.created_at,
             "updated_at": course.updated_at,
-            "enrollment_count": enrollment_count
         }
-        
-        return course_dict
-        
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to create course: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to create course"
+        )
+
+
+@router.get("/{course_id}", response_model=dict)
+def get_course(
+    course_id: int,
+    db: Session = Depends(get_db)
+):
+    """Get a single course by ID."""
+    try:
+        course = db.query(Course).filter(Course.id == course_id).first()
+        if not course:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Course not found"
+            )
+
+        return {
+            "id": course.id,
+            "title": course.title,
+            "description": course.description,
+            "category": course.category,
+            "level": course.level,
+            "duration_hours": course.duration_hours,
+            "price": f"${course.price / 100:.2f}" if course.price else "Free",
+            "instructor_id": course.instructor_id,
+            "is_published": course.is_published,
+            "created_at": course.created_at,
+            "updated_at": course.updated_at,
+        }
+
     except HTTPException:
         raise
     except Exception as e:
@@ -229,261 +167,70 @@ def get_course(course_id: int, db: Session = Depends(get_db)):
         )
 
 
+@router.patch("/{course_id}/publish", response_model=dict)
+def publish_course(
+    course_id: int,
+    current_user=Depends(AuthMiddleware),
+    db: Session = Depends(get_db)
+):
+    """Publish a course - Admin or owning Mentor only."""
+    if current_user.role not in ["admin", "mentor"]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only admins or mentors can publish courses"
+        )
+
+    course = db.query(Course).filter(Course.id == course_id).first()
+    if not course:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Course not found")
+
+    course.is_published = True
+    db.commit()
+    db.refresh(course)
+
+    return {"message": "Course published successfully", "course_id": course.id}
+
+
 @router.post("/{course_id}/enroll", response_model=dict)
 def enroll_in_course(
     course_id: int,
-    current_user = Depends(AuthMiddleware),
+    current_user=Depends(AuthMiddleware),
     db: Session = Depends(get_db)
 ):
-    """Enroll the current user in a course"""
-    try:
-        # Check if course exists and is published
-        course = db.query(Course).filter(
-            and_(
-                Course.id == course_id,
-                Course.is_published == True
-            )
-        ).first()
-        
-        if not course:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Course not found"
-            )
-        
-        # Check if user is already enrolled
-        existing_enrollment = db.query(course_enrollments).filter(
-            and_(
-                course_enrollments.c.user_id == current_user.id,
-                course_enrollments.c.course_id == course_id,
-                course_enrollments.c.is_active == True
-            )
-        ).first()
-        
-        if existing_enrollment:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Already enrolled in this course"
-            )
-        
-        # Create enrollment
-        db.execute(
-            course_enrollments.insert().values(
-                user_id=current_user.id,
-                course_id=course_id,
-                progress=0,
-                is_active=True
-            )
-        )
-        
-        # Assign a mentor to the student
-        mentor = db.query(Mentor).filter(Mentor.is_active == True).order_by(func.random()).first()
-        
-        if mentor:
-            mentor_assignment = MentorAssignment(
-                mentor_id=mentor.id,
-                user_id=current_user.id,
-                course_id=course_id,
-                notes=f"Auto-assigned mentor for course: {course.title}"
-            )
-            db.add(mentor_assignment)
-            logger.info(f"Assigned mentor {mentor.id} to user {current_user.id} for course {course_id}")
-        else:
-            logger.warning(f"No active mentors available for course {course_id}")
-        
-        db.commit()
-        
-        return {
-            "message": "Successfully enrolled in course",
-            "course_id": course_id,
-            "user_id": current_user.id,
-            "mentor_assigned": mentor.id if mentor else None
-        }
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Failed to enroll in course: {e}")
-        db.rollback()
+    """Enroll the current user in a course."""
+    course = db.query(Course).filter(
+        Course.id == course_id,
+        Course.is_published == True
+    ).first()
+
+    if not course:
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to enroll in course"
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Course not found or not published"
         )
 
-
-@router.delete("/{course_id}/enroll", response_model=dict)
-def unenroll_from_course(
-    course_id: int,
-    current_user = Depends(AuthMiddleware),
-    db: Session = Depends(get_db)
-):
-    """Unenroll the current user from a course"""
-    try:
-        # Check if user is enrolled
-        existing_enrollment = db.query(course_enrollments).filter(
-            and_(
-                course_enrollments.c.user_id == current_user.id,
-                course_enrollments.c.course_id == course_id,
-                course_enrollments.c.is_active == True
-            )
-        ).first()
-        
-        if not existing_enrollment:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Not enrolled in this course"
-            )
-        
-        # Deactivate enrollment (soft delete)
-        db.execute(
-            course_enrollments.update().where(
-                and_(
-                    course_enrollments.c.user_id == current_user.id,
-                    course_enrollments.c.course_id == course_id
-                )
-            ).values(is_active=False)
+    # Check if already enrolled
+    existing = db.execute(
+        course_enrollments.select().where(
+            course_enrollments.c.user_id == current_user.id,
+            course_enrollments.c.course_id == course_id
         )
-        db.commit()
-        
-        return {
-            "message": "Successfully unenrolled from course",
-            "course_id": course_id,
-            "user_id": current_user.id
-        }
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Failed to unenroll from course: {e}")
-        db.rollback()
+    ).first()
+
+    if existing:
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to unenroll from course"
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Already enrolled in this course"
         )
 
-
-
-@router.get("/{course_id}/students", response_model=List[UserCourseResponse])
-def get_course_students(
-    course_id: int,
-    current_user = Depends(AuthMiddleware),
-    db: Session = Depends(get_db)
-):
-    """Get all students enrolled in a course (instructor only)"""
-    try:
-        # Check if user is the instructor of this course
-        course = db.query(Course).filter(Course.id == course_id).first()
-        
-        if not course:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Course not found"
-            )
-        
-        if course.instructor_id != current_user.id and current_user.role != "admin":
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Only course instructor or admin can view students"
-            )
-        
-        # Get all enrolled students
-        students = db.query(UserModel, course_enrollments.c.progress, course_enrollments.c.enrolled_at, course_enrollments.c.completed_at).join(
-            course_enrollments,
-            UserModel.id == course_enrollments.c.user_id
-        ).filter(
-            and_(
-                course_enrollments.c.course_id == course_id,
-                course_enrollments.c.is_active == True
-            )
-        ).all()
-        
-        student_responses = []
-        for user, progress, enrolled_at, completed_at in students:
-            student_dict = {
-                "id": user.id,
-                "name": user.name,
-                "email": user.email,
-                "role": user.role,
-                "progress": progress,
-                "enrolled_at": enrolled_at,
-                "completed_at": completed_at
-            }
-            student_responses.append(UserCourseResponse(**student_dict))
-        
-        return student_responses
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Failed to get course students: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to get course students"
+    db.execute(
+        course_enrollments.insert().values(
+            user_id=current_user.id,
+            course_id=course_id,
+            progress=0,
+            is_active=True
         )
+    )
+    db.commit()
 
-
-@router.put("/{course_id}/progress", response_model=dict)
-def update_course_progress(
-    course_id: int,
-    progress_data: ProgressUpdate,
-    current_user = Depends(AuthMiddleware),
-    db: Session = Depends(get_db)
-):
-    """Update user's progress in a course"""
-    try:
-        progress = progress_data.progress
-        
-        if not (0 <= progress <= 100):
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Progress must be between 0 and 100"
-            )
-        
-        # Check if user is enrolled
-        enrollment = db.query(course_enrollments).filter(
-            and_(
-                course_enrollments.c.user_id == current_user.id,
-                course_enrollments.c.course_id == course_id,
-                course_enrollments.c.is_active == True
-            )
-        ).first()
-        
-        if not enrollment:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Not enrolled in this course"
-            )
-        
-        # Update progress
-        update_values = {"progress": progress}
-        
-        # Mark as completed if progress is 100
-        if progress == 100 and not enrollment.completed_at:
-            update_values["completed_at"] = datetime.utcnow()
-        
-        db.execute(
-            course_enrollments.update().where(
-                and_(
-                    course_enrollments.c.user_id == current_user.id,
-                    course_enrollments.c.course_id == course_id
-                )
-            ).values(**update_values)
-        )
-        db.commit()
-        
-        return {
-            "message": "Progress updated successfully",
-            "course_id": course_id,
-            "progress": progress,
-            "completed": progress == 100
-        }
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Failed to update progress: {e}")
-        db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to update progress"
-        )
+    return {"message": "Enrolled successfully", "course_id": course_id}
