@@ -8,13 +8,15 @@ has been created via the admin script).
 """
 
 import sys
-import os  
+import os  # FIX #8: one import per line (PEP 8)
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 import logging  
 
 from sqlalchemy.orm import Session  
+
+# Import ALL models so SQLAlchemy can resolve every relationship() string
 
 from app.models.admin import Admin, AdminRole   
 from app.models.course import Course            
@@ -23,6 +25,7 @@ from app.models.team import TeamMember
 from app.models.user import User
 
 logger = logging.getLogger(__name__)  
+
 
 SAMPLE_COURSES = [
     {
@@ -35,7 +38,7 @@ SAMPLE_COURSES = [
         "category": "Programming",
         "level": "beginner",
         "duration_hours": 40,
-        "price": "Free",
+        "price": 0,
         "is_published": True,
     },
     {
@@ -48,7 +51,7 @@ SAMPLE_COURSES = [
         "category": "Web Development",
         "level": "advanced",
         "duration_hours": 60,
-        "price": "Free",
+        "price": 0,
         "is_published": True,
     },
     {
@@ -60,7 +63,7 @@ SAMPLE_COURSES = [
         "category": "Database",
         "level": "intermediate",
         "duration_hours": 30,
-        "price": "Free",
+        "price": 0,
         "is_published": True,
     },
     {
@@ -73,7 +76,7 @@ SAMPLE_COURSES = [
         "category": "Backend Development",
         "level": "intermediate",
         "duration_hours": 25,
-        "price": "Free",  
+        "price": 0,  #
         "is_published": True,
     },
     {
@@ -86,7 +89,7 @@ SAMPLE_COURSES = [
         "category": "Data Science",
         "level": "beginner",
         "duration_hours": 50,
-        "price": "Free",
+        "price": 0,
         "is_published": True,
     },
 ]
@@ -133,7 +136,6 @@ def seed_courses(db: Session) -> None:
     if not seeded:
         logger.info("All sample courses already exist — nothing to seed.")
         return
-
 
     # instead of leaving the session in a dirty/broken state.
     try:
