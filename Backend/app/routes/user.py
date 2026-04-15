@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import List
 from app.database import get_db
 from sqlalchemy.orm import Session, defer
-from app.schemas.user import User as UserSchema, UserResponse, UserUpdate
+from app.schemas.user import StudentSignup, MentorSignup, UserResponse, UserUpdate
 from app.models.user import User as UserModel
 from app.middlewares.auth import AuthMiddleware
 import bcrypt
@@ -29,33 +29,32 @@ def handle_database_error(error: Exception, operation: str = "operation"):
     )
 
 
-@router.post("/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
-def create_user(user: UserSchema, db: Session = Depends(get_db)):
-    """Register a new user."""
-    try:
-        if db.query(UserModel).filter(UserModel.email == user.email).first():
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="Email already registered"
-            )
-        if db.query(UserModel).filter(UserModel.phone == user.phone).first():
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="Phone number already registered"
-            )
+def _hash_password(plain: str) -> str:
+    return bcrypt.hashpw(
+        plain.encode("utf-8"),
+        bcrypt.gensalt(rounds=12)
+    ).decode("utf-8")
 
-        hashed_password = bcrypt.hashpw(
-            user.password.encode("utf-8"),
-            bcrypt.gensalt(rounds=12)
-        ).decode("utf-8")
+
+def _check_email_conflict(db: Session, email: str):
+    if db.query(UserModel).filter(UserModel.email == email).first():
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Email already registered"
+        )
+
+
+@router.post("/student", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+def create_student(user: StudentSignup, db: Session = Depends(get_db)):
+    """Register a new student account. Role is assigned internally as 'student'."""
+    try:
+        _check_email_conflict(db, user.email)
 
         new_user = UserModel(
             name=user.name,
-            phone=user.phone,
             email=user.email,
-            password=hashed_password,
-            gender=user.gender,
-            location=user.location
+            password=_hash_password(user.password),
+            role="student",
         )
         db.add(new_user)
         db.commit()
@@ -65,7 +64,30 @@ def create_user(user: UserSchema, db: Session = Depends(get_db)):
     except HTTPException:
         raise
     except Exception as e:
-        handle_database_error(e, "create user")
+        handle_database_error(e, "create student")
+
+
+@router.post("/mentor", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+def create_mentor(user: MentorSignup, db: Session = Depends(get_db)):
+    """Register a new mentor account. Role is assigned internally as 'mentor'."""
+    try:
+        _check_email_conflict(db, user.email)
+
+        new_user = UserModel(
+            name=user.name,
+            email=user.email,
+            password=_hash_password(user.password),
+            role="mentor",
+        )
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
+        return new_user
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        handle_database_error(e, "create mentor")
 
 
 @router.get("/", response_model=List[UserResponse])
@@ -150,10 +172,7 @@ def update_user(
         update_data = user_update.dict(exclude_unset=True)
 
         if "password" in update_data and update_data["password"]:
-            update_data["password"] = bcrypt.hashpw(
-                update_data["password"].encode("utf-8"),
-                bcrypt.gensalt(rounds=12)
-            ).decode("utf-8")
+            update_data["password"] = _hash_password(update_data["password"])
 
         for field, value in update_data.items():
             setattr(user_to_update, field, value)

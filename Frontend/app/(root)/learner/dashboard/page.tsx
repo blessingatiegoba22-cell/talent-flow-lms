@@ -1,57 +1,74 @@
-import CourseCard from "@/components/shared/cards/CourseCard"
-import ProgressOverview from "@/components/shared/cards/ProgressOverview"
-import QuickActions from "@/components/shared/cards/QuickActions"
-import EnrolledCourseItem from "@/components/shared/tiles/EnrolledCourseItem"
-import { CONTINUE_LEARNING, ENROLLED_COURSES } from "@/constants/dashboard"
-import { ChevronRight } from "lucide-react"
+import type { Metadata } from "next";
 
-const LearnerDashboardPage = () => {
-    return(
-    <div className="max-w-7xl space-y-12">
-      <header className="mb-10">
-        <h1 className="text-display-xs font-bold text-foreground">Welcome back, Samuel!</h1>
-        <p className="text-ink-500 mt-2">Ready to continue your learning journey? Lets keep the momentum going.</p>
-      </header>
+import {
+  CourseCard,
+  CourseListItem,
+  ProgressOverview,
+  QuickActions,
+  SectionHeader,
+} from "@/components/dashboard/dashboard-widgets";
+import {
+  enrolledCourses,
+  learnerProgress,
+  learnerQuickActions,
+  learningCourses,
+} from "@/data/dashboard";
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
-        <div className="lg:col-span-2 space-y-12">
-          
-          <section>
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-bold text-foreground">Continue Learning</h2>
-              <button className="text-primary text-sm font-medium flex items-center gap-1 hover:underline hover:cursor-pointer">
-                View All My Courses <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {CONTINUE_LEARNING.map((course) => (
-                <CourseCard key={course.id} course={course} />
-              ))}
-            </div>
-          </section>
+export const metadata: Metadata = {
+  title: "Student Dashboard",
+  description:
+    "Continue learning, track progress, and access student quick actions on Talent Flow LMS.",
+};
 
-          <section>
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-bold text-foreground">Enrolled Courses</h2>
-              <button className="text-primary text-sm font-medium flex items-center gap-1 hover:underline hover:cursor-pointer">
-                Browse Catalog <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-            <div className="space-y-4">
-              {ENROLLED_COURSES.map((course) => (
-                <EnrolledCourseItem key={course.id} course={course} />
-              ))}
-            </div>
-          </section>
+export default function LearnerDashboardPage() {
+  return (
+    <div className="mx-auto grid max-w-5xl gap-5 animate-fade-up lg:grid-cols-[minmax(0,1fr)_278px] xl:max-w-[1040px]">
+      <section>
+        <div>
+          <h1 className="text-[24px] font-extrabold leading-tight text-black sm:text-[29px]">
+            Welcome back, Samuel!
+          </h1>
+          <p className="mt-3 max-w-160 text-[13px] font-medium leading-[1.5] text-black sm:mt-4">
+            Ready to continue your learning journey? Lets keep the momentum going.
+          </p>
         </div>
 
-        <div className="space-y-8">
-          <ProgressOverview />
-          <QuickActions />
+        <div className="mt-6 sm:mt-7">
+          <SectionHeader
+            title="Continue Learning"
+            action="View All My Courses"
+          />
+          <div className="grid gap-4 sm:grid-cols-2">
+            {learningCourses.map((course, index) => (
+              <CourseCard
+                key={course.title}
+                {...course}
+                primary={index === 0}
+              />
+            ))}
+          </div>
         </div>
-      </div>
+
+        <div className="mt-7 sm:mt-8">
+          <SectionHeader title="Enrolled Courses" action="Browse Catalog" />
+          <div className="space-y-3">
+            {enrolledCourses.map((course) => (
+              <CourseListItem key={course.title} {...course} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="grid gap-5 sm:grid-cols-2 lg:grid-cols-1">
+        <ProgressOverview
+          role="learner"
+          completed={learnerProgress.completed}
+          courses={learnerProgress.courses}
+          learningTime={learnerProgress.learningTime}
+          value={learnerProgress.value}
+        />
+        <QuickActions actions={learnerQuickActions} />
+      </section>
     </div>
-    )
+  );
 }
-export default LearnerDashboardPage;

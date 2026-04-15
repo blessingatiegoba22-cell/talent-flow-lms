@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.database import engine
+from app.database import engine, SessionLocal
 from app.models.base import Base
 import logging
 import time
@@ -10,7 +10,8 @@ from app.routes.admin import router as admin_router
 from app.routes.mentor import router as mentor_router
 from app.routes.mentor_auth import router as mentor_auth_router
 from app.routes.team import router as team_router
-from app.models import team  # noqa: F401 — ensures team tables are registered
+from app.models import team  
+from scripts.create_sample_courses import seed_courses
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -44,9 +45,21 @@ def db_and_table_init():
     raise RuntimeError("Database connection failed on startup.")
 
 
+def run_seed():
+    """Run course seeding after tables exist."""
+    db = SessionLocal()
+    try:
+        seed_courses(db)
+    except Exception as e:
+        logger.warning(f"Course seeding failed (non-fatal): {e}")
+    finally:
+        db.close()
+
+
 @app.on_event("startup")
 def on_startup():
     db_and_table_init()
+    run_seed()
 
 
 # CORS — restrict to known frontend origin(s) in production
