@@ -1,47 +1,44 @@
-version: '3.9'
-
 services:
   talent_flow.api:
-    build: .
     container_name: talent_flow.api
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
-      - "8000:8000"
+      - '${FORWARD_API_PORT:-8000}:8000'
     environment:
-      - DB_HOST=${DB_HOST}
-      - DB_PORT=${DB_PORT}
-      - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_DATABASE=${DB_DATABASE}
-    volumes:
-      - ./app:/app
+      - PYTHONPATH=/app
+      - DB_HOST=talent_flow_db
+      - DB_PORT=${DB_PORT:-5432}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-Password123!}
+      - DB_DATABASE=${DB_DATABASE:-talent_flow_db}
+      - SECRET_KEY=${SECRET_KEY:-change-this-secret-in-production}
+      - ALGORITHM=${ALGORITHM:-HS256}
+      - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES:-60}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:5173}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - FIRST_ADMIN_EMAIL=${FIRST_ADMIN_EMAIL:-admin@talentflow.com}
+      - FIRST_ADMIN_PASSWORD=${FIRST_ADMIN_PASSWORD:-Password123!}
     depends_on:
       talent_flow_db:
-        condition: service_healthy
+        condition: service_healthy   # wait for DB to pass healthcheck before starting API
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
 
   talent_flow_db:
-    container_name: talent_flow_db
-    image: mysql:8.0
+    container_name: talent_flow_dbx
+    image: postgres:15-alpine
     environment:
-      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
-      - MYSQL_DATABASE=${DB_DATABASE}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-Password123!}
+      POSTGRES_DB: ${DB_DATABASE:-talent_flow_db}
     ports:
-      - '${FORWARD_DB_PORT}:3306'
+      - '${FORWARD_DB_PORT:-5432}:5432'
     volumes:
-      - talent_flow_data:/var/lib/mysql
+      - talent_flow_data:/var/lib/postgresql/data
     restart: unless-stopped
-    command: 
-      - --default-authentication-plugin=mysql_native_password
-      - --innodb_buffer_pool_size=256M
-      - --innodb_log_file_size=128M
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASSWORD}"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_DATABASE:-talent_flow_db}"]
       interval: 10s
       timeout: 5s
       retries: 10

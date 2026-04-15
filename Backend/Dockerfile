@@ -1,31 +1,45 @@
-# Use official Python runtime as base image
-FROM python:3.11-slim
+# ── Stage 1: Build ────────────────────────────────────────────────────────────
+FROM python:3.11-slim AS builder
 
-# Set working directory in container
 WORKDIR /app
 
-# Set environment variables
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
 
-# Install system dependencies
+# Install build tools (needed to compile some packages)
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends gcc default-libmysqlclient-dev pkg-config \
-    && rm -rf /var/lib/apt/lists/* && pip install --upgrade pip
+    && apt-get install -y --no-install-recommends gcc \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements first (better Docker layer caching)
 COPY requirements.txt .
-
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Copy application code
-COPY ./app ./app
+RUN pip install --upgrade pip \
+    && pip install --no-cache-dir --prefix=/install -r requirements.txt
 
 
+# ── Stage 2: Runtime ──────────────────────────────────────────────────────────
+FROM python:3.11-slim
 
-# Expose port
-EXPOSE 8000
+WORKDIR /app
 
-# Command to run the application
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PORT=8000
+
+# Copy installed packages from builder
+COPY --from=builder /install /usr/local
+
+# Copy application source
+COPY . .
+
+# Render assigns a dynamic PORT — we expose the default for documentation
+EXPOSE ${PORT}
+
+# Start with gunicorn + uvicorn workers (production-grade)
+# Shell form so $PORT is expanded at runtime
+CMD gunicorn app.main:app \
+    -w 2 \
+    -k uvicorn.workers.UvicornWorker \
+    --bind 0.0.0.0:${PORT} \
+    --timeout 120 \
+    --log-level info \
+    --access-logfile -
