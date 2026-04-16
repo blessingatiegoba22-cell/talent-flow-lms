@@ -33,7 +33,11 @@ export default function InstructorDashboardPage() {
         </div>
 
         <div className="mt-7">
-          <SectionHeader title="Your Courses" action="View All My Courses" />
+          <SectionHeader
+            title="Your Courses"
+            action="View All My Courses"
+            actionHref="/instructor/my-course"
+          />
           <div className="grid gap-4 sm:grid-cols-2">
             {instructorCourses.map((course, index) => (
               <CourseCard key={course.title} {...course} primary={index === 0} />

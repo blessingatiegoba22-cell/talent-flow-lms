@@ -9,6 +9,7 @@ import {
   Play,
 } from "lucide-react";
 
+import { CourseProgressLink } from "@/components/dashboard/course-progress-link";
 import type { DashboardRole } from "@/data/dashboard";
 import { progressLabels } from "@/data/dashboard";
 import { cn } from "@/lib/utils";
@@ -17,10 +18,15 @@ import { ProgressRing } from "./progress-ring";
 
 type SectionHeaderProps = {
   action?: string;
+  actionHref?: string;
   title: string;
 };
 
-export function SectionHeader({ action, title }: SectionHeaderProps) {
+export function SectionHeader({
+  action,
+  actionHref = "#",
+  title,
+}: SectionHeaderProps) {
   return (
     <div className="mb-3 flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
       <h2 className="text-[19px] font-extrabold leading-tight text-black sm:text-[21px]">
@@ -28,7 +34,7 @@ export function SectionHeader({ action, title }: SectionHeaderProps) {
       </h2>
       {action ? (
         <Link
-          href="#"
+          href={actionHref}
           className="cursor-pointer text-[12px] font-medium text-(--brand-blue-800) transition-colors duration-300 ease-in-out hover:text-(--brand-blue-500) sm:text-[13px]"
         >
           {action}
@@ -41,6 +47,8 @@ export function SectionHeader({ action, title }: SectionHeaderProps) {
 
 type CourseCardProps = {
   cta: string;
+  href?: string;
+  id?: number;
   image: string;
   meta: string;
   primary?: boolean;
@@ -50,6 +58,8 @@ type CourseCardProps = {
 
 export function CourseCard({
   cta,
+  href,
+  id,
   image,
   meta,
   primary = false,
@@ -74,24 +84,39 @@ export function CourseCard({
         </h3>
         <p className="mt-3 text-[13px] font-medium text-[#717171]">{meta}</p>
       </div>
-      <button
-        type="button"
-        className={cn(
-          "mx-auto mt-4 flex h-10 w-full max-w-[150px] cursor-pointer items-center justify-center gap-2 rounded-[5px] border text-[13px] font-bold transition-all duration-300 ease-in-out hover:-translate-y-0.5",
-          primary
-            ? "border-(--brand-blue-500) bg-(--brand-blue-500) text-white shadow-[0_14px_24px_rgba(37,99,235,0.25)] hover:bg-(--brand-blue-400)"
-            : "border-[#888] bg-transparent text-[#333] hover:border-(--brand-blue-500) hover:text-(--brand-blue-500)",
-        )}
-      >
-        <Play className="h-4 w-4" aria-hidden="true" />
-        {cta}
-      </button>
+      {href ? (
+        <CourseProgressLink
+          courseId={id}
+          href={href}
+          increment={1}
+          className={getCourseButtonClassName(primary)}
+          shouldAdvance={progress === 0}
+        >
+          <Play className="h-4 w-4" aria-hidden="true" />
+          {cta}
+        </CourseProgressLink>
+      ) : (
+        <button type="button" className={getCourseButtonClassName(primary)}>
+          <Play className="h-4 w-4" aria-hidden="true" />
+          {cta}
+        </button>
+      )}
     </article>
+  );
+}
+
+function getCourseButtonClassName(primary: boolean) {
+  return cn(
+    "mx-auto mt-4 flex h-10 w-full max-w-[150px] cursor-pointer items-center justify-center gap-2 rounded-[5px] border text-[13px] font-bold transition-all duration-300 ease-in-out hover:-translate-y-0.5",
+    primary
+      ? "border-(--brand-blue-500) bg-(--brand-blue-500) text-white shadow-[0_14px_24px_rgba(37,99,235,0.25)] hover:bg-(--brand-blue-400)"
+      : "border-[#888] bg-transparent text-[#333] hover:border-(--brand-blue-500) hover:text-(--brand-blue-500)",
   );
 }
 
 type CourseListItemProps = {
   author?: string;
+  href?: string;
   image: string;
   progress: number;
   title: string;
@@ -99,11 +124,12 @@ type CourseListItemProps = {
 
 export function CourseListItem({
   author,
+  href,
   image,
   progress,
   title,
 }: CourseListItemProps) {
-  return (
+  const content = (
     <article className="grid gap-3 rounded-lg border border-[#bcbcbc] bg-white p-3 transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:border-(--brand-blue-300) sm:grid-cols-[112px_minmax(0,1fr)] sm:items-center md:grid-cols-[128px_minmax(0,1fr)_154px]">
       <div className="relative h-19 overflow-hidden rounded-md bg-[#e9e9e9] sm:h-[58px]">
         <Image
@@ -125,6 +151,16 @@ export function CourseListItem({
       <ProgressBar className="sm:col-span-2 md:col-span-1" progress={progress} />
     </article>
   );
+
+  if (href) {
+    return (
+      <Link href={href} className="block">
+        {content}
+      </Link>
+    );
+  }
+
+  return content;
 }
 
 type ActivityItemProps = {
