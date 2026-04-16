@@ -5,8 +5,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { CreditCard, LoaderCircle, LogOut, Trash2 } from "lucide-react";
 
+import { logoutAction } from "@/lib/auth-actions";
 import { signOutRedirectHref } from "@/lib/routes";
-import { simulatedActionDelayMs } from "@/lib/timing";
 import { cn } from "@/lib/utils";
 
 const actionButtonClass =
@@ -15,13 +15,25 @@ const actionButtonClass =
 export function AccountSecurityActions() {
   const router = useRouter();
   const [isSigningOut, setIsSigningOut] = useState(false);
+  const [signOutError, setSignOutError] = useState("");
 
-  function handleSignOut() {
+  async function handleSignOut() {
+    if (isSigningOut) {
+      return;
+    }
+
     setIsSigningOut(true);
+    setSignOutError("");
+    const result = await logoutAction();
 
-    window.setTimeout(() => {
-      router.push(signOutRedirectHref);
-    }, simulatedActionDelayMs);
+    if (!result.ok) {
+      setIsSigningOut(false);
+      setSignOutError(result.message);
+      return;
+    }
+
+    router.replace(signOutRedirectHref);
+    router.refresh();
   }
 
   return (
@@ -61,6 +73,11 @@ export function AccountSecurityActions() {
       {isSigningOut ? (
         <p className="mt-3 text-[13px] font-semibold text-[#5f5f5f]" aria-live="polite">
           Taking you back to the homepage.
+        </p>
+      ) : null}
+      {signOutError ? (
+        <p className="mt-3 text-[13px] font-semibold text-red-600" aria-live="polite">
+          {signOutError}
         </p>
       ) : null}
     </div>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { AssignmentProgressCard } from "@/components/dashboard/learner-assignment-widgets";
 import { LearnerAssignmentFlow } from "@/components/dashboard/learner-assignment-flow";
+import { LearnerAssignmentDescription } from "@/components/dashboard/learner-user-copy";
 import { DashboardPageHeader } from "@/components/dashboard/page-heading";
 
 export const metadata: Metadata = {
@@ -16,7 +17,7 @@ export default function LearnerAssignmentsPage() {
       <section>
         <DashboardPageHeader
           title="Assignments"
-          description="Hi, Samuel Manage your assignments and projects here"
+          description={<LearnerAssignmentDescription />}
           descriptionClassName="text-black"
         />
 

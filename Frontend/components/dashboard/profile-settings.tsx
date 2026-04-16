@@ -1,13 +1,10 @@
+"use client";
+
 import { OptimizedImage as Image } from "@/components/shared/optimized-image";
 
 import { AccountSecurityActions } from "@/components/dashboard/account-security-actions";
-
-const profileFields = [
-  { label: "First Name", value: "Samuel" },
-  { label: "Last Name", value: "Ogunleye" },
-  { label: "Email Address", value: "ogunleyesamuelayomikun@gmail.com" },
-  { label: "Mobile Number", value: "814647342", prefix: "+234" },
-] as const;
+import { useCurrentUser } from "@/components/dashboard/current-user-context";
+import { splitFullName } from "@/lib/current-user";
 
 const addressFields = [
   { label: "Address Line 1", value: "123 Moorim High" },
@@ -15,6 +12,18 @@ const addressFields = [
 ] as const;
 
 export function ProfileSettings() {
+  const currentUser = useCurrentUser();
+  const { firstName, lastName } = splitFullName(currentUser?.name);
+  const profileFields = [
+    { label: "First Name", value: firstName },
+    { label: "Last Name", value: lastName },
+    { label: "Email Address", value: currentUser?.email ?? "" },
+    { label: "Mobile Number", value: "", prefix: "+234" },
+  ];
+  const profileImageAlt = currentUser?.name
+    ? `${currentUser.name} profile picture`
+    : "Learner profile picture";
+
   return (
     <div className="mx-auto max-w-280 animate-fade-up pb-8">
       <h1 className="text-[28px] font-extrabold leading-tight text-black sm:text-[36px]">
@@ -31,7 +40,7 @@ export function ProfileSettings() {
           <div className="relative h-[63px] w-[63px] overflow-hidden rounded-full">
             <Image
               src="/user-icon-2.webp"
-              alt="Samuel O. profile picture"
+              alt={profileImageAlt}
               fill
               sizes="63px"
               className="object-cover"

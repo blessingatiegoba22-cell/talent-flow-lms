@@ -15,8 +15,12 @@ import {
 } from "@/components/auth/auth-schemas";
 import { AuthSubmitButton } from "@/components/auth/auth-submit-button";
 import { GoogleIcon } from "@/components/auth/google-icon";
+import { signInAction } from "@/lib/auth-actions";
 import { dashboardHrefByRole } from "@/lib/routes";
-import { simulatedActionDelayMs } from "@/lib/timing";
+
+const signInFields = ["email", "password"] as const satisfies ReadonlyArray<
+  keyof SignInFormValues
+>;
 
 export function SignInForm() {
   const router = useRouter();
@@ -34,23 +38,34 @@ export function SignInForm() {
     resolver: zodResolver(signInSchema),
   });
 
-  const onSubmit = handleSubmit(async () => {
+  const onSubmit = handleSubmit(async (values) => {
     if (isRedirecting) {
       return;
     }
 
-    try {
-      await new Promise((resolve) =>
-        window.setTimeout(resolve, simulatedActionDelayMs),
-      );
-      setIsRedirecting(true);
-      router.push(dashboardHrefByRole.learner);
-    } catch {
+    const result = await signInAction(values);
+
+    if (!result.ok) {
       setIsRedirecting(false);
+      const fieldErrors = result.fieldErrors ?? {};
+
+      for (const field of signInFields) {
+        const message = fieldErrors[field];
+
+        if (message) {
+          setError(field, { message });
+        }
+      }
+
       setError("root", {
-        message: "Unable to sign in right now. Please try again.",
+        message: result.message,
       });
+      return;
     }
+
+    setIsRedirecting(true);
+    router.push(dashboardHrefByRole.learner);
+    router.refresh();
   });
 
   return (
@@ -87,6 +102,14 @@ export function SignInForm() {
           </Link>
         }
       />
+      {errors.root?.message ? (
+        <p
+          className="text-xs font-semibold text-red-200 text-left"
+          aria-live="polite"
+        >
+          {errors.root.message}
+        </p>
+      ) : null}
 
       <AuthSubmitButton
         type="submit"
@@ -96,12 +119,6 @@ export function SignInForm() {
       >
         Sign In
       </AuthSubmitButton>
-
-      {errors.root?.message ? (
-        <p className="text-center text-xs font-semibold text-red-100" aria-live="polite">
-          {errors.root.message}
-        </p>
-      ) : null}
 
       <div className="py-5">
         <AuthDivider />

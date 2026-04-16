@@ -9,8 +9,9 @@ import { dashboardHrefByRole, profileHrefByRole } from "@/lib/routes";
 type DashboardAccountMenuProps = {
   closeMenu: () => void;
   isSigningOut: boolean;
-  onSignOut: () => void;
+  onSignOut: () => void | Promise<void>;
   role: DashboardRole;
+  signOutError?: string;
 };
 
 export function DashboardAccountMenu({
@@ -18,6 +19,7 @@ export function DashboardAccountMenu({
   isSigningOut,
   onSignOut,
   role,
+  signOutError,
 }: DashboardAccountMenuProps) {
   const menuItems = [
     {
@@ -90,6 +92,11 @@ export function DashboardAccountMenu({
           </span>
         </span>
       </button>
+      {signOutError ? (
+        <p className="px-3 pb-2 text-[11px] font-semibold leading-snug text-red-600" aria-live="polite">
+          {signOutError}
+        </p>
+      ) : null}
     </div>
   );
 }

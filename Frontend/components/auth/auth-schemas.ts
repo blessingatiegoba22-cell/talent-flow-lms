@@ -10,12 +10,19 @@ const fullNameSchema = z
   .string()
   .trim()
   .min(1, "Full Name is required.")
-  .min(2, "Full Name must be at least 2 characters.");
+  .min(4, "Full Name must be at least 4 characters.");
 
 const passwordSchema = z
   .string()
   .min(1, "Password is required.")
   .min(8, "Password must be at least 8 characters.");
+
+const signUpPasswordSchema = z
+  .string()
+  .min(1, "Password is required.")
+  .min(8, "Password must be at least 8 characters.")
+  .regex(/\d/, "Password must include at least one number.")
+  .regex(/[^A-Za-z0-9]/, "Password must include at least one special character.");
 
 const newPasswordSchema = z
   .string()
@@ -25,7 +32,12 @@ const newPasswordSchema = z
 const confirmPasswordSchema = z
   .string()
   .min(1, "Confirm Password is required.")
-  .min(8, "Confirm Password must be at least 8 characters.");
+  .min(8, "Confirm Password must be at least 8 characters.")
+  .regex(/\d/, "Confirm Password must include at least one number.")
+  .regex(
+    /[^A-Za-z0-9]/,
+    "Confirm Password must include at least one special character.",
+  );
 
 const confirmNewPasswordSchema = z
   .string()
@@ -65,7 +77,7 @@ export const studentSignUpSchema = z
     confirmPassword: confirmPasswordSchema,
     email: emailSchema,
     fullName: fullNameSchema,
-    password: passwordSchema,
+    password: signUpPasswordSchema,
   })
   .refine((values) => values.password === values.confirmPassword, {
     message: "Passwords do not match.",
