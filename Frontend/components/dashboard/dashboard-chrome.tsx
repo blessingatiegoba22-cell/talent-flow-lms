@@ -3,7 +3,7 @@
 import { OptimizedImage as Image } from "@/components/shared/optimized-image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { type FormEvent, useEffect, useRef, useState } from "react";
 import { Bell, ChevronDown, Menu, Search } from "lucide-react";
 
 import { dashboardConfigs, type DashboardRole } from "@/data/dashboard";
@@ -85,6 +85,40 @@ export function DashboardChrome({ currentUser, role }: DashboardChromeProps) {
     router.refresh();
   }
 
+  function handleTopSearch(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (role !== "learner") {
+      return;
+    }
+
+    const params = new URLSearchParams();
+    const formData = new FormData(event.currentTarget);
+    const trimmedSearch = String(formData.get("dashboardSearch") ?? "").trim();
+
+    if (pathname.startsWith("/learner/course-catalog")) {
+      const currentParams = new URLSearchParams(window.location.search);
+
+      for (const key of ["category", "level", "limit"]) {
+        const value = currentParams.get(key);
+
+        if (value) {
+          params.set(key, value);
+        }
+      }
+    }
+
+    if (trimmedSearch) {
+      params.set("search", trimmedSearch);
+    }
+
+    router.push(
+      params.size
+        ? `/learner/course-catalog?${params.toString()}`
+        : "/learner/course-catalog",
+    );
+  }
+
   return (
     <>
       <div
@@ -136,17 +170,21 @@ export function DashboardChrome({ currentUser, role }: DashboardChromeProps) {
             />
           </Link>
 
-          <div className="relative hidden w-full max-w-[486px] md:block">
+          <form
+            onSubmit={handleTopSearch}
+            className="relative hidden w-full max-w-[486px] md:block"
+          >
             <Search
-              className="pointer-events-none absolute left-5 top-1/2 h-4 w-4 -translate-y-1/2 text-transparent"
+              className="pointer-events-none absolute left-5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#767676]"
               aria-hidden="true"
             />
             <input
+              name="dashboardSearch"
               type="search"
               placeholder="Search lessons, courses and more..."
               className="h-11 w-full rounded-[2px] border border-[#cfcfcf] bg-[#f7f7f7] px-9 text-[13px] font-semibold outline-none transition-all duration-300 ease-in-out placeholder:text-[#8a8a8a] focus:border-(--brand-blue-400) focus:bg-white focus:ring-4 focus:ring-[rgba(37,99,235,0.12)]"
             />
-          </div>
+          </form>
 
           <div className="ml-auto flex items-center gap-2 sm:gap-3">
             <Link
