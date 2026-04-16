@@ -1,72 +1,31 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.database import engine, SessionLocal
+from app.database import engine
 from app.models.base import Base
 import logging
-import time
 import os
+import time
 from app.routes import user, auth, course
 from app.routes.admin import router as admin_router
 from app.routes.mentor import router as mentor_router
 from app.routes.mentor_auth import router as mentor_auth_router
 from app.routes.team import router as team_router
-from app.models import team  
-from scripts.create_sample_courses import seed_courses
+from app.models import team
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
-IS_PRODUCTION = ENVIRONMENT.lower() == "production"
-
 app = FastAPI(
     title="TalentFlow LMS",
     version="1.0.0",
-    description="TalentFlow Learning Management System API",
-    # Disable interactive docs in production for security
-    docs_url=None if IS_PRODUCTION else "/docs",
-    redoc_url=None if IS_PRODUCTION else "/redoc",
-    openapi_url=None if IS_PRODUCTION else "/openapi.json",
+    description="TalentFlow Learning Management System API"
 )
 
-
-def db_and_table_init():
-    retries = 10
-    for i in range(retries):
-        try:
-            logger.info("Initializing database tables...")
-            Base.metadata.create_all(bind=engine)
-            logger.info("Database initialization successful.")
-            return
-        except Exception as e:
-            logger.warning(f"DB not ready, retrying ({i+1}/{retries})... Error: {e}")
-            time.sleep(3)
-    logger.error("Could not connect to database after maximum retries. Exiting.")
-    raise RuntimeError("Database connection failed on startup.")
-
-
-def run_seed():
-    """Run course seeding after tables exist."""
-    db = SessionLocal()
-    try:
-        seed_courses(db)
-    except Exception as e:
-        logger.warning(f"Course seeding failed (non-fatal): {e}")
-    finally:
-        db.close()
-
-
-@app.on_event("startup")
-def on_startup():
-    db_and_table_init()
-    run_seed()
-
-
-# CORS — restrict to known frontend origin(s) in production
-ALLOWED_ORIGINS = os.getenv(
+_raw_origins = os.getenv(
     "ALLOWED_ORIGINS",
-    "http://localhost:3000,http://localhost:5173"
-).split(",")
+    "http://localhost:3000,http://localhost:5173"   # sensible local defaults
+)
+ALLOWED_ORIGINS = [o.strip().rstrip("/") for o in _raw_origins.split(",") if o.strip()]
 
 app.add_middleware(
     CORSMiddleware,
@@ -76,7 +35,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Routers
 app.include_router(user.router)
 app.include_router(auth.router)
 app.include_router(course.router)
@@ -86,9 +44,28 @@ app.include_router(mentor_auth_router)
 app.include_router(team_router)
 
 
+def db_and_table_init():
+    retries = 30
+    for i in range(retries):
+        try:
+            logger.info("Initializing database...")
+            Base.metadata.create_all(bind=engine)
+            logger.info("Database initialization successful.")
+            break
+        except Exception as e:
+            logger.warning(f"PostgreSQL NOT READY, RETRYING ({i+1}/{retries})...")
+            logger.error(f"Error: {e}")
+            time.sleep(3)
+
+
+@app.on_event("startup")
+def on_startup():
+    db_and_table_init()
+
+
 @app.get("/")
 def root():
-    return {"message": "TalentFlow API is running 🚀", "environment": ENVIRONMENT}
+    return {"message": "TalentFlow API is running 🚀"}
 
 
 @app.get("/health")
