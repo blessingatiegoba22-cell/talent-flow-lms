@@ -14,21 +14,28 @@ import {
   notificationsHrefByRole,
   signOutRedirectHref,
 } from "@/lib/routes";
-import { simulatedActionDelayMs } from "@/lib/timing";
+import { logoutAction } from "@/lib/auth-actions";
+import { getDisplayRole, type CurrentUser } from "@/lib/current-user";
 import { cn } from "@/lib/utils";
 
 type DashboardChromeProps = {
+  currentUser?: CurrentUser | null;
   role: DashboardRole;
 };
 
-export function DashboardChrome({ role }: DashboardChromeProps) {
+export function DashboardChrome({ currentUser, role }: DashboardChromeProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
+  const [signOutError, setSignOutError] = useState("");
   const userMenuRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const router = useRouter();
   const config = dashboardConfigs[role];
+  const profileName = currentUser?.name ?? config.profileName;
+  const profileRole = currentUser
+    ? getDisplayRole(currentUser.role)
+    : config.profileRole;
 
   useEffect(() => {
     if (!isUserMenuOpen) {
@@ -59,12 +66,23 @@ export function DashboardChrome({ role }: DashboardChromeProps) {
     };
   }, [isUserMenuOpen]);
 
-  function handleSignOut() {
-    setIsSigningOut(true);
+  async function handleSignOut() {
+    if (isSigningOut) {
+      return;
+    }
 
-    window.setTimeout(() => {
-      router.push(signOutRedirectHref);
-    }, simulatedActionDelayMs);
+    setIsSigningOut(true);
+    setSignOutError("");
+    const result = await logoutAction();
+
+    if (!result.ok) {
+      setIsSigningOut(false);
+      setSignOutError(result.message);
+      return;
+    }
+
+    router.replace(signOutRedirectHref);
+    router.refresh();
   }
 
   return (
@@ -151,7 +169,7 @@ export function DashboardChrome({ role }: DashboardChromeProps) {
                 <span className="relative h-10 w-10 overflow-hidden rounded-full bg-white sm:h-11 sm:w-11">
                   <Image
                     src={config.avatar}
-                    alt={`${config.profileName} avatar`}
+                    alt={`${profileName} avatar`}
                     fill
                     sizes="44px"
                     priority
@@ -160,10 +178,10 @@ export function DashboardChrome({ role }: DashboardChromeProps) {
                 </span>
                 <span className="hidden min-w-[74px] text-left sm:block">
                   <span className="block text-[15px] font-extrabold leading-tight text-black">
-                    {config.profileName}
+                    {profileName}
                   </span>
                   <span className="mt-0.5 block text-[11px] font-bold leading-tight text-black">
-                    {config.profileRole}
+                    {profileRole}
                   </span>
                 </span>
                 <ChevronDown
@@ -181,6 +199,7 @@ export function DashboardChrome({ role }: DashboardChromeProps) {
                   isSigningOut={isSigningOut}
                   closeMenu={() => setIsUserMenuOpen(false)}
                   onSignOut={handleSignOut}
+                  signOutError={signOutError}
                 />
               ) : null}
             </div>

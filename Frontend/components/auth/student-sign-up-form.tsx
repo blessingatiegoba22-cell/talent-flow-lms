@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Lock, Mail, User } from "lucide-react";
@@ -13,11 +14,19 @@ import {
   type StudentSignUpFormValues,
 } from "@/components/auth/auth-schemas";
 import { GoogleIcon } from "@/components/auth/google-icon";
+import { studentSignUpAction } from "@/lib/auth-actions";
 import { dashboardHrefByRole } from "@/lib/routes";
-import { simulatedActionDelayMs } from "@/lib/timing";
+
+const studentSignUpFields = [
+  "confirmPassword",
+  "email",
+  "fullName",
+  "password",
+] as const satisfies ReadonlyArray<keyof StudentSignUpFormValues>;
 
 export function StudentSignUpForm() {
   const router = useRouter();
+  const [isRedirecting, setIsRedirecting] = useState(false);
   const {
     formState: { errors, isSubmitting },
     handleSubmit,
@@ -33,17 +42,34 @@ export function StudentSignUpForm() {
     resolver: zodResolver(studentSignUpSchema),
   });
 
-  const onSubmit = handleSubmit(async () => {
-    try {
-      await new Promise((resolve) =>
-        window.setTimeout(resolve, simulatedActionDelayMs),
-      );
-      router.push(dashboardHrefByRole.learner);
-    } catch {
-      setError("root", {
-        message: "Unable to create your account right now. Please try again.",
-      });
+  const onSubmit = handleSubmit(async (values) => {
+    if (isRedirecting) {
+      return;
     }
+
+    const result = await studentSignUpAction(values);
+
+    if (!result.ok) {
+      setIsRedirecting(false);
+      const fieldErrors = result.fieldErrors ?? {};
+
+      for (const field of studentSignUpFields) {
+        const message = fieldErrors[field];
+
+        if (message) {
+          setError(field, { message });
+        }
+      }
+
+      setError("root", {
+        message: result.message,
+      });
+      return;
+    }
+
+    setIsRedirecting(true);
+    router.push(dashboardHrefByRole.learner);
+    router.refresh();
   });
 
   return (
@@ -58,7 +84,7 @@ export function StudentSignUpForm() {
           label="Full Name"
           placeholder="Full Name"
           autoComplete="name"
-          minLength={2}
+          minLength={4}
           error={errors.fullName?.message}
           {...register("fullName")}
         />
@@ -95,7 +121,7 @@ export function StudentSignUpForm() {
 
       <AuthSubmitButton
         type="submit"
-        isLoading={isSubmitting}
+        isLoading={isSubmitting || isRedirecting}
         loadingLabel="Creating account..."
         className="mt-6 rounded-sm"
       >

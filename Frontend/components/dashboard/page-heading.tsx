@@ -1,8 +1,10 @@
+import type { ReactNode } from "react";
+
 import { cn } from "@/lib/utils";
 
 type DashboardPageHeaderProps = {
   className?: string;
-  description?: string;
+  description?: ReactNode;
   descriptionClassName?: string;
   title: string;
   titleClassName?: string;

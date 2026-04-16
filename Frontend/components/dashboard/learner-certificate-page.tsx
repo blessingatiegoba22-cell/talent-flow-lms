@@ -12,6 +12,7 @@ import {
   UserCircle2,
 } from "lucide-react";
 
+import { LearnerCertificateGreeting } from "@/components/dashboard/learner-user-copy";
 import { cn } from "@/lib/utils";
 
 const stats = [
@@ -102,9 +103,7 @@ export function LearnerCertificatePage() {
             aria-hidden="true"
           />
           <div>
-            <h1 className="text-[27px] font-extrabold leading-tight text-black sm:text-[32px]">
-              Welcome, Samuel!
-            </h1>
+            <LearnerCertificateGreeting />
             <p className="mt-2 max-w-[620px] text-[13px] font-semibold leading-[1.45] text-[#303030] sm:text-[14px]">
               Keep up the great work! Complete your courses to earn certificates
               and showcase your skills.

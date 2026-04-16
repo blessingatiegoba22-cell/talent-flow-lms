@@ -13,6 +13,7 @@ import {
   learnerQuickActions,
   learningCourses,
 } from "@/data/dashboard";
+import { LearnerDashboardGreeting } from "@/components/dashboard/learner-user-copy";
 
 export const metadata: Metadata = {
   title: "Student Dashboard",
@@ -25,9 +26,7 @@ export default function LearnerDashboardPage() {
     <div className="mx-auto grid max-w-5xl gap-5 animate-fade-up lg:grid-cols-[minmax(0,1fr)_278px] xl:max-w-[1040px]">
       <section>
         <div>
-          <h1 className="text-[24px] font-extrabold leading-tight text-black sm:text-[29px]">
-            Welcome back, Samuel!
-          </h1>
+          <LearnerDashboardGreeting />
           <p className="mt-3 max-w-160 text-[13px] font-medium leading-[1.5] text-black sm:mt-4">
             Ready to continue your learning journey? Lets keep the momentum going.
           </p>
