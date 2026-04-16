@@ -5,7 +5,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { CreditCard, LoaderCircle, LogOut, Trash2 } from "lucide-react";
 
-import { useAuthSessionStore } from "@/lib/auth-store";
 import { signOutRedirectHref } from "@/lib/routes";
 import { simulatedActionDelayMs } from "@/lib/timing";
 import { cn } from "@/lib/utils";
@@ -15,14 +14,12 @@ const actionButtonClass =
 
 export function AccountSecurityActions() {
   const router = useRouter();
-  const signOut = useAuthSessionStore((state) => state.signOut);
   const [isSigningOut, setIsSigningOut] = useState(false);
 
   function handleSignOut() {
     setIsSigningOut(true);
 
     window.setTimeout(() => {
-      signOut();
       router.push(signOutRedirectHref);
     }, simulatedActionDelayMs);
   }
@@ -63,7 +60,7 @@ export function AccountSecurityActions() {
       </div>
       {isSigningOut ? (
         <p className="mt-3 text-[13px] font-semibold text-[#5f5f5f]" aria-live="polite">
-          Closing this session and taking you back to sign in.
+          Taking you back to the homepage.
         </p>
       ) : null}
     </div>
