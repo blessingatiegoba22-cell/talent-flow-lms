@@ -16,6 +16,16 @@ export type BackendCourse = {
   updated_at?: string | null;
 };
 
+export type CreateCoursePayload = {
+  category?: string | null;
+  description?: string | null;
+  duration_hours?: number | null;
+  instructor_id?: string | null;
+  level?: string | null;
+  price?: number | null;
+  title: string;
+};
+
 export type CourseQuery = {
   category?: string;
   level?: string;
@@ -50,6 +60,30 @@ export async function getCourse(courseId: number) {
   const { data } = await backendFetchJson<BackendCourse>(
     `/courses/${courseId}`,
   );
+
+  return data;
+}
+
+export async function createCourse(payload: CreateCoursePayload) {
+  const cookieHeader = await getRequestCookieHeader();
+  const { data } = await backendFetchJson<BackendCourse>("/courses/", {
+    body: JSON.stringify(payload),
+    headers: cookieHeader ? { cookie: cookieHeader } : undefined,
+    method: "POST",
+  });
+
+  return data;
+}
+
+export async function publishCourse(courseId: number) {
+  const cookieHeader = await getRequestCookieHeader();
+  const { data } = await backendFetchJson<{
+    course_id?: number;
+    message?: string;
+  }>(`/courses/${courseId}/publish`, {
+    headers: cookieHeader ? { cookie: cookieHeader } : undefined,
+    method: "PATCH",
+  });
 
   return data;
 }

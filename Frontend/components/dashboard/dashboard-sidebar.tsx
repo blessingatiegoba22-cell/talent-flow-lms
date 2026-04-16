@@ -20,7 +20,8 @@ export function DashboardSidebar({
   role,
 }: DashboardSidebarProps) {
   const config = dashboardConfigs[role];
-  const browseHref = role === "learner" ? "/learner/course-catalog" : "#";
+  const browseHref =
+    role === "learner" ? "/learner/course-catalog" : "/instructor/my-course";
   const handleNavClick = (
     event: MouseEvent<HTMLAnchorElement>,
     href: string,

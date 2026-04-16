@@ -139,7 +139,7 @@ export const dashboardConfigs: Record<DashboardRole, DashboardConfig> = {
     navGroups: [
       [
         { href: "/instructor/dashboard", icon: LayoutDashboard, label: "Dashboard" },
-        { href: "#", icon: BookOpenCheck, label: "My Course" },
+        { href: "/instructor/my-course", icon: BookOpenCheck, label: "My Course" },
         { href: "#", icon: Circle, label: "Students" },
         { href: "#", icon: UsersRound, label: "Teams" },
         { href: "#", icon: ClipboardList, label: "Assignments" },
