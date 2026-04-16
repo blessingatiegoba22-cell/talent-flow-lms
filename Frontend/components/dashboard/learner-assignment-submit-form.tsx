@@ -94,16 +94,16 @@ export function LearnerAssignmentSubmitForm({
           ) : null}
         </label>
 
-        <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+        <div className="mt-7 grid gap-3 sm:grid-cols-2">
           <button
             type="submit"
-            className="flex h-12 flex-1 cursor-pointer items-center justify-center rounded-lg bg-(--brand-blue-700) px-6 text-[15px] font-extrabold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-(--brand-blue-500)"
+            className="inline-flex min-h-[48px] w-full cursor-pointer items-center justify-center rounded-lg bg-(--brand-blue-700) px-5 py-3 text-center text-[15px] leading-tight font-extrabold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-(--brand-blue-500) sm:px-6"
           >
             Submit Assignment
           </button>
           <Link
             href="/learner/assignments"
-            className="flex h-12 flex-1 items-center justify-center rounded-lg border border-[#aebbd1] px-6 text-[15px] font-extrabold text-black transition-all duration-300 hover:-translate-y-0.5 hover:border-(--brand-blue-500) hover:text-(--brand-blue-600)"
+            className="inline-flex min-h-[48px] w-full items-center justify-center rounded-lg border border-[#aebbd1] px-5 py-3 text-center text-[15px] leading-tight font-extrabold text-black transition-all duration-300 hover:-translate-y-0.5 hover:border-(--brand-blue-500) hover:text-(--brand-blue-600) sm:px-6"
           >
             Back to Assignments
           </Link>

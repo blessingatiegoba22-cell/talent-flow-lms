@@ -9,7 +9,6 @@ import { Bell, ChevronDown, Menu, Search } from "lucide-react";
 import { dashboardConfigs, type DashboardRole } from "@/data/dashboard";
 import { DashboardAccountMenu } from "@/components/dashboard/dashboard-account-menu";
 import { DashboardSidebar } from "@/components/dashboard/dashboard-sidebar";
-import { useAuthSessionStore } from "@/lib/auth-store";
 import {
   dashboardHrefByRole,
   notificationsHrefByRole,
@@ -29,7 +28,6 @@ export function DashboardChrome({ role }: DashboardChromeProps) {
   const userMenuRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const router = useRouter();
-  const signOut = useAuthSessionStore((state) => state.signOut);
   const config = dashboardConfigs[role];
 
   useEffect(() => {
@@ -65,7 +63,6 @@ export function DashboardChrome({ role }: DashboardChromeProps) {
     setIsSigningOut(true);
 
     window.setTimeout(() => {
-      signOut();
       router.push(signOutRedirectHref);
     }, simulatedActionDelayMs);
   }

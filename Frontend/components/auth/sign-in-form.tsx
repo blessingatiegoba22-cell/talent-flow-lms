@@ -1,131 +1,119 @@
-"use client"
+"use client";
 
-import Image from "next/image";
-import Link from "next/link"
-import { Mail, Lock } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Label } from "@/components/ui/label"
-import { useRouter } from "next/navigation" 
-import { useAuthStore } from "../../store/useAuthStore" 
+import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Lock, Mail } from "lucide-react";
+import { useForm } from "react-hook-form";
 
-export default function SignInForm() {
-  const router = useRouter()
-  const { setLoading, isLoading } = useAuthStore()
+import { AuthDivider } from "@/components/auth/auth-divider";
+import { AuthField } from "@/components/auth/auth-field";
+import {
+  signInSchema,
+  type SignInFormValues,
+} from "@/components/auth/auth-schemas";
+import { AuthSubmitButton } from "@/components/auth/auth-submit-button";
+import { GoogleIcon } from "@/components/auth/google-icon";
+import { dashboardHrefByRole } from "@/lib/routes";
+import { simulatedActionDelayMs } from "@/lib/timing";
 
-  const handleSignIn = async (e: React.FormEvent) => {
-    e.preventDefault() 
-    setLoading(true)
-    
-    setTimeout(() => {
-      setLoading(false)
-      router.push("/dashboard") 
-    }, 1500)
-  }
+export function SignInForm() {
+  const router = useRouter();
+  const [isRedirecting, setIsRedirecting] = useState(false);
+  const {
+    formState: { errors, isSubmitting },
+    handleSubmit,
+    register,
+    setError,
+  } = useForm<SignInFormValues>({
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+    resolver: zodResolver(signInSchema),
+  });
+
+  const onSubmit = handleSubmit(async () => {
+    if (isRedirecting) {
+      return;
+    }
+
+    try {
+      await new Promise((resolve) =>
+        window.setTimeout(resolve, simulatedActionDelayMs),
+      );
+      setIsRedirecting(true);
+      router.push(dashboardHrefByRole.learner);
+    } catch {
+      setIsRedirecting(false);
+      setError("root", {
+        message: "Unable to sign in right now. Please try again.",
+      });
+    }
+  });
 
   return (
-    <div className="w-full max-w-lg bg-[#020617] rounded-[2rem] p-8 md:p-12 border border-slate-800 shadow-2xl mx-auto font-sans">
-      
-      {/* LOGO & HEADER */}
-      <div className="flex flex-col items-center text-center">
-        <Image 
-          src="/authImage.png"          
-          alt="TalentFlow Logo"
-          width={235}
-          height={60}
-          priority
-          className="w-[180px] md:w-[235px] mb-8" 
-          style={{ height: 'auto' }} 
-        />
-        <h2 className="text-2xl md:text-3xl font-bold text-white tracking-tight">Welcome Back!</h2>
-        <p className="text-xs md:text-sm text-gray-400 mt-2 uppercase tracking-widest font-semibold">
-          Please sign in to your account
-        </p>
-      </div>
-   
-      <form onSubmit={handleSignIn} className="mt-10 space-y-5">
-        <div className="space-y-4">
-          {/* Email */}
-          <div className="relative">
-            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500" />
-            <Input 
-              type="email" 
-              placeholder="Email" 
-              required
-              className="pl-12 h-12 md:h-14 bg-white border-none rounded-xl text-black font-medium focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
+    <form
+      onSubmit={onSubmit}
+      noValidate
+      className="mx-auto mt-7 w-full max-w-80 space-y-3 sm:max-w-84"
+    >
+      <AuthField
+        icon={Mail}
+        label="Email"
+        type="email"
+        placeholder="Email"
+        autoComplete="email"
+        error={errors.email?.message}
+        {...register("email")}
+      />
 
-          {/* Password */}
-          <div className="relative">
-            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500" />
-            <Input 
-              type="password" 
-              placeholder="Password" 
-              required
-              className="pl-12 pr-32 h-12 md:h-14 bg-white border-none rounded-xl text-black font-medium focus:ring-2 focus:ring-blue-500"
-            />
-            <Link 
-              href="/forgot-password" 
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] md:text-xs text-blue-600 font-bold hover:underline"
-            >
-              Forgot password?
-            </Link>
-          </div>
-        </div>
-
-        {/* Checkbox */}
-        <div className="flex items-center space-x-2 py-1">
-          <Checkbox 
-            id="remember" 
-            className="h-5 w-5 border-gray-600 data-[state=checked]:bg-blue-600" 
-          />
-          <Label 
-            htmlFor="remember" 
-            className="text-xs text-gray-400 font-medium cursor-pointer select-none"
+      <AuthField
+        icon={Lock}
+        label="Password"
+        type="password"
+        placeholder="Password"
+        autoComplete="current-password"
+        minLength={8}
+        error={errors.password?.message}
+        {...register("password")}
+        suffix={
+          <Link
+            href="/forgot-password"
+            className="cursor-pointer text-(--brand-blue-500) transition-colors duration-300 ease-in-out hover:text-brand-blue-400"
           >
-            Remember Me
-          </Label>
-        </div>
-
-        {/* Sign in button */}
-        <Button 
-          type="submit"
-          disabled={isLoading}
-          className="w-full h-12 md:h-14 bg-[#1D4ED8] hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg transition-all active:scale-95"
-        >
-          {isLoading ? "Signing in..." : "Sign In"}
-        </Button>
-
-        <div className="relative flex items-center py-4">
-          <div className="flex-grow border-t border-slate-800"></div>
-          <span className="flex-shrink mx-4 text-gray-500 text-[10px] uppercase font-bold tracking-widest">Or</span>
-          <div className="flex-grow border-t border-slate-800"></div>
-        </div>
-
-        {/* Google Button */}
-        <Button 
-          type="button" 
-          variant="outline" 
-          className="w-full h-12 md:h-14 bg-white text-black hover:bg-gray-100 flex items-center justify-center gap-3 border-none rounded-xl shadow-md transition-all active:scale-95"
-        >
-          <svg className="h-5 w-5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-          </svg>
-          <span className="font-bold text-sm">Sign in with Google</span>
-        </Button>
-
-        <p className="text-center text-xs md:text-sm text-gray-400 mt-6">
-          Don&apos;t have an account?{" "}
-          <Link href="/sign-up" className="text-white font-bold hover:underline ml-1">
-             Sign Up
+            Forgot password
           </Link>
+        }
+      />
+
+      <AuthSubmitButton
+        type="submit"
+        isLoading={isSubmitting || isRedirecting}
+        loadingLabel="Signing in..."
+        className="mt-5 h-10 sm:h-10.5"
+      >
+        Sign In
+      </AuthSubmitButton>
+
+      {errors.root?.message ? (
+        <p className="text-center text-xs font-semibold text-red-100" aria-live="polite">
+          {errors.root.message}
         </p>
-      </form>
-    </div>
-  )
+      ) : null}
+
+      <div className="py-5">
+        <AuthDivider />
+      </div>
+
+      <button
+        type="button"
+        className="flex h-10.5 w-full transform-gpu cursor-pointer items-center justify-center gap-3 rounded-[5px] bg-[#f4f4f4] text-[13px] font-extrabold text-[#202020] shadow-[0_14px_28px_rgba(0,0,0,0.12)] transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_18px_34px_rgba(0,0,0,0.16)]"
+      >
+        <GoogleIcon />
+        Sign in with Google
+      </button>
+    </form>
+  );
 }
