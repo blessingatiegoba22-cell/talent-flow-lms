@@ -18,7 +18,7 @@ import { getStoredEnrolledCourseIds } from "@/lib/enrolled-courses";
 export const metadata: Metadata = {
   title: "Student Dashboard",
   description:
-    "Continue learning, track progress, and access student quick actions on Talent Flow LMS.",
+    "Start or continue learning, track progress, and access student quick actions on Talent Flow LMS.",
 };
 
 export default async function LearnerDashboardPage() {
@@ -38,6 +38,9 @@ export default async function LearnerDashboardPage() {
   const completedCount = enrolledCourseCards.filter(
     (course) => course.progress >= 100,
   ).length;
+  const hasStartedLearning = enrolledCourseCards.some(
+    (course) => course.progress > 0,
+  );
   const averageProgress = enrolledCourseCards.length
     ? Math.round(
         enrolledCourseCards.reduce((total, course) => total + course.progress, 0) /
@@ -52,15 +55,17 @@ export default async function LearnerDashboardPage() {
     <div className="mx-auto grid max-w-5xl gap-5 animate-fade-up lg:grid-cols-[minmax(0,1fr)_278px] xl:max-w-[1040px]">
       <section>
         <div>
-          <LearnerDashboardGreeting />
+          <LearnerDashboardGreeting hasStartedLearning={hasStartedLearning} />
           <p className="mt-3 max-w-160 text-[13px] font-medium leading-[1.5] text-black sm:mt-4">
-            Ready to continue your learning journey? Let&apos;s keep the momentum going.
+            {hasStartedLearning
+              ? "Ready to continue your learning journey? Let's keep the momentum going."
+              : "Ready to start your learning journey? Let's build momentum today."}
           </p>
         </div>
 
         <div className="mt-6 sm:mt-7">
           <SectionHeader
-            title="Continue Learning"
+            title={hasStartedLearning ? "Continue Learning" : "Start Learning"}
             action="View All My Courses"
             actionHref="/learner/my-learning"
           />
@@ -77,8 +82,17 @@ export default async function LearnerDashboardPage() {
             </div>
           ) : (
             <EmptyCourseState
+              description={
+                hasStartedLearning
+                  ? "Enroll in another published course to continue learning from this dashboard."
+                  : "Enroll in a published course to start learning from this dashboard."
+              }
               href="/learner/course-catalog"
-              title="No courses in progress yet"
+              title={
+                hasStartedLearning
+                  ? "No courses in progress yet"
+                  : "No courses started yet"
+              }
             />
           )}
         </div>
@@ -101,6 +115,7 @@ export default async function LearnerDashboardPage() {
             </div>
           ) : (
             <EmptyCourseState
+              description="Enroll in a published course to start learning from this dashboard."
               href="/learner/course-catalog"
               title="Your enrolled courses will appear here"
             />
@@ -122,12 +137,20 @@ export default async function LearnerDashboardPage() {
   );
 }
 
-function EmptyCourseState({ href, title }: { href: string; title: string }) {
+function EmptyCourseState({
+  description,
+  href,
+  title,
+}: {
+  description: string;
+  href: string;
+  title: string;
+}) {
   return (
     <div className="rounded-lg border border-dashed border-[#b9c7e8] bg-[#f6f9ff] p-5">
       <p className="text-[14px] font-extrabold text-black">{title}</p>
       <p className="mt-2 text-[13px] font-medium leading-[1.5] text-[#5d6472]">
-        Enroll in a published course to continue learning from this dashboard.
+        {description}
       </p>
       <Link
         href={href}

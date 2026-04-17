@@ -3,13 +3,17 @@
 import { useCurrentUser } from "@/components/dashboard/current-user-context";
 import { getFirstName } from "@/lib/current-user";
 
-export function LearnerDashboardGreeting() {
+export function LearnerDashboardGreeting({
+  hasStartedLearning,
+}: {
+  hasStartedLearning: boolean;
+}) {
   const user = useCurrentUser();
   const firstName = getFirstName(user?.name);
 
   return (
     <h1 className="text-[24px] font-extrabold leading-tight text-black sm:text-[29px]">
-      Welcome back, {firstName}!
+      {hasStartedLearning ? "Welcome back" : "Welcome"}, {firstName}!
     </h1>
   );
 }
