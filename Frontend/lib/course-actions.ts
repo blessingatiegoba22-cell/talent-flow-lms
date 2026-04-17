@@ -7,11 +7,22 @@ import {
   getBackendErrorMessage,
 } from "@/lib/backend";
 import { enrollInCourse } from "@/lib/course-service";
-import { advanceStoredCourseProgress } from "@/lib/course-progress";
-import { storeEnrolledCourseId } from "@/lib/enrolled-courses";
+import {
+  advanceStoredCourseProgress,
+  clearStoredCourseProgress,
+} from "@/lib/course-progress";
+import {
+  clearStoredEnrolledCourses,
+  storeEnrolledCourseId,
+} from "@/lib/enrolled-courses";
 
 export type EnrollCourseState = {
   courseId?: number;
+  message: string;
+  ok: boolean;
+};
+
+export type ResetLearnerDemoStateResult = {
   message: string;
   ok: boolean;
 };
@@ -94,10 +105,36 @@ export async function advanceCourseProgressAction(
   return update;
 }
 
+export async function resetLearnerDemoStateAction(): Promise<ResetLearnerDemoStateResult> {
+  try {
+    await clearStoredEnrolledCourses();
+    await clearStoredCourseProgress();
+    revalidateLearnerCoursePaths();
+
+    return {
+      message: "Course enrollments and progress have been reset.",
+      ok: true,
+    };
+  } catch {
+    return {
+      message: "Unable to reset the course demo state right now.",
+      ok: false,
+    };
+  }
+}
+
 async function rememberEnrollment(courseId: number) {
   await storeEnrolledCourseId(courseId);
   revalidatePath("/learner/dashboard");
   revalidatePath("/learner/my-learning");
   revalidatePath("/learner/course-catalog");
   revalidatePath(`/learner/course-catalog/${courseId}`);
+}
+
+function revalidateLearnerCoursePaths() {
+  revalidatePath("/learner/dashboard");
+  revalidatePath("/learner/my-learning");
+  revalidatePath("/learner/course-catalog");
+  revalidatePath("/learner/course-catalog/[courseId]", "page");
+  revalidatePath("/learner/course-catalog/[courseId]/lessons/[lessonId]", "page");
 }

@@ -46,6 +46,18 @@ export async function advanceStoredCourseProgress(
   };
 }
 
+export async function clearStoredCourseProgress() {
+  const cookieStore = await cookies();
+
+  cookieStore.set(COURSE_PROGRESS_COOKIE, "", {
+    httpOnly: true,
+    maxAge: 0,
+    path: "/",
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+  });
+}
+
 function parseCourseProgress(value: string | undefined): CourseProgressMap {
   if (!value) {
     return {};

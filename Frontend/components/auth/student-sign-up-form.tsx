@@ -69,7 +69,6 @@ export function StudentSignUpForm() {
 
     setIsRedirecting(true);
     router.push(dashboardHrefByRole.learner);
-    router.refresh();
   });
 
   return (
