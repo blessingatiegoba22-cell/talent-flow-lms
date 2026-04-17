@@ -49,10 +49,10 @@ export class BackendApiError extends Error {
 }
 
 export function getBackendBaseUrl() {
-  const baseUrl = process.env.BACKEND_API_URL?.trim();
+  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL?.trim();
 
   if (!baseUrl) {
-    throw new Error("BACKEND_API_URL is not configured.");
+    throw new Error("NEXT_PUBLIC_API_BASE_URL is not configured.");
   }
 
   return baseUrl.replace(/\/+$/, "");
