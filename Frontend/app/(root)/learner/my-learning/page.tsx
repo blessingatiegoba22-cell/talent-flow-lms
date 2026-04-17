@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import { LearningCourseSection } from "@/components/dashboard/learner-course-widgets";
 import { DashboardPageHeader } from "@/components/dashboard/page-heading";
 import { getCourses } from "@/lib/course-service";
-import { demoActiveCourses, demoCompletedCourses } from "@/lib/demo-courses";
 import { toLearningCourseView } from "@/lib/course-presenter";
 import { getStoredCourseProgressMap } from "@/lib/course-progress";
 import { getStoredEnrolledCourseIds } from "@/lib/enrolled-courses";
@@ -29,14 +28,8 @@ export default async function MyLearningPage() {
   const completedCourses = enrolledCourses.filter(
     (course) => course.progress >= 100,
   );
-  const displayActiveCourses = activeCourses.length
-    ? activeCourses
-    : demoActiveCourses;
-  const displayCompletedCourses = completedCourses.length
-    ? completedCourses
-    : demoCompletedCourses;
   const enrolledCourseCount = enrolledCourses.length;
-  const completedCourseCount = displayCompletedCourses.length;
+  const completedCourseCount = completedCourses.length;
 
   return (
     <div className="mx-auto max-w-280 animate-fade-up">
@@ -48,12 +41,16 @@ export default async function MyLearningPage() {
 
       <LearningCourseSection
         title={`Enrolled Courses (${enrolledCourseCount})`}
-        courses={[...displayActiveCourses]}
+        courses={activeCourses}
+        emptyDescription="Choose a course from the catalog to begin the student flow."
+        emptyTitle="No enrolled courses yet"
       />
 
       <LearningCourseSection
         title={`Completed Courses (${completedCourseCount})`}
-        courses={[...displayCompletedCourses]}
+        courses={completedCourses}
+        emptyDescription="Complete a course to add it to this list."
+        emptyTitle="No completed courses yet"
       />
     </div>
   );

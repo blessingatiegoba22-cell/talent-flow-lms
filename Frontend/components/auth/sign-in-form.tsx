@@ -65,7 +65,6 @@ export function SignInForm() {
 
     setIsRedirecting(true);
     router.push(dashboardHrefByRole.learner);
-    router.refresh();
   });
 
   return (

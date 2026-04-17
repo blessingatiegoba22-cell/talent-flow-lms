@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { CreditCard, LoaderCircle, LogOut, Trash2 } from "lucide-react";
 
 import { logoutAction } from "@/lib/auth-actions";
+import { resetLearnerDemoStateAction } from "@/lib/course-actions";
 import { signOutRedirectHref } from "@/lib/routes";
 import { cn } from "@/lib/utils";
 
@@ -14,8 +15,30 @@ const actionButtonClass =
 
 export function AccountSecurityActions() {
   const router = useRouter();
+  const [isResettingDemoState, setIsResettingDemoState] = useState(false);
+  const [resetDemoStateMessage, setResetDemoStateMessage] = useState("");
+  const [resetDemoStateOk, setResetDemoStateOk] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [signOutError, setSignOutError] = useState("");
+
+  async function handleResetDemoState() {
+    if (isResettingDemoState) {
+      return;
+    }
+
+    setIsResettingDemoState(true);
+    setResetDemoStateMessage("");
+    setResetDemoStateOk(false);
+    const result = await resetLearnerDemoStateAction();
+
+    setIsResettingDemoState(false);
+    setResetDemoStateMessage(result.message);
+    setResetDemoStateOk(result.ok);
+
+    if (result.ok) {
+      router.refresh();
+    }
+  }
 
   async function handleSignOut() {
     if (isSigningOut) {
@@ -48,13 +71,19 @@ export function AccountSecurityActions() {
         </Link>
         <button
           type="button"
+          onClick={handleResetDemoState}
+          disabled={isResettingDemoState}
           className={cn(
             actionButtonClass,
             "text-red-600 hover:border-red-300 hover:bg-red-50 hover:text-red-600",
           )}
         >
-          <Trash2 className="h-4 w-4" aria-hidden="true" />
-          Delete my account
+          {isResettingDemoState ? (
+            <LoaderCircle className="h-4 w-4 animate-spin" aria-hidden="true" />
+          ) : (
+            <Trash2 className="h-4 w-4" aria-hidden="true" />
+          )}
+          {isResettingDemoState ? "Resetting..." : "Delete my account"}
         </button>
         <button
           type="button"
@@ -73,6 +102,17 @@ export function AccountSecurityActions() {
       {isSigningOut ? (
         <p className="mt-3 text-[13px] font-semibold text-[#5f5f5f]" aria-live="polite">
           Taking you back to the homepage.
+        </p>
+      ) : null}
+      {resetDemoStateMessage ? (
+        <p
+          className={cn(
+            "mt-3 text-[13px] font-semibold",
+            resetDemoStateOk ? "text-(--brand-blue-700)" : "text-red-600",
+          )}
+          aria-live="polite"
+        >
+          {resetDemoStateMessage}
         </p>
       ) : null}
       {signOutError ? (

@@ -11,7 +11,6 @@ import {
 import { learnerProgress, learnerQuickActions } from "@/data/dashboard";
 import { LearnerDashboardGreeting } from "@/components/dashboard/learner-user-copy";
 import { getCourses } from "@/lib/course-service";
-import { demoActiveCourses, demoCompletedCourses } from "@/lib/demo-courses";
 import { toLearningCourseView } from "@/lib/course-presenter";
 import { getStoredCourseProgressMap } from "@/lib/course-progress";
 import { getStoredEnrolledCourseIds } from "@/lib/enrolled-courses";
@@ -33,11 +32,7 @@ export default async function LearnerDashboardPage() {
     .map((course) =>
       toLearningCourseView(course, enrolledCourseIds, courseProgress),
     );
-  const demoCourseCards = [...demoActiveCourses, ...demoCompletedCourses.slice(0, 2)];
-  const dashboardCourseCards = enrolledCourseCards.length
-    ? enrolledCourseCards
-    : demoCourseCards;
-  const continueCourses = dashboardCourseCards
+  const continueCourses = enrolledCourseCards
     .filter((course) => course.progress < 100)
     .slice(0, 2);
   const completedCount = enrolledCourseCards.filter(
@@ -49,15 +44,9 @@ export default async function LearnerDashboardPage() {
           enrolledCourseCards.length,
       )
     : 0;
-  const displayCompletedCount = enrolledCourseCards.length
-    ? completedCount
-    : demoCompletedCourses.length;
-  const displayCoursesCount = enrolledCourseCards.length
-    ? enrolledCourseCards.length
-    : demoActiveCourses.length + demoCompletedCourses.length;
-  const displayAverageProgress = enrolledCourseCards.length
-    ? averageProgress
-    : getAverageProgress([...demoActiveCourses, ...demoCompletedCourses]);
+  const displayLearningTime = enrolledCourseCards.length
+    ? learnerProgress.learningTime
+    : "0h";
 
   return (
     <div className="mx-auto grid max-w-5xl gap-5 animate-fade-up lg:grid-cols-[minmax(0,1fr)_278px] xl:max-w-[1040px]">
@@ -89,7 +78,7 @@ export default async function LearnerDashboardPage() {
           ) : (
             <EmptyCourseState
               href="/learner/course-catalog"
-              title="Start with a course from the catalog"
+              title="No courses in progress yet"
             />
           )}
         </div>
@@ -98,7 +87,7 @@ export default async function LearnerDashboardPage() {
           <SectionHeader
             title="Enrolled Courses"
             action="Browse Catalog"
-            actionHref="/learner/my-learning"
+            actionHref="/learner/course-catalog"
           />
           {enrolledCourseCards.length ? (
             <div className="space-y-3">
@@ -111,15 +100,10 @@ export default async function LearnerDashboardPage() {
               ))}
             </div>
           ) : (
-            <div className="space-y-3">
-              {dashboardCourseCards.slice(0, 4).map((course) => (
-                <CourseListItem
-                  key={course.title}
-                  {...course}
-                  href={course.href}
-                />
-              ))}
-            </div>
+            <EmptyCourseState
+              href="/learner/course-catalog"
+              title="Your enrolled courses will appear here"
+            />
           )}
         </div>
       </section>
@@ -127,25 +111,14 @@ export default async function LearnerDashboardPage() {
       <section className="grid gap-5 sm:grid-cols-2 lg:grid-cols-1">
         <ProgressOverview
           role="learner"
-          completed={String(displayCompletedCount)}
-          courses={String(displayCoursesCount)}
-          learningTime={learnerProgress.learningTime}
-          value={displayAverageProgress}
+          completed={String(completedCount)}
+          courses={String(enrolledCourseCards.length)}
+          learningTime={displayLearningTime}
+          value={averageProgress}
         />
         <QuickActions actions={learnerQuickActions} />
       </section>
     </div>
-  );
-}
-
-function getAverageProgress(courses: Array<{ progress: number }>) {
-  if (!courses.length) {
-    return 0;
-  }
-
-  return Math.round(
-    courses.reduce((total, course) => total + course.progress, 0) /
-      courses.length,
   );
 }
 

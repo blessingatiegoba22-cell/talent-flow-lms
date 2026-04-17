@@ -23,6 +23,10 @@ type LearnerCourse = {
 type CourseSectionProps = {
   actionHref?: string;
   courses: LearnerCourse[];
+  emptyActionHref?: string;
+  emptyActionLabel?: string;
+  emptyDescription?: string;
+  emptyTitle?: string;
   title: string;
 };
 
@@ -116,6 +120,10 @@ function CatalogCourseCard({ course }: { course: LearnerCourse }) {
 
 export function LearningCourseSection({
   courses,
+  emptyActionHref = "/learner/course-catalog",
+  emptyActionLabel = "Browse courses",
+  emptyDescription = "Enroll in a course to begin your learning journey.",
+  emptyTitle = "No courses yet",
   title,
 }: CourseSectionProps) {
   return (
@@ -123,16 +131,54 @@ export function LearningCourseSection({
       <h2 className="mb-4 text-[22px] font-extrabold leading-tight text-black sm:mb-5 sm:text-[25px]">
         {title}
       </h2>
-      <div className="grid items-stretch gap-4 sm:grid-cols-2 sm:gap-5 xl:grid-cols-4">
-        {courses.map((course, index) => (
-          <LearningCourseCard
-            key={`${title}-${course.title}`}
-            course={course}
-            primary={index === 0 && course.cta === "Continue"}
-          />
-        ))}
-      </div>
+      {courses.length ? (
+        <div className="grid items-stretch gap-4 sm:grid-cols-2 sm:gap-5 xl:grid-cols-4">
+          {courses.map((course, index) => (
+            <LearningCourseCard
+              key={`${title}-${course.title}`}
+              course={course}
+              primary={index === 0 && course.cta === "Continue"}
+            />
+          ))}
+        </div>
+      ) : (
+        <EmptyLearningState
+          actionHref={emptyActionHref}
+          actionLabel={emptyActionLabel}
+          description={emptyDescription}
+          title={emptyTitle}
+        />
+      )}
     </section>
+  );
+}
+
+function EmptyLearningState({
+  actionHref,
+  actionLabel,
+  description,
+  title,
+}: {
+  actionHref: string;
+  actionLabel: string;
+  description: string;
+  title: string;
+}) {
+  return (
+    <div className="rounded-lg border border-dashed border-[#b9c7e8] bg-[#f6f9ff] px-5 py-8 text-center">
+      <h3 className="text-[18px] font-extrabold leading-tight text-black">
+        {title}
+      </h3>
+      <p className="mx-auto mt-2 max-w-120 text-[13px] font-medium leading-[1.5] text-[#5d6472]">
+        {description}
+      </p>
+      <Link
+        href={actionHref}
+        className="mt-5 inline-flex h-10 items-center justify-center rounded-md bg-(--brand-blue-500) px-4 text-[13px] font-extrabold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-(--brand-blue-400)"
+      >
+        {actionLabel}
+      </Link>
+    </div>
   );
 }
 
